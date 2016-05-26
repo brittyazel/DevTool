@@ -27,9 +27,8 @@
             <Anchor point="CENTER"/>
         </Anchors>
         <Scripts>
-            <OnLoad>
-                MyMod_OnLoad()
-            </OnLoad>
+            <OnLoad function="MyMod_OnLoad"/>
+            <OnShow function="MyModScrollBar_Update"/>
         </Scripts>
         <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background"
                   tile="true">
@@ -44,7 +43,7 @@
             </EdgeSize>
         </Backdrop>
         <Frames>
-            <ScrollFrame name="MyModScrollBar" inherits="FauxScrollFrameTemplate" hidden="true">
+            <ScrollFrame name="MyModScrollBar" inherits="HybridScrollFrameTemplate" parentKey="scrollFrame" >
                 <Anchors>
                     <Anchor point="TOPLEFT">
                         <Offset>
@@ -57,14 +56,15 @@
                         </Offset>
                     </Anchor>
                 </Anchors>
-                <Scripts>
-                    <OnVerticalScroll>
-                        FauxScrollFrame_OnVerticalScroll(self, offset, 16, MyModScrollBar_Update);
-                    </OnVerticalScroll>
-                    <OnShow>
-                        MyModScrollBar_Update()
-                    </OnShow>
-                </Scripts>
+
+                <Frames>
+                    <Slider name="$parentScrollBar" inherits="HybridScrollBarTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="3" y="-12"/>
+                            <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="3" y="13"/>
+                        </Anchors>
+                    </Slider>
+                </Frames>
             </ScrollFrame>
             <Button text="Undo" name="MyMod_Back_Button" inherits="UIPanelButtonTemplate">
                 <Size>

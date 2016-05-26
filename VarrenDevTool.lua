@@ -8,22 +8,24 @@ local _G = _G
 
 local MyMod_MEATATABLE_KEY = "$mt "
 
-function MyMod_OnLoad()
+function MyMod_OnLoad(self)
     print("load")
     MyMod_LoadData(_G)
     local prevButton;
-
+    self.scrollFrame.update = MyModScrollBar_Update;
+    --[[
     for i = 1, (700 / 16) do
-        local frame = CreateFrame("FRAME", "MyModEntry" .. i, MyMod, "MyModEntryTemplate");
+        local frame = CreateFrame("FRAME", "MyModEntry" .. i, self, "MyModEntryTemplate");
         if i == 1 then
             frame:SetPoint("TOPLEFT", MyModScrollBar, "TOPLEFT", 8, 0)
         else
             frame:SetPoint("TOPLEFT", MyModChildFrames[i - 1], "BOTTOMLEFT")
         end
 
-        MyModChildFrames[i] = frame
-    end
+        --MyModChildFrames[i] = frame
+    end--]]
 
+    HybridScrollFrame_CreateButtons(self.scrollFrame, "MyModEntryTemplate", 0, -2);
     MyModScrollBar:Show()
 end
 
@@ -79,12 +81,16 @@ function MyMod_Table_Length(T)
 end
 
 function MyModScrollBar_Update()
+    print("ok: " )
+    local lineplusoffset ; -- an index into our data calculated from the scroll offset
 
-    local lineplusoffset; -- an index into our data calculated from the scroll offset
-    FauxScrollFrame_Update(MyModScrollBar, MyModData.count, 5, 16);
-    for k, v in pairs(MyModChildFrames) do
+    local scrollFrame = MyModScrollBar
+    local buttons = scrollFrame.buttons;
+    local offset = HybridScrollFrame_GetOffset(scrollFrame)
 
-        lineplusoffset = k + FauxScrollFrame_GetOffset(MyModScrollBar);
+    for k, v in pairs(buttons) do
+
+        lineplusoffset = k + offset;
         if lineplusoffset <= MyModData.count then
             MyMod_UpdateListItem(v, MyModData[lineplusoffset])
 
@@ -93,6 +99,10 @@ function MyModScrollBar_Update()
             v:Hide();
         end
     end
+
+    HybridScrollFrame_Update(scrollFrame, MyModData.count * 16, 700);
+
+    print("UPDATED")
 end
 
 function MyMod_Back_Button_Click()
