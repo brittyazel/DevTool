@@ -1,0 +1,6 @@
+## Interface: 60200
+## Title: Varren's WoW Dev Tool
+## Author: Varren@AzuregosRU
+## Version: 0.1
+
+VarrenDevTool.xml

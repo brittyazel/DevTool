@@ -1,0 +1,89 @@
+<Ui>
+    <Script file="VarrenDevTool.lua"/>
+    <Frame name="MyModEntryTemplate" virtual="true">
+
+        <Anchors>
+            <Anchor point="TOPLEFT"/>
+        </Anchors>
+        <Size>
+            <AbsDimension x="700" y="16"/>
+        </Size>
+        <Frames>
+            <Button text="Test Text" name="$parentButton" parentKey="mainButton" >
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT"/>
+                </Anchors>
+
+                <NormalFont style="GameFontHighlightLeft"/>
+            </Button>
+        </Frames>
+    </Frame>
+    <Frame name="MyMod" parent="UIParent" enableMouse="true" movable="true">
+        <Size>
+            <AbsDimension x="700" y="700"/>
+        </Size>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Scripts>
+            <OnLoad>
+                MyMod_OnLoad()
+            </OnLoad>
+        </Scripts>
+        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background"
+                  tile="true">
+            <BackgroundInsets>
+                <AbsInset left="4" right="4" top="4" bottom="4"/>
+            </BackgroundInsets>
+            <TileSize>
+                <AbsValue val="16"/>
+            </TileSize>
+            <EdgeSize>
+                <AbsValue val="16"/>
+            </EdgeSize>
+        </Backdrop>
+        <Frames>
+            <ScrollFrame name="MyModScrollBar" inherits="FauxScrollFrameTemplate" hidden="true">
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="0" y="-8"/>
+                        </Offset>
+                    </Anchor>
+                    <Anchor point="BOTTOMRIGHT">
+                        <Offset>
+                            <AbsDimension x="-30" y="8"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnVerticalScroll>
+                        FauxScrollFrame_OnVerticalScroll(self, offset, 16, MyModScrollBar_Update);
+                    </OnVerticalScroll>
+                    <OnShow>
+                        MyModScrollBar_Update()
+                    </OnShow>
+                </Scripts>
+            </ScrollFrame>
+            <Button text="Undo" name="MyMod_Back_Button" inherits="UIPanelButtonTemplate">
+                <Size>
+                    <AbsDimension x="150" y="16"/>
+                </Size>
+                <NormalFont style="GameFontHighlightLeft"/>
+                <Scripts>
+                    <OnClick>
+                        MyMod_Back_Button_Click();
+                    </OnClick>
+                </Scripts>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="MyModScrollBar" relativePoint="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="8" y="30"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+            </Button>
+        </Frames>
+    </Frame>
+</Ui>
