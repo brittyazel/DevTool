@@ -1,36 +1,116 @@
 <Ui>
     <Script file="VarrenDevTool.lua"/>
-    <Frame name="MyModEntryTemplate" virtual="true">
+    <Font name="MyModDefaultFont" inherits="SystemFont_Small" justifyH="LEFT" virtual="true"/>
+    <Font name="MyModTableFont" inherits="MyModDefaultFont" virtual="true">
+        <Color r="0.41" g="0.80" b="0.94"/>
+    </Font>
+    <Font name="MyModStringFont" inherits="MyModDefaultFont" virtual="true">
+        <Color r="0.67" g="0.83" b="0.45"/>
+    </Font>
+    <Font name="MyModNumberFont" inherits="MyModDefaultFont" virtual="true">
+        <Color r="1.0" g="0.96" b="0.41"/>
+    </Font>
+    <Font name="MyModFunctionFont" inherits="MyModDefaultFont" virtual="true">
+        <Color r="1.0" g="0.49" b="0.04"/>
+    </Font>
+    <Font name="MyModBaseFont" inherits="MyModDefaultFont" virtual="true">
+        <Color r="1.0" g="1.0" b="1.0"/>
+    </Font>
+    <Font name="MyModMetatableFont" inherits="MyModDefaultFont" virtual="true">
+        <Color r="1.0" g="1.0" b="1.0"/>
+    </Font>
 
+
+    <Button text="Test" name="MyModTopButton" inherits="UIPanelButtonTemplate" virtual="true">
+        <Size>
+            <AbsDimension x="150" y="25"/>
+        </Size>
+        <NormalFont style="GameFontHighlightLeft"/>
+    </Button>
+
+    <Frame name="MyModEntryTemplate" virtual="true">
         <Anchors>
             <Anchor point="TOPLEFT"/>
         </Anchors>
         <Size>
-            <AbsDimension x="700" y="16"/>
+            <AbsDimension x="1200" y="12"/>
         </Size>
         <Frames>
-            <Button text="Test Text" name="$parentButton" parentKey="mainButton" >
+            <Button text="table" name="$parentRowCellCount" parentKey="rowNumberButton">
+                <Size>
+                    <AbsDimension x="50"/>
+                </Size>
                 <Anchors>
-                    <Anchor point="TOPLEFT"/>
-                    <Anchor point="BOTTOMRIGHT"/>
+                    <Anchor point="TOP"/>
+                    <Anchor point="BOTTOM"/>
+                    <Anchor point="LEFT"/>
                 </Anchors>
 
-                <NormalFont style="GameFontHighlightLeft"/>
+                <NormalFont style="MyModDefaultFont"/>
+            </Button>
+            <Button text="123456" name="$parentRowType" parentKey="typeButton">
+                <Size>
+                    <AbsDimension x="50"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOP"/>
+                    <Anchor point="BOTTOM"/>
+                    <Anchor point="LEFT" relativeTo="$parentRowCellCount" relativePoint="RIGHT">
+                    </Anchor>
+                </Anchors>
+
+                <NormalFont style="MyModDefaultFont"/>
+            </Button>
+
+            <Button text="Test Text" name="$parentNameRow" parentKey="nameButton">
+                <Size>
+                    <AbsDimension x="400"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOP"/>
+                    <Anchor point="BOTTOM"/>
+                    <Anchor point="LEFT" relativeTo="$parentRowCellCount" relativePoint="RIGHT"/>
+                </Anchors>
+
+                <NormalFont style="MyModDefaultFont"/>
+            </Button>
+            <Button text="Test Text" name="$parentValueRow" parentKey="valueButton">
+                <Size>
+                    <AbsDimension x="700"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOP"/>
+                    <Anchor point="BOTTOM"/>
+                    <Anchor point="RIGHT"/>
+                    <Anchor point="LEFT" relativeTo="$parentNameRow" relativePoint="RIGHT"/>
+
+                </Anchors>
+
+                <NormalFont style="MyModDefaultFont"/>
             </Button>
         </Frames>
     </Frame>
-    <Frame name="MyMod" parent="UIParent" enableMouse="true" movable="true">
+    <Frame name="MyMod" parent="UIParent" enableMouse="true" movable="true" resizable="true">
         <Size>
-            <AbsDimension x="700" y="700"/>
+            <AbsDimension x="1200" y="600"/>
         </Size>
         <Anchors>
             <Anchor point="CENTER"/>
         </Anchors>
         <Scripts>
-            <OnLoad function="MyMod_OnLoad"/>
+            <OnLoad>
+                self:RegisterForDrag("LeftButton");
+                HybridScrollFrame_CreateButtons(self.scrollFrame, "MyModEntryTemplate", 0, -2)
+            </OnLoad>
             <OnShow function="MyModScrollBar_Update"/>
+            <OnDragStart>self:StartSizing()</OnDragStart>
+            <OnReceiveDrag>
+                HybridScrollFrame_CreateButtons(self.scrollFrame, "MyModEntryTemplate", 0, -2);
+                MyModScrollBar_Update()
+            </OnReceiveDrag>
+            <OnDragStop>self:StopMovingOrSizing();</OnDragStop>
         </Scripts>
-        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background"
+        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border"
                   tile="true">
             <BackgroundInsets>
                 <AbsInset left="4" right="4" top="4" bottom="4"/>
@@ -42,12 +122,13 @@
                 <AbsValue val="16"/>
             </EdgeSize>
         </Backdrop>
+
         <Frames>
-            <ScrollFrame name="MyModScrollBar" inherits="HybridScrollFrameTemplate" parentKey="scrollFrame" >
+            <ScrollFrame name="$parentScrollFrame" inherits="HybridScrollFrameTemplate" parentKey="scrollFrame">
                 <Anchors>
                     <Anchor point="TOPLEFT">
                         <Offset>
-                            <AbsDimension x="0" y="-8"/>
+                            <AbsDimension x="8" y="-8"/>
                         </Offset>
                     </Anchor>
                     <Anchor point="BOTTOMRIGHT">
@@ -56,7 +137,9 @@
                         </Offset>
                     </Anchor>
                 </Anchors>
-
+                <Scripts>
+                <OnLoad>     self.update = MyModScrollBar_Update </OnLoad>
+                </Scripts>
                 <Frames>
                     <Slider name="$parentScrollBar" inherits="HybridScrollBarTemplate">
                         <Anchors>
@@ -66,24 +149,69 @@
                     </Slider>
                 </Frames>
             </ScrollFrame>
-            <Button text="Undo" name="MyMod_Back_Button" inherits="UIPanelButtonTemplate">
+            <Frame name="$parentTopBar" parent="MyMod" enableMouse="true">
                 <Size>
-                    <AbsDimension x="150" y="16"/>
+                    <AbsDimension  y="25"/>
                 </Size>
-                <NormalFont style="GameFontHighlightLeft"/>
                 <Scripts>
-                    <OnClick>
-                        MyMod_Back_Button_Click();
-                    </OnClick>
+                    <OnLoad>
+                        self:RegisterForDrag("LeftButton");
+                    </OnLoad>
+                    <OnDragStart>self:GetParent():StartMoving()</OnDragStart>
+                    <OnReceiveDrag>MyModScrollBar_Update()</OnReceiveDrag>
+                    <OnDragStop>self:GetParent():StopMovingOrSizing();</OnDragStop>
                 </Scripts>
+
+                <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background"
+                          tile="true">
+
+                    <TileSize>
+                        <AbsValue val="16"/>
+                    </TileSize>
+                    <EdgeSize>
+                        <AbsValue val="16"/>
+                    </EdgeSize>
+                </Backdrop>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="MyModScrollBar" relativePoint="TOPLEFT">
-                        <Offset>
-                            <AbsDimension x="8" y="30"/>
-                        </Offset>
-                    </Anchor>
+                    <Anchor point="LEFT"/>
+                    <Anchor point="RIGHT"/>
+                    <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP"/>
                 </Anchors>
-            </Button>
+                <Frames>
+                    <Button text="CLEAR" name="$parentClearButton" inherits="MyModTopButton">
+                        <Scripts>
+                            <OnClick>
+                                MyMod_ClearData()
+                            </OnClick>
+                        </Scripts>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" />
+                        </Anchors>
+                    </Button>
+                    <Button text="_G" name="$parentAddGlobalButton" inherits="MyModTopButton">
+                        <Scripts>
+                            <OnClick>
+                                MyMod_AddData(_G, "_G")
+                            </OnClick>
+                        </Scripts>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT"/>
+                        </Anchors>
+                    </Button>
+                    <Button text="Unit" name="$parentAddPlayerInfoButton" inherits="MyModTopButton">
+                        <Scripts>
+                            <OnClick>
+                                local name, realm = UnitFullName("player")
+                                MyMod_AddData(UnitGUID("player"), name .. "-" .. realm)
+                            </OnClick>
+                        </Scripts>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT"/>
+                        </Anchors>
+                    </Button>
+                </Frames>
+            </Frame>
+
         </Frames>
     </Frame>
 </Ui>
