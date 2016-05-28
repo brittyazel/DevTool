@@ -1,34 +1,34 @@
 <Ui>
-    <Script file="VarrenDevTool.lua"/>
-    <Font name="VarrenDevToolDefaultFont" inherits="SystemFont_Small" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
+    <Script file="ViragDevTool.lua"/>
+    <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
 
-    <Font name="VarrenDevToolTableFont" inherits="VarrenDevToolDefaultFont" virtual="true">
+    <Font name="ViragDevToolTableFont" inherits="ViragDevToolDefaultFont" virtual="true">
         <Color r="0.41" g="0.80" b="0.94"/>
     </Font>
-    <Font name="VarrenDevToolStringFont" inherits="VarrenDevToolDefaultFont" virtual="true">
+    <Font name="ViragDevToolStringFont" inherits="ViragDevToolDefaultFont" virtual="true">
         <Color r="0.67" g="0.83" b="0.45"/>
     </Font>
-    <Font name="VarrenDevToolNumberFont" inherits="VarrenDevToolDefaultFont" virtual="true">
+    <Font name="ViragDevToolNumberFont" inherits="ViragDevToolDefaultFont" virtual="true">
         <Color r="1.0" g="0.96" b="0.41"/>
     </Font>
-    <Font name="VarrenDevToolFunctionFont" inherits="VarrenDevToolDefaultFont" virtual="true">
+    <Font name="ViragDevToolFunctionFont" inherits="ViragDevToolDefaultFont" virtual="true">
         <Color r="1.0" g="0.49" b="0.04"/>
     </Font>
-    <Font name="VarrenDevToolBaseFont" inherits="VarrenDevToolDefaultFont" virtual="true">
+    <Font name="ViragDevToolBaseFont" inherits="ViragDevToolDefaultFont" virtual="true">
         <Color r="1.0" g="1.0" b="1.0"/>
     </Font>
-    <Font name="VarrenDevToolMetatableFont" inherits="VarrenDevToolDefaultFont" virtual="true">
+    <Font name="ViragDevToolMetatableFont" inherits="ViragDevToolDefaultFont" virtual="true">
         <Color r="1.0" g="1.0" b="1.0"/>
     </Font>
 
-    <Button text="Test" name="VarrenDevToolTopButton" inherits="UIPanelButtonTemplate" virtual="true">
+    <Button text="Test" name="ViragDevToolTopButton" inherits="UIPanelButtonTemplate" virtual="true">
         <Size>
             <AbsDimension x="150" y="25"/>
         </Size>
         <NormalFont style="GameFontHighlightLeft"/>
     </Button>
 
-    <Frame name="VarrenDevToolEntryTemplate" virtual="true">
+    <Frame name="ViragDevToolEntryTemplate" virtual="true">
         <Anchors>
             <Anchor point="TOPLEFT"/>
         </Anchors>
@@ -46,7 +46,7 @@
                     <Anchor point="LEFT"/>
                 </Anchors>
 
-                <NormalFont style="VarrenDevToolDefaultFont"/>
+                <NormalFont style="ViragDevToolDefaultFont"/>
             </Button>
             <Button text="123456" name="$parentRowType" parentKey="typeButton">
                 <Size>
@@ -59,7 +59,7 @@
                     </Anchor>
                 </Anchors>
 
-                <NormalFont style="VarrenDevToolDefaultFont"/>
+                <NormalFont style="ViragDevToolDefaultFont"/>
             </Button>
 
             <Button text="Test Text" name="$parentNameRow" parentKey="nameButton">
@@ -72,7 +72,7 @@
                     <Anchor point="LEFT" relativeTo="$parentRowCellCount" relativePoint="RIGHT"/>
                 </Anchors>
 
-                <NormalFont style="VarrenDevToolDefaultFont"/>
+                <NormalFont style="ViragDevToolDefaultFont"/>
             </Button>
             <Button text="Test Text" name="$parentValueRow" parentKey="valueButton">
                 <Size>
@@ -86,11 +86,11 @@
 
                 </Anchors>
 
-                <NormalFont style="VarrenDevToolDefaultFont"/>
+                <NormalFont style="ViragDevToolDefaultFont"/>
             </Button>
         </Frames>
     </Frame>
-    <Frame name="VarrenDevTool" parent="UIParent" enableMouse="true" movable="true" resizable="true">
+    <Frame name="ViragDevTool" parent="UIParent" enableMouse="true" movable="true" resizable="true">
         <Size>
             <AbsDimension x="1200" y="600"/>
         </Size>
@@ -105,10 +105,10 @@
                 self:StartSizing()
             </OnDragStart>
             <OnReceiveDrag>
-                VarrenDevTool_ScrollBar_Update()
+                ViragDevTool_ScrollBar_Update()
             </OnReceiveDrag>
             <OnDragStop>
-                HybridScrollFrame_CreateButtons(self.scrollFrame, "VarrenDevToolEntryTemplate", 0, -2)
+                HybridScrollFrame_CreateButtons(self.scrollFrame, "ViragDevToolEntryTemplate", 0, -2)
                 self:StopMovingOrSizing();
             </OnDragStop>
         </Scripts>
@@ -142,13 +142,13 @@
                 <Scripts>
                     <OnShow>
                         print("OnShow GetHeight: "..self:GetHeight())
-                        HybridScrollFrame_CreateButtons(self, "VarrenDevToolEntryTemplate", 0, -2)
-                        VarrenDevTool_ScrollBar_Update()
+                        HybridScrollFrame_CreateButtons(self, "ViragDevToolEntryTemplate", 0, -2)
+                        ViragDevTool_ScrollBar_Update()
                     </OnShow>
 
                     <OnLoad>
                         print("OnLoad GetHeight: "..self:GetHeight())
-                        self.update = VarrenDevTool_ScrollBar_Update
+                        self.update = ViragDevTool_ScrollBar_Update
                     </OnLoad>
                 </Scripts>
                 <Frames>
@@ -160,7 +160,7 @@
                     </Slider>
                 </Frames>
             </ScrollFrame>
-            <Frame name="$parentTopBar" parent="VarrenDevTool" enableMouse="true">
+            <Frame name="$parentTopBar" parent="ViragDevTool" enableMouse="true">
                 <Size>
                     <AbsDimension y="25"/>
                 </Size>
@@ -172,7 +172,7 @@
                         self:GetParent():StartMoving()
                     </OnDragStart>
                     <OnReceiveDrag>
-                        VarrenDevTool_ScrollBar_Update()
+                        ViragDevTool_ScrollBar_Update()
                     </OnReceiveDrag>
                     <OnDragStop>
                         self:GetParent():StopMovingOrSizing();
@@ -195,31 +195,31 @@
                     <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP"/>
                 </Anchors>
                 <Frames>
-                    <Button text="CLEAR" name="$parentClearButton" inherits="VarrenDevToolTopButton">
+                    <Button text="CLEAR" name="$parentClearButton" inherits="ViragDevToolTopButton">
                         <Scripts>
                             <OnClick>
-                                VarrenDevTool_ClearData()
+                                ViragDevTool_ClearData()
                             </OnClick>
                         </Scripts>
                         <Anchors>
                             <Anchor point="TOPLEFT"/>
                         </Anchors>
                     </Button>
-                    <Button text="_G" name="$parentAddGlobalButton" inherits="VarrenDevToolTopButton">
+                    <Button text="_G" name="$parentAddGlobalButton" inherits="ViragDevToolTopButton">
                         <Scripts>
                             <OnClick>
-                                VarrenDevTool_AddData(_G, "_G")
+                                ViragDevTool_AddData(_G, "_G")
                             </OnClick>
                         </Scripts>
                         <Anchors>
                             <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT"/>
                         </Anchors>
                     </Button>
-                    <Button text="Unit" name="$parentAddPlayerInfoButton" inherits="VarrenDevToolTopButton">
+                    <Button text="Unit" name="$parentAddPlayerInfoButton" inherits="ViragDevToolTopButton">
                         <Scripts>
                             <OnClick>
                                 local name, realm = UnitFullName("player")
-                                VarrenDevTool_AddData(UnitGUID("player"), name .. "-" .. realm)
+                                ViragDevTool_AddData(UnitGUID("player"), name .. "-" .. realm)
                             </OnClick>
                         </Scripts>
                         <Anchors>

@@ -1,6 +1,6 @@
-local VarrenDevToolLinkedList = { size = 0; first = nil, last = nil }
+local ViragDevToolLinkedList = { size = 0; first = nil, last = nil }
 
-function VarrenDevToolLinkedList:GetInfoAtPosition(position)
+function ViragDevToolLinkedList:GetInfoAtPosition(position)
     if self.size < position or self.first == nil then
         return nil
     end
@@ -14,14 +14,14 @@ function VarrenDevToolLinkedList:GetInfoAtPosition(position)
     return node
 end
 
-function VarrenDevToolLinkedList:AddNodeAfter(node, prevNode)
+function ViragDevToolLinkedList:AddNodeAfter(node, prevNode)
     local tempNext = node.next
     node.next = prevNode
     prevNode.next = tempNext
     self.size = self.size + 1;
 end
 
-function VarrenDevToolLinkedList:AddNodesAfter(nodeList, parentNode)
+function ViragDevToolLinkedList:AddNodesAfter(nodeList, parentNode)
     local tempNext = parentNode.next
     local currNode = parentNode;
 
@@ -38,7 +38,7 @@ function VarrenDevToolLinkedList:AddNodesAfter(nodeList, parentNode)
     end
 end
 
-function VarrenDevToolLinkedList:AddNode(data, dataName)
+function ViragDevToolLinkedList:AddNode(data, dataName)
     local node = self:NewNode(data, dataName)
 
     if self.first == nil then
@@ -54,7 +54,7 @@ function VarrenDevToolLinkedList:AddNode(data, dataName)
     self.size = self.size + 1;
 end
 
-function VarrenDevToolLinkedList:NewNode(data, dataName, padding, parent)
+function ViragDevToolLinkedList:NewNode(data, dataName, padding, parent)
     return {
         name = dataName,
         value = data,
@@ -64,7 +64,7 @@ function VarrenDevToolLinkedList:NewNode(data, dataName, padding, parent)
     }
 end
 
-function VarrenDevToolLinkedList:RemoveChildNodes(node)
+function ViragDevToolLinkedList:RemoveChildNodes(node)
     local currNode = node
 
     while true do
@@ -86,7 +86,7 @@ function VarrenDevToolLinkedList:RemoveChildNodes(node)
     end
 end
 
-function VarrenDevToolLinkedList:Clear()
+function ViragDevToolLinkedList:Clear()
     self.size = 0
     self.first = nil
     self.last = nil
@@ -95,7 +95,7 @@ end
 local pairs, tostring, type, print, string, getmetatable, table,pcall =  pairs, tostring, type, print, string, getmetatable, table,pcall
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons,HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
-function VarrenDevTool_ExpandCell(info)
+function ViragDevTool_ExpandCell(info)
 
     local nodeList = {}
     local padding = info.padding + 1
@@ -103,11 +103,11 @@ function VarrenDevTool_ExpandCell(info)
     for k, v in pairs(info.value) do
         if type(v) ~= "userdata" then
 
-            nodeList[couner] = VarrenDevToolLinkedList:NewNode(v, tostring(k), padding, info)
+            nodeList[couner] = ViragDevToolLinkedList:NewNode(v, tostring(k), padding, info)
         else
             local mt = getmetatable(info.value)
             if mt then
-                nodeList[couner] = VarrenDevToolLinkedList:NewNode(mt.__index, "$metatable", padding, info)
+                nodeList[couner] = ViragDevToolLinkedList:NewNode(mt.__index, "$metatable", padding, info)
             end
         end
         couner = couner + 1
@@ -117,44 +117,44 @@ function VarrenDevTool_ExpandCell(info)
         return a.name < b.name
     end)
 
-    VarrenDevToolLinkedList:AddNodesAfter(nodeList, info)
+    ViragDevToolLinkedList:AddNodesAfter(nodeList, info)
     info.expanded = true
-    VarrenDevTool_ScrollBar_Update()
+    ViragDevTool_ScrollBar_Update()
 end
 
-function VarrenDevTool_ColapseCell(info)
-    VarrenDevToolLinkedList:RemoveChildNodes(info)
+function ViragDevTool_ColapseCell(info)
+    ViragDevToolLinkedList:RemoveChildNodes(info)
     info.expanded = nil
-    print("size: " .. VarrenDevToolLinkedList.size)
-    VarrenDevTool_ScrollBar_Update()
+    print("size: " .. ViragDevToolLinkedList.size)
+    ViragDevTool_ScrollBar_Update()
 end
 
-function VarrenDevTool_AddData(data, dataName)
-    VarrenDevToolLinkedList:AddNode(data, dataName)
-    VarrenDevTool_ScrollBar_Update()
+function ViragDevTool_AddData(data, dataName)
+    ViragDevToolLinkedList:AddNode(data, dataName)
+    ViragDevTool_ScrollBar_Update()
 end
 
-function VarrenDevTool_ClearData()
-    VarrenDevToolLinkedList:Clear()
-    VarrenDevTool_ScrollBar_Update()
+function ViragDevTool_ClearData()
+    ViragDevToolLinkedList:Clear()
+    ViragDevTool_ScrollBar_Update()
 end
 
-function VarrenDevTool_ScrollBar_Update()
+function ViragDevTool_ScrollBar_Update()
 
-    local scrollFrame = VarrenDevToolScrollFrame
+    local scrollFrame = ViragDevToolScrollFrame
 
     local buttons = scrollFrame.buttons;
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
-    local totalRowsCount = VarrenDevToolLinkedList.size
+    local totalRowsCount = ViragDevToolLinkedList.size
     local lineplusoffset; -- an index into our data calculated from the scroll offset
 
-    local nodeInfo = VarrenDevToolLinkedList:GetInfoAtPosition(offset)
+    local nodeInfo = ViragDevToolLinkedList:GetInfoAtPosition(offset)
     for k, view in pairs(buttons) do
 
         lineplusoffset = k + offset;
         -- print("ok: " .. lineplusoffset .. "  " .. offset .. "  " .. k .. " " .. (nodeInfo ~= nil and nodeInfo.name or "nil"))
         if lineplusoffset <= totalRowsCount then
-            VarrenDevTool_UpdateListItem(view, nodeInfo, lineplusoffset)
+            ViragDevTool_UpdateListItem(view, nodeInfo, lineplusoffset)
             nodeInfo = nodeInfo.next
             view:Show();
         else
@@ -168,7 +168,7 @@ end
 
 
 
-function VarrenDevTool_UpdateListItem(node, info, id)
+function ViragDevTool_UpdateListItem(node, info, id)
     local nameButton = node.nameButton;
     local typeButton = node.typeButton
     local valueButton = node.valueButton
@@ -187,7 +187,7 @@ function VarrenDevTool_UpdateListItem(node, info, id)
     typeButton:SetText(valueType)
     rowNumberButton:SetText(tostring(id))
 
-    local color = "VarrenDevToolBaseFont"
+    local color = "ViragDevToolBaseFont"
     if valueType == "table" then
         if name ~= "$metatable" then
             if value.GetObjectType then
@@ -196,9 +196,9 @@ function VarrenDevTool_UpdateListItem(node, info, id)
                     valueButton:SetText(value:GetObjectType() .. "  " .. tostring(value))
                 end
             end
-            color = "VarrenDevToolTableFont";
+            color = "ViragDevToolTableFont";
         else
-            color = "VarrenDevToolMetatableFont";
+            color = "ViragDevToolMetatableFont";
         end
         local resultStringName = tostring(name)
         local MAX_STRING_SIZE = 60
@@ -215,14 +215,14 @@ function VarrenDevTool_UpdateListItem(node, info, id)
         nameButton:SetText(resultStringName .. "   (" .. tablelength(value) .. ") ");
 
     elseif valueType == "userdata" then
-        color = "VarrenDevToolTableFont";
+        color = "ViragDevToolTableFont";
     elseif valueType == "string" then
         valueButton:SetText(string.gsub(string.gsub(tostring(value), "|n", ""), "\n", ""))
-        color = "VarrenDevToolStringFont";
+        color = "ViragDevToolStringFont";
     elseif valueType == "number" then
-        color = "VarrenDevToolNumberFont";
+        color = "ViragDevToolNumberFont";
     elseif valueType == "function" then
-        color = "VarrenDevToolFunctionFont";
+        color = "ViragDevToolFunctionFont";
     end
 
 
@@ -236,22 +236,22 @@ function VarrenDevTool_UpdateListItem(node, info, id)
         nameButton:SetScript("OnMouseUp", function(self, button, down)
             print("click")
             if info.expanded then
-                VarrenDevTool_ColapseCell(info)
+                ViragDevTool_ColapseCell(info)
             else
-                VarrenDevTool_ExpandCell(info)
+                ViragDevTool_ExpandCell(info)
             end
         end)
     elseif valueType == "function" then
         nameButton:SetScript("OnMouseUp", function(self, button, down)
             print("click")
-            VarrenDevTool_TryCallFunction(info)
+            ViragDevTool_TryCallFunction(info)
         end)
     else
         nameButton:SetScript("OnMouseUp", nil)
     end
 end
 
-function VarrenDevTool_TryCallFunction(info)
+function ViragDevTool_TryCallFunction(info)
     local value = info.value
 
     local ok, result = pcall(value)
