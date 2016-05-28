@@ -1,3 +1,9 @@
+local ADDON_NAME, ViragDevTool  = ...
+
+
+local pairs, tostring, type, print, string, getmetatable, table,pcall =  pairs, tostring, type, print, string, getmetatable, table, pcall
+local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
+
 local ViragDevToolLinkedList = { size = 0; first = nil, last = nil }
 
 function ViragDevToolLinkedList:GetInfoAtPosition(position)
@@ -92,8 +98,7 @@ function ViragDevToolLinkedList:Clear()
     self.last = nil
 end
 
-local pairs, tostring, type, print, string, getmetatable, table,pcall =  pairs, tostring, type, print, string, getmetatable, table,pcall
-local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
+
 
 function ViragDevTool_ExpandCell(info)
 
@@ -137,15 +142,12 @@ function ViragDevTool_ClearData()
     ViragDevToolLinkedList:Clear()
     ViragDevTool_ScrollBar_Update()
 end
-local ViragDevToolScrollFrameSize = 0;
+
+
 function ViragDevTool_ScrollBar_Update()
 
     local scrollFrame = ViragDevToolScrollFrame
-
-    if (scrollFrame:GetHeight() > ViragDevToolScrollFrameSize) then
-        ViragDevToolScrollFrameSize = scrollFrame:GetHeight()
-        HybridScrollFrame_CreateButtons(scrollFrame, "ViragDevToolEntryTemplate", 0, -2)
-    end
+    ViragDevTool_ScrollBar_AddChildren(scrollFrame)
 
     local buttons = scrollFrame.buttons;
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
@@ -169,6 +171,15 @@ function ViragDevTool_ScrollBar_Update()
 
 end
 
+function ViragDevTool_ScrollBar_AddChildren(self)
+    if  ViragDevTool.ScrollBarHeight == nil or self:GetHeight() > ViragDevTool.ScrollBarHeight then
+        ViragDevTool.ScrollBarHeight = self:GetHeight()
+
+        local scrollBarValue = self.scrollBar:GetValue()
+        HybridScrollFrame_CreateButtons(self, "ViragDevToolEntryTemplate", 0, -2)
+        self.scrollBar:SetValue(scrollBarValue);
+    end
+end
 
 
 function ViragDevTool_UpdateListItem(node, info, id)

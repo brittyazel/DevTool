@@ -100,16 +100,15 @@
         <Scripts>
             <OnLoad>
                 self:RegisterForDrag("LeftButton");
+                self.scrollFrame.update = ViragDevTool_ScrollBar_Update
+                ViragDevTool_ScrollBar_Update()
             </OnLoad>
             <OnDragStart>
                 self:StartSizing()
             </OnDragStart>
-            <OnReceiveDrag>
-                ViragDevTool_ScrollBar_Update()
-            </OnReceiveDrag>
             <OnDragStop>
-                ViragDevTool_ScrollBar_Update()
                 self:StopMovingOrSizing();
+                ViragDevTool_ScrollBar_Update()
             </OnDragStop>
         </Scripts>
         <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border"
@@ -139,15 +138,6 @@
                         </Offset>
                     </Anchor>
                 </Anchors>
-                <Scripts>
-                    <OnShow>
-                        ViragDevTool_ScrollBar_Update()
-                    </OnShow>
-
-                    <OnLoad>
-                        self.update = ViragDevTool_ScrollBar_Update
-                    </OnLoad>
-                </Scripts>
                 <Frames>
                     <Slider name="$parentScrollBar" inherits="HybridScrollBarTemplate">
                         <Anchors>
@@ -168,9 +158,6 @@
                     <OnDragStart>
                         self:GetParent():StartMoving()
                     </OnDragStart>
-                    <OnReceiveDrag>
-                        ViragDevTool_ScrollBar_Update()
-                    </OnReceiveDrag>
                     <OnDragStop>
                         self:GetParent():StopMovingOrSizing();
                     </OnDragStop>
