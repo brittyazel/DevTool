@@ -93,7 +93,7 @@ function ViragDevToolLinkedList:Clear()
 end
 
 local pairs, tostring, type, print, string, getmetatable, table,pcall =  pairs, tostring, type, print, string, getmetatable, table,pcall
-local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons,HybridScrollFrame_GetOffset, HybridScrollFrame_Update
+local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
 function ViragDevTool_ExpandCell(info)
 
@@ -125,7 +125,6 @@ end
 function ViragDevTool_ColapseCell(info)
     ViragDevToolLinkedList:RemoveChildNodes(info)
     info.expanded = nil
-    print("size: " .. ViragDevToolLinkedList.size)
     ViragDevTool_ScrollBar_Update()
 end
 
@@ -152,7 +151,6 @@ function ViragDevTool_ScrollBar_Update()
     for k, view in pairs(buttons) do
 
         lineplusoffset = k + offset;
-        -- print("ok: " .. lineplusoffset .. "  " .. offset .. "  " .. k .. " " .. (nodeInfo ~= nil and nodeInfo.name or "nil"))
         if lineplusoffset <= totalRowsCount then
             ViragDevTool_UpdateListItem(view, nodeInfo, lineplusoffset)
             nodeInfo = nodeInfo.next
@@ -234,7 +232,6 @@ function ViragDevTool_UpdateListItem(node, info, id)
 
     if valueType == "table" then
         nameButton:SetScript("OnMouseUp", function(self, button, down)
-            print("click")
             if info.expanded then
                 ViragDevTool_ColapseCell(info)
             else
@@ -243,7 +240,6 @@ function ViragDevTool_UpdateListItem(node, info, id)
         end)
     elseif valueType == "function" then
         nameButton:SetScript("OnMouseUp", function(self, button, down)
-            print("click")
             ViragDevTool_TryCallFunction(info)
         end)
     else
