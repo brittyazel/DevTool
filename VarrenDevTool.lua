@@ -1,6 +1,6 @@
-local MyModData = { size = 0; first = nil, last = nil }
+local VarrenDevToolLinkedList = { size = 0; first = nil, last = nil }
 
-function MyModData:GetInfoAtPosition(position)
+function VarrenDevToolLinkedList:GetInfoAtPosition(position)
     if self.size < position or self.first == nil then
         return nil
     end
@@ -14,14 +14,14 @@ function MyModData:GetInfoAtPosition(position)
     return node
 end
 
-function MyModData:AddNodeAfter(node, prevNode)
+function VarrenDevToolLinkedList:AddNodeAfter(node, prevNode)
     local tempNext = node.next
     node.next = prevNode
     prevNode.next = tempNext
     self.size = self.size + 1;
 end
 
-function MyModData:AddNodesAfter(nodeList, parentNode)
+function VarrenDevToolLinkedList:AddNodesAfter(nodeList, parentNode)
     local tempNext = parentNode.next
     local currNode = parentNode;
 
@@ -38,7 +38,7 @@ function MyModData:AddNodesAfter(nodeList, parentNode)
     end
 end
 
-function MyModData:AddNode(data, dataName)
+function VarrenDevToolLinkedList:AddNode(data, dataName)
     local node = self:NewNode(data, dataName)
 
     if self.first == nil then
@@ -54,7 +54,7 @@ function MyModData:AddNode(data, dataName)
     self.size = self.size + 1;
 end
 
-function MyModData:NewNode(data, dataName, padding, parent)
+function VarrenDevToolLinkedList:NewNode(data, dataName, padding, parent)
     return {
         name = dataName,
         value = data,
@@ -64,7 +64,7 @@ function MyModData:NewNode(data, dataName, padding, parent)
     }
 end
 
-function MyModData:RemoveChildNodes(node)
+function VarrenDevToolLinkedList:RemoveChildNodes(node)
     local currNode = node
 
     while true do
@@ -86,17 +86,16 @@ function MyModData:RemoveChildNodes(node)
     end
 end
 
-function MyModData:Clear()
+function VarrenDevToolLinkedList:Clear()
     self.size = 0
     self.first = nil
     self.last = nil
 end
 
-local ipairs, pairs, next, tonumber, tostring, type, print, string, getmetatable, table,pcall = ipairs, pairs, next, tonumber, tostring, type, print, string, getmetatable, table,pcall
+local pairs, tostring, type, print, string, getmetatable, table,pcall =  pairs, tostring, type, print, string, getmetatable, table,pcall
+local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons,HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
-local _G = _G
-
-function MyMod_ExpandCell(info)
+function VarrenDevTool_ExpandCell(info)
 
     local nodeList = {}
     local padding = info.padding + 1
@@ -104,11 +103,11 @@ function MyMod_ExpandCell(info)
     for k, v in pairs(info.value) do
         if type(v) ~= "userdata" then
 
-            nodeList[couner] = MyModData:NewNode(v, tostring(k), padding, info)
+            nodeList[couner] = VarrenDevToolLinkedList:NewNode(v, tostring(k), padding, info)
         else
             local mt = getmetatable(info.value)
             if mt then
-                nodeList[couner] = MyModData:NewNode(mt.__index, "$metatable", padding, info)
+                nodeList[couner] = VarrenDevToolLinkedList:NewNode(mt.__index, "$metatable", padding, info)
             end
         end
         couner = couner + 1
@@ -118,42 +117,44 @@ function MyMod_ExpandCell(info)
         return a.name < b.name
     end)
 
-    MyModData:AddNodesAfter(nodeList, info)
+    VarrenDevToolLinkedList:AddNodesAfter(nodeList, info)
     info.expanded = true
-    MyModScrollBar_Update()
+    VarrenDevTool_ScrollBar_Update()
 end
 
-function MyMod_ColapseCell(info)
-    MyModData:RemoveChildNodes(info)
+function VarrenDevTool_ColapseCell(info)
+    VarrenDevToolLinkedList:RemoveChildNodes(info)
     info.expanded = nil
-    print("size: " .. MyModData.size)
-    MyModScrollBar_Update()
+    print("size: " .. VarrenDevToolLinkedList.size)
+    VarrenDevTool_ScrollBar_Update()
 end
 
-function MyMod_AddData(data, dataName)
-    MyModData:AddNode(data, dataName)
-    MyModScrollBar_Update()
-end
-function MyMod_ClearData()
-    MyModData:Clear()
-    MyModScrollBar_Update()
+function VarrenDevTool_AddData(data, dataName)
+    VarrenDevToolLinkedList:AddNode(data, dataName)
+    VarrenDevTool_ScrollBar_Update()
 end
 
-function MyModScrollBar_Update()
-    local scrollFrame = MyModScrollFrame
+function VarrenDevTool_ClearData()
+    VarrenDevToolLinkedList:Clear()
+    VarrenDevTool_ScrollBar_Update()
+end
+
+function VarrenDevTool_ScrollBar_Update()
+
+    local scrollFrame = VarrenDevToolScrollFrame
 
     local buttons = scrollFrame.buttons;
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
-    local totalRowsCount = MyModData.size
+    local totalRowsCount = VarrenDevToolLinkedList.size
     local lineplusoffset; -- an index into our data calculated from the scroll offset
 
-    local nodeInfo = MyModData:GetInfoAtPosition(offset)
+    local nodeInfo = VarrenDevToolLinkedList:GetInfoAtPosition(offset)
     for k, view in pairs(buttons) do
 
         lineplusoffset = k + offset;
         -- print("ok: " .. lineplusoffset .. "  " .. offset .. "  " .. k .. " " .. (nodeInfo ~= nil and nodeInfo.name or "nil"))
         if lineplusoffset <= totalRowsCount then
-            MyMod_UpdateListItem(view, nodeInfo, lineplusoffset)
+            VarrenDevTool_UpdateListItem(view, nodeInfo, lineplusoffset)
             nodeInfo = nodeInfo.next
             view:Show();
         else
@@ -167,7 +168,7 @@ end
 
 
 
-function MyMod_UpdateListItem(node, info, id)
+function VarrenDevTool_UpdateListItem(node, info, id)
     local nameButton = node.nameButton;
     local typeButton = node.typeButton
     local valueButton = node.valueButton
@@ -186,7 +187,7 @@ function MyMod_UpdateListItem(node, info, id)
     typeButton:SetText(valueType)
     rowNumberButton:SetText(tostring(id))
 
-    local color = "MyModBaseFont"
+    local color = "VarrenDevToolBaseFont"
     if valueType == "table" then
         if name ~= "$metatable" then
             if value.GetObjectType then
@@ -195,9 +196,9 @@ function MyMod_UpdateListItem(node, info, id)
                     valueButton:SetText(value:GetObjectType() .. "  " .. tostring(value))
                 end
             end
-            color = "MyModTableFont";
+            color = "VarrenDevToolTableFont";
         else
-            color = "MyModMetatableFont";
+            color = "VarrenDevToolMetatableFont";
         end
         local resultStringName = tostring(name)
         local MAX_STRING_SIZE = 60
@@ -214,14 +215,14 @@ function MyMod_UpdateListItem(node, info, id)
         nameButton:SetText(resultStringName .. "   (" .. tablelength(value) .. ") ");
 
     elseif valueType == "userdata" then
-        color = "MyModTableFont";
+        color = "VarrenDevToolTableFont";
     elseif valueType == "string" then
         valueButton:SetText(string.gsub(string.gsub(tostring(value), "|n", ""), "\n", ""))
-        color = "MyModStringFont";
+        color = "VarrenDevToolStringFont";
     elseif valueType == "number" then
-        color = "MyModNumberFont";
+        color = "VarrenDevToolNumberFont";
     elseif valueType == "function" then
-        color = "MyModFunctionFont";
+        color = "VarrenDevToolFunctionFont";
     end
 
 
@@ -235,22 +236,22 @@ function MyMod_UpdateListItem(node, info, id)
         nameButton:SetScript("OnMouseUp", function(self, button, down)
             print("click")
             if info.expanded then
-                MyMod_ColapseCell(info)
+                VarrenDevTool_ColapseCell(info)
             else
-                MyMod_ExpandCell(info)
+                VarrenDevTool_ExpandCell(info)
             end
         end)
     elseif valueType == "function" then
         nameButton:SetScript("OnMouseUp", function(self, button, down)
             print("click")
-            MyMod_TryCallFunction(info)
+            VarrenDevTool_TryCallFunction(info)
         end)
     else
         nameButton:SetScript("OnMouseUp", nil)
     end
 end
 
-function MyMod_TryCallFunction(info)
+function VarrenDevTool_TryCallFunction(info)
     local value = info.value
 
     local ok, result = pcall(value)
@@ -276,5 +277,12 @@ function MyMod_TryCallFunction(info)
 
             print(parent.name ..":".. info.name .."() returns: " .. additionalInfo.. "  ("..resultType ..")" )
         end
+    end
+end
+
+
+function DEBUG(self, text)
+    if self.debug then
+        print(text);
     end
 end
