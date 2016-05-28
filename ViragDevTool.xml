@@ -101,14 +101,14 @@
             <OnLoad>
                 self:RegisterForDrag("LeftButton");
                 self.scrollFrame.update = ViragDevTool_ScrollBar_Update
-                ViragDevTool_ScrollBar_Update()
+                self.scrollFrame:update()
             </OnLoad>
             <OnDragStart>
                 self:StartSizing()
             </OnDragStart>
             <OnDragStop>
                 self:StopMovingOrSizing();
-                ViragDevTool_ScrollBar_Update()
+                self.scrollFrame:update()
             </OnDragStop>
         </Scripts>
         <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border"

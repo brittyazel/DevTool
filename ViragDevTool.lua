@@ -1,7 +1,7 @@
-local ADDON_NAME, ViragDevTool  = ...
+local ADDON_NAME, ViragDevTool = ...
 
 
-local pairs, tostring, type, print, string, getmetatable, table,pcall =  pairs, tostring, type, print, string, getmetatable, table, pcall
+local pairs, tostring, type, print, string, getmetatable, table, pcall = pairs, tostring, type, print, string, getmetatable, table, pcall
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
 local ViragDevToolLinkedList = { size = 0; first = nil, last = nil }
@@ -107,7 +107,6 @@ function ViragDevTool_ExpandCell(info)
     local couner = 0
     for k, v in pairs(info.value) do
         if type(v) ~= "userdata" then
-
             nodeList[couner] = ViragDevToolLinkedList:NewNode(v, tostring(k), padding, info)
         else
             local mt = getmetatable(info.value)
@@ -168,11 +167,10 @@ function ViragDevTool_ScrollBar_Update()
     end
 
     HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
-
 end
 
 function ViragDevTool_ScrollBar_AddChildren(self)
-    if  ViragDevTool.ScrollBarHeight == nil or self:GetHeight() > ViragDevTool.ScrollBarHeight then
+    if ViragDevTool.ScrollBarHeight == nil or self:GetHeight() > ViragDevTool.ScrollBarHeight then
         ViragDevTool.ScrollBarHeight = self:GetHeight()
 
         local scrollBarValue = self.scrollBar:GetValue()
@@ -264,36 +262,56 @@ function ViragDevTool_UpdateListItem(node, info, id)
 end
 
 function ViragDevTool_TryCallFunction(info)
-    local value = info.value
+    -- info.value is just oure function to call
+    local fn = info.value
+    local parent
+    local args
+    -- lets try safe call first
+    local ok, result = pcall(fn)
 
-    local ok, result = pcall(value)
-    if ok then
-        local resultType = type(result)
-        local additionalInfo = ""
-        if resultType == "string" or resultType == "number" then
-            additionalInfo = tostring(result)
+    if not ok then
+        -- if safe call failed we probably could try to find self and call self:fn()
+        parent = info.parent
+
+
+        if parent and parent.value ==_G then
+            -- this fn is in global namespace
+            parent = nil
         end
 
-        print("returns:  " .. resultType .. " " .. additionalInfo)
-    else
-        local parent = info.parent
         if parent then
             if parent.name == "$metatable" then
                 parent = parent.parent
-                print("found metatable" ..  info.name)
             end
-
-            local ok, result = pcall(parent.value[info.name], parent.value)
-            local resultType = type(result)
-            local additionalInfo = tostring(result)
-
-            print(parent.name ..":".. info.name .."() returns: " .. additionalInfo.. "  ("..resultType ..")" )
+            fn = parent.value[info.name]
+            args = parent.value
+            ok, result = pcall(fn, args)
         end
     end
+
+    ViragDevTool_PrintCallFunctionInfo(ok, info.name .. "()", result, parent)
+
+    if not ok then
+        fn(args)
+    end
+
+end
+
+function ViragDevTool_PrintCallFunctionInfo(ok, functionName, result, parent)
+    ViragDevToolPRINT((ok and "|cFF00FF00OK" or "|cFFFF0000ERROR") ..
+            (parent and (" |cFFBEB9B5" .. parent.name .. ":") or " ") ..
+            "|cFFFFFFFF" .. functionName ..
+            " |cFFBEB9B5returns:" ..
+            " |cFFFFFFFF" .. tostring(result) ..
+            (ok and (" |cFF96C0CE(" .. type(result) .. ")") or ""))
 end
 
 
-function DEBUG(self, text)
+function ViragDevToolPRINT(text)
+    print("|cFFC25B56[Virag's DT]:|cFFFFFFFF " .. text)
+end
+
+function ViragDevToolDEBUG(self, text)
     if self.debug then
         print(text);
     end
