@@ -108,7 +108,7 @@
                 ViragDevTool_ScrollBar_Update()
             </OnReceiveDrag>
             <OnDragStop>
-                HybridScrollFrame_CreateButtons(self.scrollFrame, "ViragDevToolEntryTemplate", 0, -2)
+                ViragDevTool_ScrollBar_Update()
                 self:StopMovingOrSizing();
             </OnDragStop>
         </Scripts>
@@ -141,7 +141,6 @@
                 </Anchors>
                 <Scripts>
                     <OnShow>
-                        HybridScrollFrame_CreateButtons(self, "ViragDevToolEntryTemplate", 0, -2)
                         ViragDevTool_ScrollBar_Update()
                     </OnShow>
 

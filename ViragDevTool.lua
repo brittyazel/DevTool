@@ -137,10 +137,15 @@ function ViragDevTool_ClearData()
     ViragDevToolLinkedList:Clear()
     ViragDevTool_ScrollBar_Update()
 end
-
+local ViragDevToolScrollFrameSize = 0;
 function ViragDevTool_ScrollBar_Update()
 
     local scrollFrame = ViragDevToolScrollFrame
+
+    if (scrollFrame:GetHeight() > ViragDevToolScrollFrameSize) then
+        ViragDevToolScrollFrameSize = scrollFrame:GetHeight()
+        HybridScrollFrame_CreateButtons(scrollFrame, "ViragDevToolEntryTemplate", 0, -2)
+    end
 
     local buttons = scrollFrame.buttons;
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
