@@ -1,16 +1,5 @@
 local ADDON_NAME, ViragDevTool = ...
 
---- TODO list:
--- 1) Create dynamic text and color size chooser (probably not everyone likes SystemFont_Small)
--- 2) Create edittext field so we can call functions with args
--- 3) Add filters by object name and type
--- 4) Add Events tracking
--- 5) Add object deep copy option
--- 6) Add predefined buttons for every WoW API (just like _G)
--- 7) Add close frame button and /slash cmd
--- 8) Add row delimiters so we can resize tows in table
--- 9) Add function args info and description from from mapping file
-
 local pairs, tostring, type, print, string, getmetatable, table, pcall = pairs, tostring, type, print, string, getmetatable, table, pcall
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
