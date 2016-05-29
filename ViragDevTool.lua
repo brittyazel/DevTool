@@ -1,5 +1,15 @@
 local ADDON_NAME, ViragDevTool = ...
 
+--- TODO list:
+-- 1) Create dynamic text and color size chooser (probably not everyone likes SystemFont_Small)
+-- 2) Create edittext field so we can call functions with args
+-- 3) Add filters by object name and type
+-- 4) Add Events tracking
+-- 5) Add object deep copy option
+-- 6) Add predefined buttons for every WoW API (just like _G)
+-- 7) Add close frame button and /slash cmd
+-- 8) Add row delimiters so we can resize tows in table
+-- 9) Add function args info and description from from mapping file
 
 local pairs, tostring, type, print, string, getmetatable, table, pcall = pairs, tostring, type, print, string, getmetatable, table, pcall
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
@@ -98,7 +108,35 @@ function ViragDevToolLinkedList:Clear()
     self.last = nil
 end
 
+---
+-- Main (and the only) function you can use in ViragDevTool API
+-- Will add data to the list so you can explore its values in UI list
+-- @usage
+-- Lets suppose you have MyModFN function in yours addon
+-- function MyModFN()
+--     local var = {}
+--     ViragDevTool_AddData(var, "My local var in MyModFN")
+-- end
+-- This will add var as new var in our list
+-- @param data (any type)- is object you would like to track.
+-- Default behavior is shallow copy
+-- @param dataName (string or nil) - name tag to show in UI for you variable.
+-- Main purpose is to give readable names to objects you want to track.
+function ViragDevTool_AddData(data, dataName)
+    if dataName == nil then
+        dataName = tostring(data)
+    elseif type(dataName) ~= "string" then
+        dataName = tostring(dataName)
+    end
 
+    ViragDevToolLinkedList:AddNode(data, dataName)
+    ViragDevTool_ScrollBar_Update()
+end
+
+function ViragDevTool_ClearData()
+    ViragDevToolLinkedList:Clear()
+    ViragDevTool_ScrollBar_Update()
+end
 
 function ViragDevTool_ExpandCell(info)
 
@@ -132,30 +170,18 @@ function ViragDevTool_ColapseCell(info)
     ViragDevTool_ScrollBar_Update()
 end
 
-function ViragDevTool_AddData(data, dataName)
-    ViragDevToolLinkedList:AddNode(data, dataName)
-    ViragDevTool_ScrollBar_Update()
-end
-
-function ViragDevTool_ClearData()
-    ViragDevToolLinkedList:Clear()
-    ViragDevTool_ScrollBar_Update()
-end
-
-
 function ViragDevTool_ScrollBar_Update()
 
-    local scrollFrame = ViragDevToolScrollFrame
+    local scrollFrame = ViragDevToolScrollFrame --todo fix this change to self instead of global name
     ViragDevTool_ScrollBar_AddChildren(scrollFrame)
 
     local buttons = scrollFrame.buttons;
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
     local totalRowsCount = ViragDevToolLinkedList.size
-    local lineplusoffset; -- an index into our data calculated from the scroll offset
+    local lineplusoffset;
 
     local nodeInfo = ViragDevToolLinkedList:GetInfoAtPosition(offset)
     for k, view in pairs(buttons) do
-
         lineplusoffset = k + offset;
         if lineplusoffset <= totalRowsCount then
             ViragDevTool_UpdateListItem(view, nodeInfo, lineplusoffset)
@@ -235,6 +261,7 @@ function ViragDevTool_UpdateListItem(node, info, id)
         color = "ViragDevToolNumberFont";
     elseif valueType == "function" then
         color = "ViragDevToolFunctionFont";
+        --todo add function args info and description from error msges or from some mapping file
     end
 
 
@@ -274,13 +301,15 @@ function ViragDevTool_TryCallFunction(info)
         parent = info.parent
 
 
-        if parent and parent.value ==_G then
+        if parent and parent.value == _G then
             -- this fn is in global namespace
             parent = nil
         end
 
         if parent then
+
             if parent.name == "$metatable" then
+                -- $metatable has real object 1 level higher
                 parent = parent.parent
             end
             fn = parent.value[info.name]
@@ -294,9 +323,9 @@ function ViragDevTool_TryCallFunction(info)
     if not ok then
         fn(args)
     end
-
 end
 
+--todo create generic print output with multiple args
 function ViragDevTool_PrintCallFunctionInfo(ok, functionName, result, parent)
     ViragDevToolPRINT((ok and "|cFF00FF00OK" or "|cFFFF0000ERROR") ..
             (parent and (" |cFFBEB9B5" .. parent.name .. ":") or " ") ..
