@@ -5,14 +5,14 @@ local pairs, tostring, type, print, string, getmetatable, table, pcall = pairs, 
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
 local ViragDevToolLinkedList = { size = 0; first = nil, last = nil }
-
+ViragDevTool.METATABLE_NAME = "$metatable"
 function ViragDevToolLinkedList:GetInfoAtPosition(position)
     if self.size < position or self.first == nil then
         return nil
     end
 
     local node = self.first
-    while position > 1 do
+    while position > 0 do
         node = node.next
         position = position - 1
     end
@@ -104,8 +104,8 @@ end
 -- @usage
 -- Lets suppose you have MyModFN function in yours addon
 -- function MyModFN()
---     local var = {}
---     ViragDevTool_AddData(var, "My local var in MyModFN")
+-- local var = {}
+-- ViragDevTool_AddData(var, "My local var in MyModFN")
 -- end
 -- This will add var as new var in our list
 -- @param data (any type)- is object you would like to track.
@@ -122,9 +122,11 @@ function ViragDevTool_AddData(data, dataName)
     ViragDevToolLinkedList:AddNode(data, dataName)
     ViragDevTool_ScrollBar_Update()
 end
+
 function ViragDevTool_AddGlobal(strGlobalName)
     ViragDevTool_AddData(_G[strGlobalName], strGlobalName)
 end
+
 function ViragDevTool_ClearData()
     ViragDevToolLinkedList:Clear()
     ViragDevTool_ScrollBar_Update()
@@ -141,15 +143,20 @@ function ViragDevTool_ExpandCell(info)
         else
             local mt = getmetatable(info.value)
             if mt then
-                nodeList[couner] = ViragDevToolLinkedList:NewNode(mt.__index, "$metatable", padding, info)
+                nodeList[couner] = ViragDevToolLinkedList:NewNode(mt.__index, ViragDevTool.METATABLE_NAME, padding, info)
             end
         end
         couner = couner + 1
     end
 
+
     table.sort(nodeList, function(a, b)
-        return a.name < b.name
+        if a.name == ViragDevTool.METATABLE_NAME then return true
+        elseif b.name == ViragDevTool.METATABLE_NAME then return false
+        else return a.name < b.name
+        end
     end)
+
 
     ViragDevToolLinkedList:AddNodesAfter(nodeList, info)
     info.expanded = true
@@ -219,13 +226,15 @@ function ViragDevTool_UpdateListItem(node, info, id)
 
     local color = "ViragDevToolBaseFont"
     if valueType == "table" then
-        if name ~= "$metatable" then
+        if name ~= ViragDevTool.METATABLE_NAME then
             if value.GetObjectType and value.IsForbidden then
-                local ok, result = pcall(value.GetObjectType,value )
-                if ok then
-                    valueButton:SetText(result .. "  " .. tostring(value))
+                local ok, forbidden = pcall(value.IsForbidden, value)
+                if ok and not forbidden then
+                    local ok, result = pcall(value.GetObjectType, value)
+                    if ok then
+                        valueButton:SetText(result .. "  " .. tostring(value))
+                    end
                 end
-
             end
             color = "ViragDevToolTableFont";
         else
@@ -301,8 +310,8 @@ function ViragDevTool_TryCallFunction(info)
 
         if parent then
 
-            if parent.name == "$metatable" then
-                -- $metatable has real object 1 level higher
+            if parent.name == ViragDevTool.METATABLE_NAME then
+                -- metatable has real object 1 level higher
                 parent = parent.parent
             end
             fn = parent.value[info.name]
@@ -333,13 +342,16 @@ function ViragDevToolPRINT(text)
     print("|cFFC25B56[Virag's DT]:|cFFFFFFFF " .. text)
 end
 
-function ViragDevToolDEBUG(self, text)
-    if self.debug then
-        print(text);
+-- Util function
+function ViragDevTool_PrintTable(self, table)
+    for k, v in pairs(table) do
+        print(k .. ": " .. v.name)
     end
 end
 
+
+-- register slash cmd
 SLASH_VIRAGDEVTOOLS1 = '/vdt';
 function SlashCmdList.VIRAGDEVTOOLS(msg, editbox) -- 4.
-    ViragDevTool_AddGlobal(msg)
-end;
+ViragDevTool_AddGlobal(msg)
+end
