@@ -1,9 +1,16 @@
 # ViragDevTool Info
 
-ViragDevTool is Lua World of Warcraft addon to help new developers with WoW API. 
-This addon help you examine WoW API or your addon variables. 
-Much easier to use than default print or console debug
+ViragDevTool is Lua World of Warcraft addon for addon-developers. 
+Functionality is similar to a debugger. 
 
+This addon can help new developers to understand WoW API.
+Main idea is to examine WoW API or your addon's variables in table-like UI. 
+Much easier to use then default print or chat debug
+
+**[Curse download page](http://mods.curse.com/addons/wow/varrendevtool)** 
+
+
+> Lua is not my main language. I come from Java world so some things probably could be done better, but it works for me.
 
 ## How To Use
 
@@ -54,7 +61,7 @@ Output:
 ViragDevTool is in beta (probably even early alpha) so there is lots of stuff to add and tune.
 
 1. Create dynamic text and color size chooser (probably not everyone likes SystemFont_Small)
-2. Create edittext field so we can call functions with args
+2. Create edit text ui so we can call functions with args
 3. Add filters by object name and type
 4. Add Events tracking
 5. Add object deep copy option
@@ -64,13 +71,14 @@ ViragDevTool is in beta (probably even early alpha) so there is lots of stuff to
 9. Add function args info and description from from mapping file
 
 ### How to contribute
-For now this addon will be updated only when i need certain feature in my other addon development
+For now this addon will be updated only when i need certain feature in my other addon's development
 
 Prefered option is to use Github issue tracker if you have some todos, bugs, feature requests, and more. 
 https://github.com/varren/ViragDevTool/issues
 
 Can also use Curse comments board
 http://mods.curse.com/addons/wow/varrendevtool
+
 
 
 > Inspired by Rover addon from Wildstar 
