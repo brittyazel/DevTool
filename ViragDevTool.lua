@@ -1,5 +1,6 @@
 local ADDON_NAME, ViragDevTool = ...
 
+
 local pairs, tostring, type, print, string, getmetatable, table, pcall = pairs, tostring, type, print, string, getmetatable, table, pcall
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
@@ -121,7 +122,9 @@ function ViragDevTool_AddData(data, dataName)
     ViragDevToolLinkedList:AddNode(data, dataName)
     ViragDevTool_ScrollBar_Update()
 end
-
+function ViragDevTool_AddGlobal(strGlobalName)
+    ViragDevTool_AddData(_G[strGlobalName], strGlobalName)
+end
 function ViragDevTool_ClearData()
     ViragDevToolLinkedList:Clear()
     ViragDevTool_ScrollBar_Update()
@@ -217,11 +220,12 @@ function ViragDevTool_UpdateListItem(node, info, id)
     local color = "ViragDevToolBaseFont"
     if valueType == "table" then
         if name ~= "$metatable" then
-            if value.GetObjectType then
-                if value.IsForbidden and value:IsForbidden() then
-                else
-                    valueButton:SetText(value:GetObjectType() .. "  " .. tostring(value))
+            if value.GetObjectType and value.IsForbidden then
+                local ok, result = pcall(value.GetObjectType,value )
+                if ok then
+                    valueButton:SetText(result .. "  " .. tostring(value))
                 end
+
             end
             color = "ViragDevToolTableFont";
         else
@@ -334,3 +338,8 @@ function ViragDevToolDEBUG(self, text)
         print(text);
     end
 end
+
+SLASH_VIRAGDEVTOOLS1 = '/vdt';
+function SlashCmdList.VIRAGDEVTOOLS(msg, editbox) -- 4.
+    ViragDevTool_AddGlobal(msg)
+end;
