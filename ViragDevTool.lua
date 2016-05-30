@@ -20,13 +20,6 @@ function ViragDevToolLinkedList:GetInfoAtPosition(position)
     return node
 end
 
-function ViragDevToolLinkedList:AddNodeAfter(node, prevNode)
-    local tempNext = node.next
-    node.next = prevNode
-    prevNode.next = tempNext
-    self.size = self.size + 1;
-end
-
 function ViragDevToolLinkedList:AddNodesAfter(nodeList, parentNode)
     local tempNext = parentNode.next
     local currNode = parentNode;
@@ -291,10 +284,11 @@ function ViragDevTool_UpdateListItem(node, info, id)
 end
 
 function ViragDevTool_TryCallFunction(info)
-    -- info.value is just oure function to call
+    -- info.value is just our function to call
     local fn = info.value
     local parent
     local args
+
     -- lets try safe call first
     local ok, result = pcall(fn)
 
@@ -304,7 +298,7 @@ function ViragDevTool_TryCallFunction(info)
 
 
         if parent and parent.value == _G then
-            -- this fn is in global namespace
+            -- this fn is in global namespace so no parent
             parent = nil
         end
 
@@ -317,11 +311,24 @@ function ViragDevTool_TryCallFunction(info)
             fn = parent.value[info.name]
             args = parent.value
             ok, result = pcall(fn, args)
+            
         end
     end
 
+    -- adds call result to our UI list
+    local resultNode = ViragDevToolLinkedList:NewNode(result,
+        (ok and "|cFF00FF00OK" or "|cFFFF0000ERROR") .." "..
+            info.name  .. date("() returns at %X"),
+        info.padding + 1)
+
+    ViragDevToolLinkedList:AddNodesAfter({resultNode}, info)
+
+    ViragDevTool_ScrollBar_Update()
+
+    --print info to chat
     ViragDevTool_PrintCallFunctionInfo(ok, info.name .. "()", result, parent)
 
+    -- if everything faild, just show default Blizzard error
     if not ok then
         fn(args)
     end
