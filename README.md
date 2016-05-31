@@ -18,7 +18,7 @@ Main (and the only) function you can use is **ViragDevTool_AddData(data, "some s
 ```lua
 --- Adds data to ViragDevTool UI list to monitor
 -- @param data (any type)- is object you would like to track. 
--- Default behavior is shallow copy
+-- Default behavior is reference and not object copy
 -- @param dataName (string or nil) - name tag to show in UI for you variable. 
 -- Main purpose is to give readable names to objects you want to track.
 function ViragDevTool_AddData(data, dataName)
@@ -67,8 +67,8 @@ ViragDevTool is in beta (probably even early alpha) so there is lots of stuff to
 5. Add object deep copy option
 6. Add predefined buttons for every WoW API (just like _G)
 7. Add close frame button and /slash cmd
-8. Add row delimiters so we can resize tows in table
-9. Add function args info and description from from mapping file
+8. Add row delimiters so we can resize rows in table
+9. Add function args info and description from mapping file
 
 ### How to contribute
 For now this addon will be updated only when i need certain feature in my other addon's development

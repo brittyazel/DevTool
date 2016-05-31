@@ -6,6 +6,7 @@ local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScroll
 
 local ViragDevToolLinkedList = { size = 0; first = nil, last = nil }
 ViragDevTool.METATABLE_NAME = "$metatable"
+ViragDevTool.tArgs = {  }
 function ViragDevToolLinkedList:GetInfoAtPosition(position)
     if self.size < position or self.first == nil then
         return nil
@@ -129,7 +130,7 @@ function ViragDevTool_ExpandCell(info)
 
     local nodeList = {}
     local padding = info.padding + 1
-    local couner = 0
+    local couner = 1
     for k, v in pairs(info.value) do
         if type(v) ~= "userdata" then
             nodeList[couner] = ViragDevToolLinkedList:NewNode(v, tostring(k), padding, info)
@@ -144,12 +145,11 @@ function ViragDevTool_ExpandCell(info)
 
 
     table.sort(nodeList, function(a, b)
-        if a.name == ViragDevTool.METATABLE_NAME then return true
-        elseif b.name == ViragDevTool.METATABLE_NAME then return false
+        if a.name == "__index" then return true
+        elseif b.name == "__index" then return false
         else return a.name < b.name
         end
     end)
-
 
     ViragDevToolLinkedList:AddNodesAfter(nodeList, info)
     info.expanded = true
@@ -285,12 +285,13 @@ end
 
 function ViragDevTool_TryCallFunction(info)
     -- info.value is just our function to call
+    local parent, ok
     local fn = info.value
-    local parent
-    local args
+    local args = ViragDevTool_shallowcopyargs(ViragDevTool.tArgs)
+    local results = {}
 
     -- lets try safe call first
-    local ok, result = pcall(fn)
+    ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
 
     if not ok then
         -- if safe call failed we probably could try to find self and call self:fn()
@@ -309,51 +310,115 @@ function ViragDevTool_TryCallFunction(info)
                 parent = parent.parent
             end
             fn = parent.value[info.name]
-            args = parent.value
-            ok, result = pcall(fn, args)
-            
+            table.insert(args, 1, parent.value)
+            ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
+
         end
     end
 
+    ViragDevTool_ProcessCallFunctionData(ok, info, parent, args, results)
+end
+
+-- this function is kinda hard to read but it just adds new items to list and prints log in chat.
+-- will add 1 row for call result(ok or error) and 1 row for each return value
+function ViragDevTool_ProcessCallFunctionData(ok, info, parent, args, results)
+    local nodes = {}
+
+    --constract full function call name
+    local fnNameWitArgs = ViragDevTool_FNNameToString(info.name, args)
+
+    -- add parrent info so it will be MyFrame:function() instead of just function()
+    if parent then
+        fnNameWitArgs = " |cFFBEB9B5" .. parent.name .. ":" .. "|cFFFFFFFF" .. fnNameWitArgs
+    else
+        fnNameWitArgs = " |cFFFFFFFF" .. fnNameWitArgs
+    end
+    local statusTextColor = (ok and "|cFF00FF00" or "|cFFC25B56")
+    local statusStr = (ok and ("|cFF00FF00OK") or "|cFFFF0000ERROR") -- ok is green error is red
+
+    local returnFormatedStr = ""
+
+    if not ok then
+        -- if function call was unsuccessful
+        nodes[1] = ViragDevToolLinkedList:NewNode(tostring(results[1]), statusStr .. statusTextColor.."function call failed",
+            info.padding + 1)
+        returnFormatedStr = " |cFFFFFFFF" ..tostring(results[1])
+    else
+        -- itterate backwords because we want to include every meaningfull nil result
+        -- for example 1, 2, nil, 4 should return only this 4 values nothing more nothing less.
+        local found = false
+        for i = 10, 1, -1 do
+            if results[i] ~= nil then found = true end
+
+            if found or i == 1 then
+                nodes[i] = ViragDevToolLinkedList:NewNode(results[i], "   ret: " .. i, info.padding + 1)
+
+                returnFormatedStr = " |cFFFFFFFF" .. tostring(results[i]) ..
+                        " |cFF96C0CE(" .. type(results[i]) .. ")"  .. returnFormatedStr
+            end
+        end
+    end
+
+    -- create fist node of result info no need for now. will use debug
+    local titleNode = ViragDevToolLinkedList:NewNode(statusStr .. " - " .. fnNameWitArgs, -- node value
+        statusTextColor .. date("%X") .. " function call results:", -- node name
+        info.padding + 1) -- node padding
+
+    table.insert(nodes, 1, titleNode)
+
     -- adds call result to our UI list
-    local resultNode = ViragDevToolLinkedList:NewNode(result,
-        (ok and "|cFF00FF00OK" or "|cFFFF0000ERROR") .." "..
-            info.name  .. date("() returns at %X"),
-        info.padding + 1)
 
-    ViragDevToolLinkedList:AddNodesAfter({resultNode}, info)
-
+    ViragDevToolLinkedList:AddNodesAfter(nodes, info)
     ViragDevTool_ScrollBar_Update()
 
     --print info to chat
-    ViragDevTool_PrintCallFunctionInfo(ok, info.name .. "()", result, parent)
+    local resultInfoStr = statusStr .. fnNameWitArgs .. " |cFFBEB9B5returns:" .. returnFormatedStr
+
+    print("|cFFC25B56[Virag's DT]:|cFFFFFFFF " .. resultInfoStr)
+    --PROCESS RESULTS END
 
     -- if everything faild, just show default Blizzard error
-    if not ok then
-        fn(args)
+    -- if not ok then
+    --     fn(args)
+    -- end
+end
+
+function ViragDevTool_FNNameToString(name, args)
+    -- Create function call string like myFunction(arg1, arg2, arg3)
+    local fnNameWitArgs = ""
+    local delimiter = ""
+    local found = false
+    for i = 10, 1, -1 do
+        if args[i] ~= nil then found = true end
+
+        if found then
+            fnNameWitArgs = tostring(args[i]) .. delimiter .. fnNameWitArgs
+            delimiter = ", "
+        end
     end
+
+    return name .. "(" .. fnNameWitArgs .. ")"
 end
 
---todo create generic print output with multiple args
-function ViragDevTool_PrintCallFunctionInfo(ok, functionName, result, parent)
-    ViragDevToolPRINT((ok and "|cFF00FF00OK" or "|cFFFF0000ERROR") ..
-            (parent and (" |cFFBEB9B5" .. parent.name .. ":") or " ") ..
-            "|cFFFFFFFF" .. functionName ..
-            " |cFFBEB9B5returns:" ..
-            " |cFFFFFFFF" .. tostring(result) ..
-            (ok and (" |cFF96C0CE(" .. type(result) .. ")") or ""))
+function ViragDevTool_TestFNwithMultipleArgs(a, b, c, d, e, f, g, h)
+    return { a, b, c, d, e, f, g }, 2, 3, nil, 5
 end
 
-
-function ViragDevToolPRINT(text)
-    print("|cFFC25B56[Virag's DT]:|cFFFFFFFF " .. text)
-end
 
 -- Util function
-function ViragDevTool_PrintTable(self, table)
-    for k, v in pairs(table) do
+function ViragDevTool_PrintTable(table)
+    print(tostring(table))
+    for k, v in pairs(table or {}) do
         print(k .. ": " .. v.name)
     end
+end
+
+function ViragDevTool_shallowcopyargs(orig)
+    local copy = {}
+    for i=1,10 do
+        copy[i] = orig[i]
+    end
+    return copy
 end
 
 
