@@ -1,12 +1,34 @@
-local ADDON_NAME, ViragDevTool = ...
+-- create global instance
+ViragDevTool = {
+    METATABLE_NAME = "$metatable",
+    tArgs = {}
+}
 
-
+-- just remove global reference so it is easy to read with my ide
+local ViragDevTool = ViragDevTool
 local pairs, tostring, type, print, string, getmetatable, table, pcall = pairs, tostring, type, print, string, getmetatable, table, pcall
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
-local ViragDevToolLinkedList = { size = 0; first = nil, last = nil }
-ViragDevTool.METATABLE_NAME = "$metatable"
-ViragDevTool.tArgs = {  }
+--- Linked List
+-- @field size
+-- @field first
+-- @field last
+--
+-- Each node has:
+-- @field name - string name
+-- @field value - any object
+-- @field next - nil/next node
+-- @field padding - int expanded level( when you click on table it expands  so padding = padding + 1)
+-- @field parent - parent node after it expanded
+-- @field expanded - true/false/nil
+
+local ViragDevToolLinkedList = {
+    size = 0;
+    first = nil,
+    last = nil
+}
+ViragDevTool.list = ViragDevToolLinkedList
+
 function ViragDevToolLinkedList:GetInfoAtPosition(position)
     if self.size < position or self.first == nil then
         return nil
@@ -109,40 +131,33 @@ end
 function ViragDevTool_AddData(data, dataName)
     if dataName == nil then
         dataName = tostring(data)
-    elseif type(dataName) ~= "string" then
-        dataName = tostring(dataName)
     end
 
-    ViragDevToolLinkedList:AddNode(data, dataName)
-    ViragDevTool_ScrollBar_Update()
+    ViragDevTool.list:AddNode(data, tostring(dataName))
+    ViragDevTool:UpdateUI()
 end
 
-function ViragDevTool_AddGlobal(strGlobalName)
-    ViragDevTool_AddData(_G[strGlobalName], strGlobalName)
+function ViragDevTool:ClearData()
+    self.list:Clear()
+    self:UpdateUI()
 end
 
-function ViragDevTool_ClearData()
-    ViragDevToolLinkedList:Clear()
-    ViragDevTool_ScrollBar_Update()
-end
-
-function ViragDevTool_ExpandCell(info)
+function ViragDevTool:ExpandCell(info)
 
     local nodeList = {}
     local padding = info.padding + 1
     local couner = 1
     for k, v in pairs(info.value) do
         if type(v) ~= "userdata" then
-            nodeList[couner] = ViragDevToolLinkedList:NewNode(v, tostring(k), padding, info)
+            nodeList[couner] = self.list:NewNode(v, tostring(k), padding, info)
         else
             local mt = getmetatable(info.value)
             if mt then
-                nodeList[couner] = ViragDevToolLinkedList:NewNode(mt.__index, ViragDevTool.METATABLE_NAME, padding, info)
+                nodeList[couner] = self.list:NewNode(mt.__index, self.METATABLE_NAME, padding, info)
             end
         end
         couner = couner + 1
     end
-
 
     table.sort(nodeList, function(a, b)
         if a.name == "__index" then return true
@@ -151,32 +166,34 @@ function ViragDevTool_ExpandCell(info)
         end
     end)
 
-    ViragDevToolLinkedList:AddNodesAfter(nodeList, info)
+    self.list:AddNodesAfter(nodeList, info)
+
     info.expanded = true
-    ViragDevTool_ScrollBar_Update()
+
+    ViragDevTool:UpdateUI()
 end
 
-function ViragDevTool_ColapseCell(info)
-    ViragDevToolLinkedList:RemoveChildNodes(info)
+function ViragDevTool:ColapseCell(info)
+    self.list:RemoveChildNodes(info)
     info.expanded = nil
-    ViragDevTool_ScrollBar_Update()
+    self:UpdateUI()
 end
 
-function ViragDevTool_ScrollBar_Update()
+function ViragDevTool:UpdateUI()
 
-    local scrollFrame = ViragDevToolScrollFrame --todo fix this change to self instead of global name
-    ViragDevTool_ScrollBar_AddChildren(scrollFrame)
+    local scrollFrame = self.wndRef.scrollFrame
+    self:ScrollBar_AddChildren(scrollFrame)
 
     local buttons = scrollFrame.buttons;
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
-    local totalRowsCount = ViragDevToolLinkedList.size
+    local totalRowsCount = self.list.size
     local lineplusoffset;
 
-    local nodeInfo = ViragDevToolLinkedList:GetInfoAtPosition(offset)
+    local nodeInfo = self.list:GetInfoAtPosition(offset)
     for k, view in pairs(buttons) do
         lineplusoffset = k + offset;
         if lineplusoffset <= totalRowsCount then
-            ViragDevTool_UpdateListItem(view, nodeInfo, lineplusoffset)
+            self:UIUpdateListItem(view, nodeInfo, lineplusoffset)
             nodeInfo = nodeInfo.next
             view:Show();
         else
@@ -187,9 +204,9 @@ function ViragDevTool_ScrollBar_Update()
     HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
 end
 
-function ViragDevTool_ScrollBar_AddChildren(self)
-    if ViragDevTool.ScrollBarHeight == nil or self:GetHeight() > ViragDevTool.ScrollBarHeight then
-        ViragDevTool.ScrollBarHeight = self:GetHeight()
+function ViragDevTool:ScrollBar_AddChildren(self)
+    if self.ScrollBarHeight == nil or self:GetHeight() > self.ScrollBarHeight then
+        self.ScrollBarHeight = self:GetHeight()
 
         local scrollBarValue = self.scrollBar:GetValue()
         HybridScrollFrame_CreateButtons(self, "ViragDevToolEntryTemplate", 0, -2)
@@ -198,7 +215,7 @@ function ViragDevTool_ScrollBar_AddChildren(self)
 end
 
 
-function ViragDevTool_UpdateListItem(node, info, id)
+function ViragDevTool:UIUpdateListItem(node, info, id)
     local nameButton = node.nameButton;
     local typeButton = node.typeButton
     local valueButton = node.valueButton
@@ -219,7 +236,7 @@ function ViragDevTool_UpdateListItem(node, info, id)
 
     local color = "ViragDevToolBaseFont"
     if valueType == "table" then
-        if name ~= ViragDevTool.METATABLE_NAME then
+        if name ~= self.METATABLE_NAME then
             if value.GetObjectType and value.IsForbidden then
                 local ok, forbidden = pcall(value.IsForbidden, value)
                 if ok and not forbidden then
@@ -261,33 +278,33 @@ function ViragDevTool_UpdateListItem(node, info, id)
 
 
 
-    node.nameButton:SetNormalFontObject(color);
+    node.nameButton:SetNormalFontObject(color)
     node.typeButton:SetNormalFontObject(color)
     node.valueButton:SetNormalFontObject(color)
     node.rowNumberButton:SetNormalFontObject(color)
 
     if valueType == "table" then
-        nameButton:SetScript("OnMouseUp", function(self, button, down)
+        nameButton:SetScript("OnMouseUp", function(this, button, down)
             if info.expanded then
-                ViragDevTool_ColapseCell(info)
+                self:ColapseCell(info)
             else
-                ViragDevTool_ExpandCell(info)
+                self:ExpandCell(info)
             end
         end)
     elseif valueType == "function" then
-        nameButton:SetScript("OnMouseUp", function(self, button, down)
-            ViragDevTool_TryCallFunction(info)
+        nameButton:SetScript("OnMouseUp", function(this, button, down)
+            self:TryCallFunction(info)
         end)
     else
         nameButton:SetScript("OnMouseUp", nil)
     end
 end
 
-function ViragDevTool_TryCallFunction(info)
+function ViragDevTool:TryCallFunction(info)
     -- info.value is just our function to call
     local parent, ok
     local fn = info.value
-    local args = ViragDevTool_shallowcopyargs(ViragDevTool.tArgs)
+    local args = self:shallowcopyargs(self.tArgs)
     local results = {}
 
     -- lets try safe call first
@@ -305,85 +322,50 @@ function ViragDevTool_TryCallFunction(info)
 
         if parent then
 
-            if parent.name == ViragDevTool.METATABLE_NAME then
+            if parent.name == self.METATABLE_NAME then
                 -- metatable has real object 1 level higher
                 parent = parent.parent
             end
             fn = parent.value[info.name]
             table.insert(args, 1, parent.value)
             ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
-
         end
     end
 
-    ViragDevTool_ProcessCallFunctionData(ok, info, parent, args, results)
+    self:ProcessCallFunctionData(ok, info, parent, args, results)
 end
 
--- this function is kinda hard to read but it just adds new items to list and prints log in chat.
--- will add 1 row for call result(ok or error) and 1 row for each return value
-function ViragDevTool_ProcessCallFunctionData(ok, info, parent, args, results)
-    local nodes = {}
+--todo refactore this
+local ViragDevTool_Colors = {
+    white = "|cFFFFFFFF",
+    gray = "|cFFBEB9B5",
 
-    --constract full function call name
-    local fnNameWitArgs = ViragDevTool_FNNameToString(info.name, args)
+    lightblue = "|cFF96C0CE",
+    red = "|cFFFF0000",
+    green =  "|cFF00FF00",
+    darkred = "|cFFC25B56",
 
-    -- add parrent info so it will be MyFrame:function() instead of just function()
-    if parent then
-        fnNameWitArgs = " |cFFBEB9B5" .. parent.name .. ":" .. "|cFFFFFFFF" .. fnNameWitArgs
-    else
-        fnNameWitArgs = " |cFFFFFFFF" .. fnNameWitArgs
-    end
-    local statusTextColor = (ok and "|cFF00FF00" or "|cFFC25B56")
-    local statusStr = (ok and ("|cFF00FF00OK") or "|cFFFF0000ERROR") -- ok is green error is red
+    parent = "|cFFBEB9B5",
+    error = "|cFFC25B56",
 
-    local returnFormatedStr = ""
+    ok = "|cFF00FF00",
+}
 
-    if not ok then
-        -- if function call was unsuccessful
-        nodes[1] = ViragDevToolLinkedList:NewNode(tostring(results[1]), statusStr .. statusTextColor.."function call failed",
-            info.padding + 1)
-        returnFormatedStr = " |cFFFFFFFF" ..tostring(results[1])
-    else
-        -- itterate backwords because we want to include every meaningfull nil result
-        -- for example 1, 2, nil, 4 should return only this 4 values nothing more nothing less.
-        local found = false
-        for i = 10, 1, -1 do
-            if results[i] ~= nil then found = true end
-
-            if found or i == 1 then
-                nodes[i] = ViragDevToolLinkedList:NewNode(results[i], "   ret: " .. i, info.padding + 1)
-
-                returnFormatedStr = " |cFFFFFFFF" .. tostring(results[i]) ..
-                        " |cFF96C0CE(" .. type(results[i]) .. ")"  .. returnFormatedStr
-            end
-        end
-    end
-
-    -- create fist node of result info no need for now. will use debug
-    local titleNode = ViragDevToolLinkedList:NewNode(statusStr .. " - " .. fnNameWitArgs, -- node value
-        statusTextColor .. date("%X") .. " function call results:", -- node name
-        info.padding + 1) -- node padding
-
-    table.insert(nodes, 1, titleNode)
-
-    -- adds call result to our UI list
-
-    ViragDevToolLinkedList:AddNodesAfter(nodes, info)
-    ViragDevTool_ScrollBar_Update()
-
-    --print info to chat
-    local resultInfoStr = statusStr .. fnNameWitArgs .. " |cFFBEB9B5returns:" .. returnFormatedStr
-
-    print("|cFFC25B56[Virag's DT]:|cFFFFFFFF " .. resultInfoStr)
-    --PROCESS RESULTS END
-
-    -- if everything faild, just show default Blizzard error
-    -- if not ok then
-    --     fn(args)
-    -- end
+function ViragDevTool_Colors:forState(state)
+    if state then return self.ok end
+    return self.darkred
 end
 
-function ViragDevTool_FNNameToString(name, args)
+function ViragDevTool_Colors:stateStr(state)
+    if state then return self.ok .. "OK" end
+    return self.red .. "ERROR"
+end
+
+function ViragDevTool_Colors:errorText()
+    return self:stateStr(false) .. self.error .. " function call failed"
+end
+
+function ViragDevTool_Colors:FNNameToString(name, args)
     -- Create function call string like myFunction(arg1, arg2, arg3)
     local fnNameWitArgs = ""
     local delimiter = ""
@@ -400,30 +382,114 @@ function ViragDevTool_FNNameToString(name, args)
     return name .. "(" .. fnNameWitArgs .. ")"
 end
 
-function ViragDevTool_TestFNwithMultipleArgs(a, b, c, d, e, f, g, h)
-    return { a, b, c, d, e, f, g }, 2, 3, nil, 5
+function ViragDevTool_Colors:functionStr(parent, name, args)
+    local resultStr = self:FNNameToString(name, args)
+
+    if parent then
+        return self.parent .. parent.name .. ":" .. self.white .. resultStr
+    else
+        return self.white .. resultStr
+    end
 end
 
+ViragDevTool.colors = ViragDevTool_Colors
 
--- Util function
-function ViragDevTool_PrintTable(table)
+-- this function is kinda hard to read but it just adds new items to list and prints log in chat.
+-- will add 1 row for call result(ok or error) and 1 row for each return value
+function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
+    local nodes = {}
+    local C = self.colors
+    local list = self.list
+
+    --constract full function call name
+    local fnNameWitArgs = C:functionStr(parent, info.name, args)
+    local returnFormatedStr = ""
+
+    if not ok then
+        -- if function call was unsuccessful
+        nodes[1] = list:NewNode(tostring(results[1]), C:errorText(), info.padding + 1)
+        returnFormatedStr = string.format(" %s%s", C.white, tostring(results[1]))
+    else
+        -- itterate backwords because we want to include every meaningfull nil result
+        -- for example 1, 2, nil, 4 should return only this 4 values nothing more nothing less.
+        local found = false
+        for i = 10, 1, -1 do
+            if results[i] ~= nil then found = true end
+
+            if found or i == 1 then
+                nodes[i] = list:NewNode(results[i], string.format("  ret: %d", i), info.padding + 1)
+
+                returnFormatedStr = string.format(" %s%s %s(%s)%s", C.white, tostring(results[i]),
+                    C.lightblue, type(results[i]), returnFormatedStr)
+            end
+        end
+    end
+
+    -- create fist node of result info no need for now. will use debug
+    local titleNode = list:NewNode(
+        string.format("%s - %s", C:stateStr(ok), fnNameWitArgs), -- node value
+        C:forState(ok) .. date("%X") .. " function call results:", -- node name
+        info.padding + 1) -- node padding
+
+    table.insert(nodes, 1, titleNode)
+
+    -- adds call result to our UI list
+
+    list:AddNodesAfter(nodes, info)
+    self:UpdateUI()
+
+    --print info to chat
+    local resultInfoStr = C:stateStr(ok) .. " " .. fnNameWitArgs .. C.gray .. " returns:" .. returnFormatedStr
+    print(C.darkred .. "[Virag's DT]: " .. C.white .. resultInfoStr)
+
+    -- if everything faild, just show default Blizzard error
+    -- if not ok then
+    --     fn(args)
+    -- end
+end
+
+---
+-- LIFECICLE
+--
+function ViragDevTool:OnLoad(this)
+    self.wndRef = this
+
+    this:RegisterEvent("ADDON_LOADED")
+
+    --register update scrollFrame
+    self.wndRef.scrollFrame.update = function()
+        self:UpdateUI()
+    end
+    self:UpdateUI()
+
+    -- register slash cmd
+    SLASH_VIRAGDEVTOOLS1 = '/vdt';
+    function SlashCmdList.VIRAGDEVTOOLS(msg, editbox) -- 4.
+        ViragDevTool_AddData(_G[strGlobalName], strGlobalName)
+    end
+end
+
+function ViragDevTool:OnEvent(this, event, arg1, arg2, arg3)
+    if event == "VARIABLES_LOADED" then
+        if not ViragDevTool_Settings then ViragDevTool_Settings = {} end
+
+        self.settings = ViragDevTool_Settings
+    end
+end
+
+---
+-- UTILS
+--
+function ViragDevTool:print(table)
     print(tostring(table))
     for k, v in pairs(table or {}) do
         print(k .. ": " .. v.name)
     end
 end
 
-function ViragDevTool_shallowcopyargs(orig)
+function ViragDevTool:shallowcopyargs(orig)
     local copy = {}
-    for i=1,10 do
-        copy[i] = orig[i]
-    end
+    for k, v in pairs(orig) do copy[k] = orig[v] end
     return copy
 end
 
-
--- register slash cmd
-SLASH_VIRAGDEVTOOLS1 = '/vdt';
-function SlashCmdList.VIRAGDEVTOOLS(msg, editbox) -- 4.
-ViragDevTool_AddGlobal(msg)
-end

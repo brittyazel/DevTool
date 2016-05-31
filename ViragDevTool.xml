@@ -1,5 +1,5 @@
 <Ui>
-    <Script file="ViragDevTool.lua"/>
+
     <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
 
     <Font name="ViragDevToolTableFont" inherits="ViragDevToolDefaultFont" virtual="true">
@@ -28,6 +28,18 @@
         <NormalFont style="GameFontHighlightLeft"/>
     </Button>
 
+    <Button text="Test" name="ViragDevToolRowTemplate"  virtual="true">
+        <Size>
+            <AbsDimension x="50"/>
+        </Size>
+        <Anchors>
+            <Anchor point="TOP"/>
+            <Anchor point="BOTTOM"/>
+            <Anchor point="LEFT"/>
+        </Anchors>
+        <NormalFont style="GameFontHighlightLeft"/>
+    </Button>
+
     <Frame name="ViragDevToolEntryTemplate" virtual="true">
         <Anchors>
             <Anchor point="TOPLEFT"/>
@@ -36,61 +48,34 @@
             <AbsDimension x="1200" y="12"/>
         </Size>
         <Frames>
-            <Button text="table" name="$parentRowCellCount" parentKey="rowNumberButton">
-                <Size>
-                    <AbsDimension x="50"/>
-                </Size>
-                <Anchors>
-                    <Anchor point="TOP"/>
-                    <Anchor point="BOTTOM"/>
-                    <Anchor point="LEFT"/>
-                </Anchors>
+            <Button text="table" name="$parentRowCellCount" inherits="ViragDevToolRowTemplate"
+                    parentKey="rowNumberButton"/>
 
-                <NormalFont style="ViragDevToolDefaultFont"/>
-            </Button>
-            <Button text="123456" name="$parentRowType" parentKey="typeButton">
-                <Size>
-                    <AbsDimension x="50"/>
-                </Size>
+            <Button text="123456" name="$parentRowType" inherits="ViragDevToolRowTemplate" parentKey="typeButton">
                 <Anchors>
-                    <Anchor point="TOP"/>
-                    <Anchor point="BOTTOM"/>
-                    <Anchor point="LEFT" relativeTo="$parentRowCellCount" relativePoint="RIGHT">
-                    </Anchor>
-                </Anchors>
-
-                <NormalFont style="ViragDevToolDefaultFont"/>
-            </Button>
-
-            <Button text="Test Text" name="$parentNameRow" parentKey="nameButton">
-                <Size>
-                    <AbsDimension x="400"/>
-                </Size>
-                <Anchors>
-                    <Anchor point="TOP"/>
-                    <Anchor point="BOTTOM"/>
                     <Anchor point="LEFT" relativeTo="$parentRowCellCount" relativePoint="RIGHT"/>
                 </Anchors>
-
-                <NormalFont style="ViragDevToolDefaultFont"/>
             </Button>
-            <Button text="Test Text" name="$parentValueRow" parentKey="valueButton">
-                <Size>
-                    <AbsDimension x="700"/>
-                </Size>
+
+            <Button text="Test Text" name="$parentNameRow" inherits="ViragDevToolRowTemplate" parentKey="nameButton">
+                <Size><AbsDimension x="400"/></Size>
                 <Anchors>
-                    <Anchor point="TOP"/>
-                    <Anchor point="BOTTOM"/>
+                    <Anchor point="LEFT" relativeTo="$parentRowType" relativePoint="RIGHT"/>
+                </Anchors>
+            </Button>
+
+            <Button text="Test Text" name="$parentValueRow" inherits="ViragDevToolRowTemplate" parentKey="valueButton">
+                <Size><AbsDimension x="700"/></Size>
+                <Anchors>
                     <Anchor point="RIGHT"/>
                     <Anchor point="LEFT" relativeTo="$parentNameRow" relativePoint="RIGHT"/>
-
                 </Anchors>
-
-                <NormalFont style="ViragDevToolDefaultFont"/>
             </Button>
+
         </Frames>
     </Frame>
-    <Frame name="ViragDevTool" parent="UIParent" enableMouse="true" movable="true" resizable="true">
+
+    <Frame name="ViragDevToolFrame" parent="UIParent" enableMouse="true" movable="true" resizable="true">
         <Size>
             <AbsDimension x="1200" y="600"/>
         </Size>
@@ -99,9 +84,8 @@
         </Anchors>
         <Scripts>
             <OnLoad>
+                ViragDevTool:OnLoad(self)
                 self:RegisterForDrag("LeftButton");
-                self.scrollFrame.update = ViragDevTool_ScrollBar_Update
-                self.scrollFrame:update()
             </OnLoad>
             <OnDragStart>
                 self:StartSizing()
@@ -147,10 +131,17 @@
                     </Slider>
                 </Frames>
             </ScrollFrame>
-            <Frame name="$parentTopBar" parent="ViragDevTool" enableMouse="true">
+
+            <Frame name="$parentTopBar"  enableMouse="true">
                 <Size>
                     <AbsDimension y="25"/>
                 </Size>
+                <Anchors>
+                    <Anchor point="LEFT"/>
+                    <Anchor point="RIGHT"/>
+                    <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP"/>
+                </Anchors>
+
                 <Scripts>
                     <OnLoad>
                         self:RegisterForDrag("LeftButton");
@@ -173,16 +164,12 @@
                         <AbsValue val="16"/>
                     </EdgeSize>
                 </Backdrop>
-                <Anchors>
-                    <Anchor point="LEFT"/>
-                    <Anchor point="RIGHT"/>
-                    <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP"/>
-                </Anchors>
+
                 <Frames>
                     <Button text="CLEAR" name="$parentClearButton" inherits="ViragDevToolTopButton">
                         <Scripts>
                             <OnClick>
-                                ViragDevTool_ClearData()
+                                ViragDevTool:ClearData()
                             </OnClick>
                         </Scripts>
                         <Anchors>

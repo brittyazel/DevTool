@@ -51,7 +51,7 @@ Output:
 
 ### Other functionality
 * **Clicking on table name** will expand and show its children
-* **Clicking on function name** wil try to call the function. **WARNING BE CAREFUL**
+* **Clicking on function name** will try to call the function. **WARNING BE CAREFUL**
 * If table has WoW API `GetObjectType()` then its type will be visible in value column
 * Strings in value column have no line brakes
 
@@ -66,7 +66,7 @@ ViragDevTool is in beta (probably even early alpha) so there is lots of stuff to
 4. Add Events tracking
 5. Add object deep copy option
 6. Add predefined buttons for every WoW API (just like _G)
-7. Add close frame button and /slash cmd
+7. Add close frame button 
 8. Add row delimiters so we can resize rows in table
 9. Add function args info and description from mapping file
 

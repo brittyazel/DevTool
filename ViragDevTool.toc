@@ -2,5 +2,6 @@
 ## Title: Virag's WoW Dev Tool
 ## Author: Varren@AzuregosRU
 ## Version: 0.1
-
+## SavedVariables: ViragDevTool_Settings
+ViragDevTool.lua
 ViragDevTool.xml
