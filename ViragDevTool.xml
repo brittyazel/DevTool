@@ -28,7 +28,18 @@
         <NormalFont style="GameFontHighlightLeft"/>
     </Button>
 
-    <Button text="Test" name="ViragDevToolRowTemplate"  virtual="true">
+    <Button text="Test" name="ViragDevToolSideBarRowTemplate" virtual="true">
+        <Size>
+            <AbsDimension x="50" y="12"/>
+        </Size>
+        <Anchors>
+            <Anchor point="RIGHT"/>
+            <Anchor point="LEFT"/>
+        </Anchors>
+        <NormalFont style="GameFontHighlightLeft"/>
+    </Button>
+
+    <Button text="Test" name="ViragDevToolRowTemplate" virtual="true">
         <Size>
             <AbsDimension x="50"/>
         </Size>
@@ -39,6 +50,8 @@
         </Anchors>
         <NormalFont style="GameFontHighlightLeft"/>
     </Button>
+
+
 
     <Frame name="ViragDevToolEntryTemplate" virtual="true">
         <Anchors>
@@ -58,14 +71,18 @@
             </Button>
 
             <Button text="Test Text" name="$parentNameRow" inherits="ViragDevToolRowTemplate" parentKey="nameButton">
-                <Size><AbsDimension x="400"/></Size>
+                <Size>
+                    <AbsDimension x="400"/>
+                </Size>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentRowType" relativePoint="RIGHT"/>
                 </Anchors>
             </Button>
 
             <Button text="Test Text" name="$parentValueRow" inherits="ViragDevToolRowTemplate" parentKey="valueButton">
-                <Size><AbsDimension x="700"/></Size>
+                <Size>
+                    <AbsDimension x="700"/>
+                </Size>
                 <Anchors>
                     <Anchor point="RIGHT"/>
                     <Anchor point="LEFT" relativeTo="$parentNameRow" relativePoint="RIGHT"/>
@@ -85,14 +102,16 @@
         <Scripts>
             <OnLoad>
                 ViragDevTool:OnLoad(self)
+                self:SetMinResize(600,100);
                 self:RegisterForDrag("LeftButton");
             </OnLoad>
             <OnDragStart>
                 self:StartSizing()
             </OnDragStart>
             <OnDragStop>
-                self:StopMovingOrSizing();
                 self.scrollFrame:update()
+                self:StopMovingOrSizing();
+
             </OnDragStop>
         </Scripts>
         <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border"
@@ -132,7 +151,61 @@
                 </Frames>
             </ScrollFrame>
 
-            <Frame name="$parentTopBar"  enableMouse="true">
+            <Frame name="$parentSideBar" enableMouse="true" parentKey="sideFrame" hidden="true">
+                <Size>
+                    <AbsDimension x="400"/>
+                </Size>
+
+                <Anchors>
+                    <Anchor point="TOP"/>
+                    <Anchor point="BOTTOM"/>
+                    <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT"/>
+                </Anchors>
+                <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background"
+                          tile="true">
+
+                    <TileSize>
+                        <AbsValue val="16"/>
+                    </TileSize>
+                    <EdgeSize>
+                        <AbsValue val="16"/>
+                    </EdgeSize>
+                </Backdrop>
+                <Frames>
+                    <ScrollFrame name="$parentScrollFrame" inherits="HybridScrollFrameTemplate" parentKey="sideScrollFrame">
+                        <Anchors>
+                            <Anchor point="TOPLEFT">
+                                <Offset>
+                                    <AbsDimension x="8" y="-8"/>
+                                </Offset>
+                            </Anchor>
+                            <Anchor point="BOTTOMRIGHT">
+                                <Offset>
+                                    <AbsDimension x="-30" y="8"/>
+                                </Offset>
+                            </Anchor>
+                        </Anchors>
+                        <Frames>
+                            <Slider name="$parentScrollBar" inherits="HybridScrollBarTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="3" y="-12"/>
+                                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="3" y="13"/>
+                                </Anchors>
+                            </Slider>
+                        </Frames>
+                    </ScrollFrame>
+                    <Button text="History of \vdt {name}" name="$parentHistoryButton" inherits="ViragDevToolTopButton">
+
+                        <Anchors>
+                            <Anchor point="LEFT"/>
+                            <Anchor point="RIGHT"/>
+                            <Anchor point="BOTTOM" relativeTo="$parentScrollFrame" relativePoint="TOP"/>
+                        </Anchors>
+                    </Button>
+                </Frames>
+            </Frame>
+
+            <Frame name="$parentTopBar" enableMouse="true" parentKey="topFrame">
                 <Size>
                     <AbsDimension y="25"/>
                 </Size>
@@ -166,20 +239,33 @@
                 </Backdrop>
 
                 <Frames>
-                    <Button text="CLEAR" name="$parentClearButton" inherits="ViragDevToolTopButton">
+                    <Button text="+" name="$parentToggleSideBarButton" inherits="ViragDevToolTopButton">
                         <Scripts>
                             <OnClick>
-                                ViragDevTool:ClearData()
+                                ViragDevTool:ToggleSidebar()
                             </OnClick>
                         </Scripts>
                         <Anchors>
                             <Anchor point="TOPLEFT"/>
                         </Anchors>
                     </Button>
+                    <Button text="CLEAR" name="$parentClearButton" inherits="ViragDevToolTopButton">
+                        <Scripts>
+                            <OnClick>
+                                ViragDevTool:ClearData()
+                            </OnClick>
+                        </Scripts>
+
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentToggleSideBarButton" relativePoint="RIGHT"/>
+                        </Anchors>
+                    </Button>
                     <Button text="_G" name="$parentAddGlobalButton" inherits="ViragDevToolTopButton">
                         <Scripts>
                             <OnClick>
                                 ViragDevTool_AddData(_G, "_G")
+                                ViragDevTool_AddData(ViragDevTool, "ViragDevTool")
+
                             </OnClick>
                         </Scripts>
                         <Anchors>
