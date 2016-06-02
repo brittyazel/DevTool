@@ -12,7 +12,28 @@ ViragDevTool = {
     CMD = {
         --"/vdt help"
         HELP = function(msg)
+            local arg = function(txt) return "|cFF96C0CE" ..txt.."|cFFFFFFFF" end
+            local arg2 = function(txt) return "|cFFBEB9B5" ..txt.."|cFFFFFFFF" end
+            local arg3 = function(txt) return "|cFF00FF00" ..txt.."|cFFFFFFFF" end
             -- todo print info to chat
+            ViragDevTool:print("/vdt - toggle UI")
+            ViragDevTool:print("/vdt " .. arg("name") .. " - add _G." .. arg("name") .. " to the list")
+            ViragDevTool:print("/vdt " .. arg("name") .." ".. arg2("parent")
+                    .. " - add ".. arg2("parent") .. "." .. arg("name") .. " to the list.\n" ..
+                    arg2("parent") .. " can be like A.B so this will look in _G.A.B." .. arg("name"))
+            ViragDevTool:print("/vdt " .. arg3("find") .." " .. arg("name") .." ".. arg2("parent")
+                    .. " - add " .. arg("name") .." _G." .. arg("*name*") .."to the list" ..
+                    "Adds any field name that has " .. arg("name") .." part in its name")
+            ViragDevTool:print("/vdt " .. arg3("startswith") .." " .. arg("name") .." ".. arg2("parent")
+                    .. " - same as find but will look only for name* ")
+            ViragDevTool:print("/vdt " .. arg3("m") .." add frame at mouse location to the list. Recommendation: use binds for this cmd")
+
+            ViragDevTool:print("/vdt " .. arg3("eventadd") .." " .. arg("event") .." ".. arg2("unit")
+                    .."\nExample: /vdt eventadd UNIT_AURA player")
+
+            ViragDevTool:print("/vdt " .. arg3("eventremove") .." " .. arg("event")
+                    .."\nExample: /vdt eventremove UNIT_AURA \n /vdt eventremove ALL will reset events in events tab to default state")
+
             return ViragDevTool.CMD, msg
         end,
 
@@ -746,6 +767,18 @@ end
 function ViragDevTool:AddToHistory(strValue)
     if self.settings and self.settings.history then
         local hist = self.settings.history
+
+        -- if already contains value then just move it to top
+        for k, v in pairs (hist or {}) do
+            if v == strValue then
+                table.remove(hist, k)
+                table.insert(hist, 1, strValue)
+                self:UpdateSideBarUI()
+                return
+            end
+        end
+
+
         table.insert(hist, 1, strValue)
 
         local maxSize = self.default_settings.MAX_HISTORY_SIZE
@@ -754,11 +787,13 @@ function ViragDevTool:AddToHistory(strValue)
         end
 
         while #hist > maxSize do -- can have only 10 values in history
-        table.remove(hist, maxSize)
+            table.remove(hist, maxSize)
         end
+
         self:UpdateSideBarUI()
     end
 end
+
 
 -----------------------------------------------------------------------------------------------
 -- EVENTS
