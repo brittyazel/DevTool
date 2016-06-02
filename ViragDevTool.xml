@@ -23,7 +23,7 @@
 
     <Button text="Test" name="ViragDevToolTopButton" inherits="UIPanelButtonTemplate" virtual="true">
         <Size>
-            <AbsDimension x="150" y="25"/>
+            <AbsDimension x="100" y="25"/>
         </Size>
         <NormalFont style="GameFontHighlightLeft"/>
     </Button>
@@ -151,9 +151,11 @@
                 </Frames>
             </ScrollFrame>
 
+            <Frame name="$parentSideBar" parentKey="listenerFrame" hidden="true"/>
+
             <Frame name="$parentSideBar" enableMouse="true" parentKey="sideFrame" hidden="true">
                 <Size>
-                    <AbsDimension x="400"/>
+                    <AbsDimension x="300"/>
                 </Size>
 
                 <Anchors>
@@ -194,14 +196,41 @@
                             </Slider>
                         </Frames>
                     </ScrollFrame>
-                    <Button text="History of \vdt {name}" name="$parentHistoryButton" inherits="ViragDevToolTopButton">
 
+                    <Button text="\vdt History" name="$parentHistoryButton" inherits="ViragDevToolTopButton" parentKey="historyButton">
+                        <Scripts>
+                            <OnClick>
+                                ViragDevTool:EnableSideBarTab(self)
+                            </OnClick>
+                        </Scripts>
                         <Anchors>
                             <Anchor point="LEFT"/>
-                            <Anchor point="RIGHT"/>
                             <Anchor point="BOTTOM" relativeTo="$parentScrollFrame" relativePoint="TOP"/>
                         </Anchors>
                     </Button>
+
+                    <Button text="Events" name="$parentEventsButton" inherits="ViragDevToolTopButton" parentKey="eventButton">
+                        <Scripts>
+                            <OnClick>
+                                ViragDevTool:EnableSideBarTab(self)
+                            </OnClick>
+                        </Scripts>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentHistoryButton" relativePoint="RIGHT"/>
+                        </Anchors>
+                    </Button>
+
+                    <Button text="Favourites" name="$parentFavouritesButton" inherits="ViragDevToolTopButton" parentKey="favouritesButton">
+                        <Scripts>
+                            <OnClick>
+                                ViragDevTool:EnableSideBarTab(self)
+                            </OnClick>
+                        </Scripts>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentEventsButton" relativePoint="RIGHT"/>
+                        </Anchors>
+                    </Button>
+
                 </Frames>
             </Frame>
 
