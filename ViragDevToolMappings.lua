@@ -12,7 +12,7 @@ end
 function ViragDevTool:FindIn(parent, strName, fn)
     local resultTable = {}
 
-    for k, v in pairs(parent) do
+    for k, v in pairs(parent or {}) do
         if fn(k, strName) then
             resultTable[k] = v
         end

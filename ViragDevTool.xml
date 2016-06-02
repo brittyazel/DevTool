@@ -21,12 +21,14 @@
         <Color r="1.0" g="1.0" b="1.0"/>
     </Font>
 
-    <Button text="Test" name="ViragDevToolTopButton" inherits="UIPanelButtonTemplate" virtual="true">
+    <CheckButton text="Test" name="ViragDevToolTopButton" inherits="UIPanelButtonTemplate" virtual="true">
         <Size>
             <AbsDimension x="100" y="25"/>
         </Size>
         <NormalFont style="GameFontHighlightLeft"/>
-    </Button>
+        <CheckedTexture  file="Interface\Buttons\UI-DialogBox-Button-Highlight" alphaMode="ADD">
+        </CheckedTexture>
+    </CheckButton>
 
     <Button text="Test" name="ViragDevToolSideBarRowTemplate" virtual="true">
         <Size>
@@ -197,40 +199,99 @@
                         </Frames>
                     </ScrollFrame>
 
-                    <Button text="\vdt History" name="$parentHistoryButton" inherits="ViragDevToolTopButton" parentKey="historyButton">
+                    <CheckButton text="\vdt History" name="$parentHistoryButton" inherits="ViragDevToolTopButton" parentKey="history">
                         <Scripts>
                             <OnClick>
-                                ViragDevTool:EnableSideBarTab(self)
+                                ViragDevTool:EnableSideBarTab("history")
                             </OnClick>
                         </Scripts>
                         <Anchors>
                             <Anchor point="LEFT"/>
                             <Anchor point="BOTTOM" relativeTo="$parentScrollFrame" relativePoint="TOP"/>
                         </Anchors>
-                    </Button>
+                    </CheckButton>
 
-                    <Button text="Events" name="$parentEventsButton" inherits="ViragDevToolTopButton" parentKey="eventButton">
+                    <CheckButton text="Events" name="$parentEventsButton" inherits="ViragDevToolTopButton" parentKey="events">
                         <Scripts>
                             <OnClick>
-                                ViragDevTool:EnableSideBarTab(self)
+                                ViragDevTool:EnableSideBarTab("events")
                             </OnClick>
                         </Scripts>
+
                         <Anchors>
                             <Anchor point="LEFT" relativeTo="$parentHistoryButton" relativePoint="RIGHT"/>
                         </Anchors>
-                    </Button>
+                    </CheckButton>
 
-                    <Button text="Favourites" name="$parentFavouritesButton" inherits="ViragDevToolTopButton" parentKey="favouritesButton">
+                    <CheckButton text="Favourites" name="$parentFavouritesButton" inherits="ViragDevToolTopButton" parentKey="favourites">
                         <Scripts>
                             <OnClick>
-                                ViragDevTool:EnableSideBarTab(self)
+                                ViragDevTool:EnableSideBarTab("favourites")
                             </OnClick>
                         </Scripts>
+
                         <Anchors>
                             <Anchor point="LEFT" relativeTo="$parentEventsButton" relativePoint="RIGHT"/>
                         </Anchors>
-                    </Button>
+                    </CheckButton>
 
+                    <EditBox  name="$parentTextArea" autoFocus="false"  parentKey="editbox">
+                        <Size>
+                            <AbsDimension x="300" y="32"/>
+                        </Size>
+                        <Anchors>
+                            <Anchor point="LEFT"/>
+                            <Anchor point="TOP" relativeTo="$parentScrollFrame" relativePoint="BOTTOM"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnEnterPressed>
+                                ViragDevTool:SubmitEditBoxSidebar()
+                                self:SetText("")
+                            </OnEnterPressed>
+                            <OnEscapePressed>
+                                self:ClearFocus();
+                                self:SetText("")
+                            </OnEscapePressed>
+                        </Scripts>
+                        <FontString inherits="ChatFontNormal"/>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture name="$parentLeft" file="Interface\ChatFrame\UI-ChatInputBorder-Left2">
+                                    <Size>
+                                        <AbsDimension x="32" y="32"/>
+                                    </Size>
+                                    <Anchors>
+                                        <Anchor point="LEFT" x="-10" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture name="$parentRight" file="Interface\ChatFrame\UI-ChatInputBorder-Right2">
+                                    <Size>
+                                        <AbsDimension x="32" y="32"/>
+                                    </Size>
+                                    <Anchors>
+                                        <Anchor point="RIGHT" x="10" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture name="$parentMid" file="Interface\ChatFrame\UI-ChatInputBorder-Mid2" horizTile="true">
+                                    <Size>
+                                        <AbsDimension x="0" y="32"/>
+                                    </Size>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeTo="$parentLeft" relativePoint="TOPRIGHT">
+                                            <Offset>
+                                                <AbsDimension x="0" y="0"/>
+                                            </Offset>
+                                        </Anchor>
+                                        <Anchor point="TOPRIGHT" relativeTo="$parentRight" relativePoint="TOPLEFT">
+                                            <Offset>
+                                                <AbsDimension x="0" y="0"/>
+                                            </Offset>
+                                        </Anchor>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </EditBox>
                 </Frames>
             </Frame>
 
@@ -293,7 +354,6 @@
                         <Scripts>
                             <OnClick>
                                 ViragDevTool_AddData(_G, "_G")
-
                             </OnClick>
                         </Scripts>
                         <Anchors>
