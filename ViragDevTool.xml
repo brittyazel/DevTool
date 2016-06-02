@@ -264,7 +264,6 @@
                         <Scripts>
                             <OnClick>
                                 ViragDevTool_AddData(_G, "_G")
-                                ViragDevTool_AddData(ViragDevTool, "ViragDevTool")
 
                             </OnClick>
                         </Scripts>
@@ -272,16 +271,28 @@
                             <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT"/>
                         </Anchors>
                     </Button>
-                    <Button text="Unit" name="$parentAddPlayerInfoButton" inherits="ViragDevToolTopButton">
+                    <Button text="Mapping" name="$parentAddPlayerInfoButton" inherits="ViragDevToolTopButton">
                         <Scripts>
                             <OnClick>
-                                local name, realm = UnitFullName("player")
-                                ViragDevTool_AddData(UnitGUID("player"), name .. "-" .. realm)
+                                ViragDevTool_AddData(ViragDevTool.mapping, "mapping")
                             </OnClick>
                         </Scripts>
                         <Anchors>
                             <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT"/>
                         </Anchors>
+                    </Button>
+                    <Button text="x" inherits="ViragDevToolTopButton" virtual="true">
+                        <Size>
+                            <AbsDimension x="25" y="25"/>
+                        </Size>
+                        <Anchors>
+                            <Anchor point="RIGHT" />
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                ViragDevTool:ToggleUI()
+                            </OnClick>
+                        </Scripts>
                     </Button>
                 </Frames>
             </Frame>

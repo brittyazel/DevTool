@@ -47,7 +47,29 @@ Output:
 
 | Id(Row in list)   | Type          | Data Name  | Data Value  |
 | ----------------- | ------------- | ---------- | -----------------------|
-| 1                 | table         | \_G (number of objects in the table) | value   |
+
+### /CMD
+
+* **/vdt - toggle ui**
+* **/vdd <name>** - add variable to the list. will search in _G
+
+Can use . to select object in some other object
+
+For example:
+/vdt ViragDevTool.myvar will add myvar to the list if it exists
+
+* **/vdt find [someString] [optional parent]**
+
+will try to find every variable that has searched someString
+
+For example:
+/vdt find Frame will list all the objects in _G that have "Frame" in their name
+/vdt find Frame ViragDevTool will list  vars with Frames in their name but only for ViragDevTool
+
+* **/vdt startswith [someString] [optional parent]**
+
+Same as for "/vdt find" but will look only prefix of variable names
+find searches for \*someString\* and startswith searches for someString\* 
 
 ### Other functionality
 * **Clicking on table name** will expand and show its children

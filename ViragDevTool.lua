@@ -1,24 +1,47 @@
 -- create global instance
 ViragDevTool = {
+    --static constant useed for metatable name
     METATABLE_NAME = "$metatable",
-    tArgs = {}, -- stores arguments for cunction calls
 
+    --this 2 keyword are for cmd operations
+    -- you can use /vdt find somestr parentname(can be in format _G.Frame.Button)
+    -- for examle "/vdt find Virag" will find every variable in _G that has *Virag* pattern
+    -- "/vdt find Data ViragDevTool" will find every variable that has *Data* in their name in _G.ViragDevTool object if it exists
+    -- same for "startswith"
+    FIND_CMD_KEYWORD = "find",
+    STARTS_WITH_CMD_KEYWORD = "startswith",
+
+    -- stores arguments for fcunction calls --todo implement
+    tArgs = {},
+
+    -- mapping table is used to store searches and diferent values that are frequently used
+    -- for example we may need some api or some variable so we can add it here
+    mapping = {},
+
+    -- this variable will be used only on first load so it is just default init with empty values.
+    -- will be replaced with ViragDevTool_Settings at 2-nd start
     DEFAULT_SETTINGS = {
-        history = {}, -- stores history of recent calls to ViragDevTool_AddData
-        favourites = {} -- stores  saved vars for fust call
+        -- stores history of recent calls to /vdt
+        history = {},
+        favourites = {} --todo implement
     }
 }
 
 -- just remove global reference so it is easy to read with my ide
 local ViragDevTool = ViragDevTool
-local pairs, tostring, type, print, string, getmetatable, table, pcall = pairs, tostring, type, print, string, getmetatable, table, pcall
-local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update = HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
+
+local pairs, tostring, type, print, string, getmetatable, table, pcall =
+pairs, tostring, type, print, string, getmetatable, table, pcall
+
+local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update =
+HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevTool_Colors == ViragDevTool.colors
 -----------------------------------------------------------------------------------------------
 
---todo refactore this
+-- todo refactore this class
+
 local ViragDevTool_Colors = {
     white = "|cFFFFFFFF",
     gray = "|cFFBEB9B5",
@@ -219,27 +242,60 @@ end
 function ViragDevTool:AddDataFromString(msg, bAddToHistory)
     if msg == "" then
         msg = "_G"
+
+    elseif #msg < 3 then
+        self:print(msg .. " - too short, need str of size 2+")
+        return
     end
 
-    local vars = string.split(msg, ".") or {}
+    local msgs = self.split(msg, " ")
+
+    local resultTable
+
+    if #msgs > 1 then
+        -- got search and not normal _g[msg]
+        -- search can have find and prefix
+        local firstArg = msgs[1]
+        local secondArg = msgs[2]
+        local thirdArg = msgs[3]
+
+        local parent = _G
+
+        if thirdArg then parent = self:FromStrToObject(thirdArg) end
+
+        if string.lower(firstArg) == self.FIND_CMD_KEYWORD then
+            resultTable = self:FindIn(parent, secondArg, string.match)
+        elseif string.lower(firstArg) == self.STARTS_WITH_CMD_KEYWORD then
+            resultTable = self:FindIn(parent, secondArg, self.starts)
+        end
+
+    else
+        resultTable = self:FromStrToObject(msg)
+        if not resultTable then
+            self:print("_G." .. msg .. " == nil, so can't add")
+        end
+    end
+
+    if resultTable then
+        if bAddToHistory then
+            ViragDevTool:AddToHistory(msg)
+        end
+
+        ViragDevTool_AddData(resultTable, msg)
+    end
+end
+
+function ViragDevTool:FromStrToObject(str)
+    local vars = self.split(str, ".") or {}
 
     local var = _G
     for _, name in pairs(vars) do
         if var then
             var = var[name]
         end
-
-    end
-    if var  then
-    if bAddToHistory then
-        ViragDevTool:AddToHistory(msg)
     end
 
-    ViragDevTool_AddData(var, msg)
-    else
-        self:print("_G." .. msg .. " == nil, so can't add")
-    end
-
+    return var
 end
 
 
@@ -395,7 +451,8 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
 
         local function tablelength(T)
             local count = 0
-            for _ in pairs(T) do count = count + 1 end
+            for _ in pairs(T) do count = count + 1
+            end
             return count
         end
 
@@ -422,8 +479,11 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     self:SetMainTableButtonScript(valueButton, info)
 end
 
+-----------------------------------------------------------------------------------------------
+-- Main table row button clicks setup
+-----------------------------------------------------------------------------------------------
 function ViragDevTool:SetMainTableButtonScript(button, info)
-    local valueType =  type(info.value)
+    local valueType = type(info.value)
     if valueType == "table" then
         button:SetScript("OnMouseUp", function(this, button, down)
             if info.expanded then
@@ -438,19 +498,6 @@ function ViragDevTool:SetMainTableButtonScript(button, info)
         end)
     else
         button:SetScript("OnMouseUp", nil)
-    end
-end
-
-
-function ViragDevTool:GetObjectTypeFromWoWAPI(value)
-    if value.GetObjectType and value.IsForbidden then
-        local ok, forbidden = pcall(value.IsForbidden, value)
-        if ok and not forbidden then
-            local ok, result = pcall(value.GetObjectType, value)
-            if ok then
-                return result
-            end
-        end
     end
 end
 
@@ -509,7 +556,8 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     -- for example 1, 2, nil, 4 should return only this 4 values nothing more, nothing less.
     local found = false
     for i = 10, 1, -1 do
-        if results[i] ~= nil then found = true end
+        if results[i] ~= nil then found = true
+        end
 
         if found or i == 1 then -- if found some return or if return is nil
         nodes[i] = list:NewNode(results[i], string.format("  return: %d", i), padding)
@@ -540,7 +588,7 @@ function ViragDevTool:AddToHistory(strValue)
         local hist = self.settings.history
         table.insert(hist, 1, strValue)
         while #hist > 20 do -- can have only 10 values in history
-            table.remove(hist, 20)
+        table.remove(hist, 20)
         end
         self:UpdateSideBarUI()
     end
@@ -580,8 +628,12 @@ function ViragDevTool:OnLoad(mainFrame)
 
     -- register slash cmd
     SLASH_VIRAGDEVTOOLS1 = '/vdt';
-    function SlashCmdList.VIRAGDEVTOOLS(msg, editbox) -- 4.
-        self:AddDataFromString(msg, true)
+    function SlashCmdList.VIRAGDEVTOOLS(msg, editbox)
+        if msg == "" or msg == nil then
+            self:ToggleUI()
+        else
+            self:AddDataFromString(msg, true)
+        end
     end
 end
 
@@ -608,22 +660,33 @@ end
 -----------------------------------------------------------------------------------------------
 -- UTILS
 -----------------------------------------------------------------------------------------------
-
 function ViragDevTool:print(strText)
     print(self.colors.darkred .. "[Virag's DT]: " .. self.colors.white .. strText)
 end
 
 function ViragDevTool:shallowcopyargs(orig)
     local copy = {}
-    for k, v in pairs(orig) do copy[k] = orig[v] end
+    for k, v in pairs(orig) do copy[k] = orig[v]
+    end
     return copy
 end
 
-function string:split(sep)
+function ViragDevTool:split(sep)
     local sep, fields = sep or ".", {}
     local pattern = string.format("([^%s]+)", sep)
-    self:gsub(pattern, function(c) fields[#fields + 1] = c end)
+    self:gsub(pattern, function(c) fields[#fields + 1] = c
+    end)
     return fields
 end
 
-
+function ViragDevTool:GetObjectTypeFromWoWAPI(value)
+    if value.GetObjectType and value.IsForbidden then
+        local ok, forbidden = pcall(value.IsForbidden, value)
+        if ok and not forbidden then
+            local ok, result = pcall(value.GetObjectType, value)
+            if ok then
+                return result
+            end
+        end
+    end
+end
