@@ -1,7 +1,7 @@
 <Ui>
 
     <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
-
+    <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
     <Font name="ViragDevToolTableFont" inherits="ViragDevToolDefaultFont" virtual="true">
         <Color r="0.41" g="0.80" b="0.94"/>
     </Font>
@@ -26,20 +26,45 @@
             <AbsDimension x="100" y="25"/>
         </Size>
         <NormalFont style="GameFontHighlightLeft"/>
-        <CheckedTexture  file="Interface\Buttons\UI-DialogBox-Button-Highlight" alphaMode="ADD">
+        <CheckedTexture file="Interface\Buttons\UI-DialogBox-Button-Highlight" alphaMode="ADD">
         </CheckedTexture>
     </CheckButton>
 
-    <Button text="Test" name="ViragDevToolSideBarRowTemplate" virtual="true">
+    <Frame name="ViragDevToolSideBarRowTemplate" virtual="true">
         <Size>
-            <AbsDimension x="50" y="12"/>
+            <AbsDimension y="18"/>
         </Size>
         <Anchors>
             <Anchor point="RIGHT"/>
             <Anchor point="LEFT"/>
         </Anchors>
-        <NormalFont style="GameFontHighlightLeft"/>
-    </Button>
+
+        <Frames>
+            <Button name="$parentActionButton" parentKey="actionButton">
+                <Size>
+                    <AbsDimension x="25" y="25"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="LEFT"/>
+                </Anchors>
+                <NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
+                <PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
+                <DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
+                <HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+            </Button>
+            <Button text="Test" name="$parentMainButton" parentKey="mainButton">
+                <Anchors>
+                    <Anchor point="TOP"/>
+                    <Anchor point="BOTTOM"/>
+                    <Anchor point="RIGHT"/>
+                    <Anchor point="LEFT" relativeTo="$parentActionButton" relativePoint="RIGHT"/>
+                </Anchors>
+
+                <NormalFont style="ViragDevToolMediumFont"/>
+            </Button>
+        </Frames>
+    </Frame>
+
 
     <Button text="Test" name="ViragDevToolRowTemplate" virtual="true">
         <Size>
@@ -54,13 +79,12 @@
     </Button>
 
 
-
     <Frame name="ViragDevToolEntryTemplate" virtual="true">
         <Anchors>
             <Anchor point="TOPLEFT"/>
         </Anchors>
         <Size>
-            <AbsDimension x="1200" y="12"/>
+            <AbsDimension x="1200" y="13"/>
         </Size>
         <Frames>
             <Button text="table" name="$parentRowCellCount" inherits="ViragDevToolRowTemplate"
@@ -104,7 +128,7 @@
         <Scripts>
             <OnLoad>
                 ViragDevTool:OnLoad(self)
-                self:SetMinResize(600,100);
+                self:SetMinResize(600, 100);
                 self:RegisterForDrag("LeftButton");
             </OnLoad>
             <OnDragStart>
@@ -153,7 +177,7 @@
                 </Frames>
             </ScrollFrame>
 
-            <Frame name="$parentSideBar" parentKey="listenerFrame" hidden="true"/>
+            <Frame name="$parentSideBarListener" parentKey="listenerFrame" hidden="true"/>
 
             <Frame name="$parentSideBar" enableMouse="true" parentKey="sideFrame" hidden="true">
                 <Size>
@@ -176,11 +200,12 @@
                     </EdgeSize>
                 </Backdrop>
                 <Frames>
-                    <ScrollFrame name="$parentScrollFrame" inherits="HybridScrollFrameTemplate" parentKey="sideScrollFrame">
+                    <ScrollFrame name="$parentScrollFrame" inherits="HybridScrollFrameTemplate"
+                                 parentKey="sideScrollFrame">
                         <Anchors>
                             <Anchor point="TOPLEFT">
                                 <Offset>
-                                    <AbsDimension x="8" y="-8"/>
+                                    <AbsDimension x="0" y="-8"/>
                                 </Offset>
                             </Anchor>
                             <Anchor point="BOTTOMRIGHT">
@@ -199,7 +224,8 @@
                         </Frames>
                     </ScrollFrame>
 
-                    <CheckButton text="\vdt History" name="$parentHistoryButton" inherits="ViragDevToolTopButton" parentKey="history">
+                    <CheckButton text="\vdt History" name="$parentHistoryButton" inherits="ViragDevToolTopButton"
+                                 parentKey="history">
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:EnableSideBarTab("history")
@@ -211,7 +237,8 @@
                         </Anchors>
                     </CheckButton>
 
-                    <CheckButton text="Events" name="$parentEventsButton" inherits="ViragDevToolTopButton" parentKey="events">
+                    <CheckButton text="Events" name="$parentEventsButton" inherits="ViragDevToolTopButton"
+                                 parentKey="events">
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:EnableSideBarTab("events")
@@ -223,7 +250,8 @@
                         </Anchors>
                     </CheckButton>
 
-                    <CheckButton text="Favourites" name="$parentFavouritesButton" inherits="ViragDevToolTopButton" parentKey="favourites">
+                    <CheckButton text="Favourites" name="$parentFavouritesButton" inherits="ViragDevToolTopButton"
+                                 parentKey="favourites">
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:EnableSideBarTab("favourites")
@@ -235,7 +263,7 @@
                         </Anchors>
                     </CheckButton>
 
-                    <EditBox  name="$parentTextArea" autoFocus="false"  parentKey="editbox">
+                    <EditBox name="$parentTextArea" autoFocus="false" parentKey="editbox">
                         <Size>
                             <AbsDimension x="300" y="32"/>
                         </Size>
@@ -272,7 +300,8 @@
                                         <Anchor point="RIGHT" x="10" y="0"/>
                                     </Anchors>
                                 </Texture>
-                                <Texture name="$parentMid" file="Interface\ChatFrame\UI-ChatInputBorder-Mid2" horizTile="true">
+                                <Texture name="$parentMid" file="Interface\ChatFrame\UI-ChatInputBorder-Mid2"
+                                         horizTile="true">
                                     <Size>
                                         <AbsDimension x="0" y="32"/>
                                     </Size>
@@ -375,7 +404,7 @@
                             <AbsDimension x="25" y="25"/>
                         </Size>
                         <Anchors>
-                            <Anchor point="RIGHT" />
+                            <Anchor point="RIGHT"/>
                         </Anchors>
                         <Scripts>
                             <OnClick>

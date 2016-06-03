@@ -52,7 +52,7 @@ ViragDevTool = {
         end,
 
         --"/vdt startswith Data ViragDevTool" or "/vdt startswith Data"
-        STARTS_WITH = function(msg)
+        STARTSWITH = function(msg)
 
             local tMsg = ViragDevTool.split(msg, " ")
 
@@ -615,8 +615,9 @@ function ViragDevTool:UpdateSideBarUI()
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
     local totalRowsCount = self:tablelength(data)
 
-    for k, view in pairs(buttons) do
-
+    for k, frame in pairs(buttons) do
+        local view = frame.mainButton
+        local sideButton = frame.actionButton
         local lineplusoffset = k + offset;
         if lineplusoffset <= totalRowsCount then
             local currItem = data[lineplusoffset]
@@ -650,10 +651,14 @@ function ViragDevTool:UpdateSideBarUI()
                     view:SetText(color .. currItem.event)
                 end)
             end
-
-            view:Show();
+            sideButton:SetScript("OnMouseUp", function()
+                --move to top
+               table.remove(data,lineplusoffset)
+               self:UpdateSideBarUI()
+            end)
+            frame:Show();
         else
-            view:Hide();
+            frame:Hide();
         end
     end
 
@@ -800,7 +805,6 @@ end
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:OnEvent(this, event, ...)
     local arg = { ... }
-    print(event)
     if event == "ADDON_LOADED" and arg[1] == self.ADDON_NAME then
         ViragDevTool_Settings = self:SetupForSettings(ViragDevTool_Settings)
     end
