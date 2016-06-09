@@ -897,7 +897,6 @@ end
 
 function ViragDevTool:SetupForSettings(s)
 
-
     if s == nil then
         s = self.default_settings
     else
@@ -920,14 +919,15 @@ function ViragDevTool:SetupForSettings(s)
     self.settings = s
 
     -- refresh gui
-    -- setup selected sidebar tab history/events/ favourites
-    self:EnableSideBarTab(s.sideBarTabSelected)
 
     -- setup open o closed main wnd
     self:SetVisible(self.wndRef, s.isWndOpen)
 
     -- setup open o closed sidebar
     self:SetVisible(self.wndRef.sideFrame, s.isSideBarOpen)
+
+    -- setup selected sidebar tab history/events/ favourites
+    self:EnableSideBarTab(s.sideBarTabSelected)
 
     --setup events part 1 register listeners
     for _, tEvent in pairs(self.settings.events) do

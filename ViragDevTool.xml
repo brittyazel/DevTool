@@ -251,8 +251,9 @@
                         </Anchors>
                     </CheckButton>
 
+
                     <CheckButton text="Favourites" name="$parentFavouritesButton" inherits="ViragDevToolTopButton"
-                                 parentKey="favourites">
+                                 parentKey="favourites"  hidden="true"> <!-- TODO implement and make it visible -->
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:EnableSideBarTab("favourites")
@@ -359,15 +360,19 @@
                 </Backdrop>
 
                 <Frames>
-                    <Button text="+" name="$parentToggleSideBarButton" inherits="ViragDevToolTopButton">
+                    <Button name="$parentToggleSideBarButton">
+                        <Size x="32" y="32"/>
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:ToggleSidebar()
                             </OnClick>
                         </Scripts>
                         <Anchors>
-                            <Anchor point="TOPLEFT"/>
+                            <Anchor point="LEFT"/>
                         </Anchors>
+                        <NormalTexture file="Interface\Buttons\UI-Panel-SmallerButton-Up"/>
+                        <PushedTexture file="Interface\Buttons\UI-Panel-SmallerButton-Down"/>
+                        <HighlightTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
                     </Button>
                     <Button text="CLEAR" name="$parentClearButton" inherits="ViragDevToolTopButton">
                         <Scripts>
@@ -390,23 +395,16 @@
                             <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT"/>
                         </Anchors>
                     </Button>
-                    <Button text="Mapping" name="$parentAddPlayerInfoButton" inherits="ViragDevToolTopButton">
-                        <Scripts>
-                            <OnClick>
-                                ViragDevTool_AddData(ViragDevTool.mapping, "mapping")
-                            </OnClick>
-                        </Scripts>
-                        <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT"/>
-                        </Anchors>
-                    </Button>
-                    <Button text="x" inherits="ViragDevToolTopButton" virtual="true">
-                        <Size>
-                            <AbsDimension x="25" y="25"/>
-                        </Size>
+
+                    <Button virtual="true">
+                        <Size x="32" y="32"/>
                         <Anchors>
                             <Anchor point="RIGHT"/>
                         </Anchors>
+                        <NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
+                        <PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
+                        <DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
+                        <HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:ToggleUI()
