@@ -1042,6 +1042,13 @@ function ViragDevTool:printtable(T)
     end
 end
 
+function ViragDevTool:TestFunction(...)
+    local values = {...}
+    for k,v in pairs(values) do
+        print(k .."  => " .. v)
+    end
+end
+
 
 function ViragDevTool:GetObjectTypeFromWoWAPI(value)
     if ACP and value == ACP.L then return end --todo fix this later throws exception
