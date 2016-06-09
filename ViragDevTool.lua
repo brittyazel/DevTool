@@ -460,7 +460,6 @@ function ViragDevTool:SortFnForCells(nodeList)
             if a.name == "__index" then return true
             elseif b.name == "__index" then return false
             else
-
                 if tonumber(a.name) ~= nil and tonumber(b.name) ~= nil then
                     return tonumber(a.name)< tonumber(b.name)
                 else

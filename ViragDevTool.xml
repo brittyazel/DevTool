@@ -154,11 +154,9 @@
 
             </OnDragStop>
         </Scripts>
-        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border"
+        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background"
                   tile="true">
-            <BackgroundInsets>
-                <AbsInset left="4" right="4" top="4" bottom="4"/>
-            </BackgroundInsets>
+
             <TileSize>
                 <AbsValue val="16"/>
             </TileSize>
@@ -199,7 +197,11 @@
                 </Size>
 
                 <Anchors>
-                    <Anchor point="TOP"/>
+                    <Anchor point="TOP">
+                        <Offset>
+                            <AbsDimension x="0" y="25"/>
+                        </Offset>
+                    </Anchor>
                     <Anchor point="BOTTOM"/>
                     <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT"/>
                 </Anchors>
@@ -219,12 +221,12 @@
                         <Anchors>
                             <Anchor point="TOPLEFT">
                                 <Offset>
-                                    <AbsDimension x="0" y="-8"/>
+                                    <AbsDimension x="0" y="-25"/>
                                 </Offset>
                             </Anchor>
                             <Anchor point="BOTTOMRIGHT">
                                 <Offset>
-                                    <AbsDimension x="-30" y="8"/>
+                                    <AbsDimension x="-30" y="32"/>
                                 </Offset>
                             </Anchor>
                         </Anchors>
@@ -280,11 +282,11 @@
 
                     <EditBox name="$parentTextArea" autoFocus="false" parentKey="editbox">
                         <Size>
-                            <AbsDimension x="300" y="32"/>
+                            <AbsDimension x="280" y="32"/>
                         </Size>
                         <Anchors>
-                            <Anchor point="LEFT"/>
-                            <Anchor point="TOP" relativeTo="$parentScrollFrame" relativePoint="BOTTOM"/>
+                            <Anchor point="LEFT" x ="6"/>
+                            <Anchor point="TOP" relativeTo="$parentScrollFrame" relativePoint="BOTTOM" y ="-2"/>
                         </Anchors>
                         <Scripts>
                             <OnEnterPressed>
