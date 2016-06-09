@@ -122,7 +122,6 @@ ViragDevTool = {
             "startswith Virag",
             "ViragDevTool.settings.history",
         },
-
         favourites = {}, --todo implement
 
         -- events to monitor
@@ -173,6 +172,13 @@ local ViragDevTool_Colors = {
     error = "|cFFFF0000",
     ok = "|cFF00FF00",
 }
+
+--this colors are used in main table text
+ViragDevTool_Colors["table"] = { 0.41, 0.80, 0.94, 1 }
+ViragDevTool_Colors["string"] = { 0.67, 0.83, 0.45, 1 }
+ViragDevTool_Colors["number"] = { 1, 0.96, 0.41, 1 }
+ViragDevTool_Colors["function"] = { 1, 0.49, 0.04, 1 }
+ViragDevTool_Colors["default"] = { 1, 1, 1, 1 }
 
 function ViragDevTool_Colors:forState(state)
     if state then return self.ok end
@@ -524,508 +530,502 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     typeButton:SetText(valueType)
     rowNumberButton:SetText(tostring(id))
 
-    local color = "ViragDevToolBaseFont"
-    if valueType == "table" then
-        if name ~= self.METATABLE_NAME then
-            local objectType = self:GetObjectTypeFromWoWAPI(value)
-            if objectType then
-                valueButton:SetText(objectType .. "  " .. tostring(value))
-            end
-            color = "ViragDevToolTableFont";
-        else
-            color = "ViragDevToolMetatableFont";
-        end
-        local resultStringName = tostring(name)
-        local MAX_STRING_SIZE = 60
-        if #resultStringName >= MAX_STRING_SIZE then
-            resultStringName = string.sub(resultStringName, 0, MAX_STRING_SIZE) .. "..."
-        end
+    -- local color = "ViragDevToolBaseFont"
+    local color = self.colors[valueType]
+    if not color then color = self.colors.default end
 
-        nameButton:SetText(resultStringName .. "   (" .. self:tablelength(value) .. ") ");
-
-    elseif valueType == "userdata" then
-        color = "ViragDevToolTableFont";
-    elseif valueType == "string" then
-        valueButton:SetText(string.gsub(string.gsub(tostring(value), "|n", ""), "\n", ""))
-        color = "ViragDevToolStringFont";
-    elseif valueType == "number" then
-        color = "ViragDevToolNumberFont";
-    elseif valueType == "function" then
-        color = "ViragDevToolFunctionFont";
-        --todo add function args info and description from error msges or from some mapping file
-    end
-
-    nameButton:SetNormalFontObject(color)
-    typeButton:SetNormalFontObject(color)
-    valueButton:SetNormalFontObject(color)
-    rowNumberButton:SetNormalFontObject(color)
-
-    self:SetMainTableButtonScript(nameButton, info)
-    self:SetMainTableButtonScript(valueButton, info)
-end
-
------------------------------------------------------------------------------------------------
--- Sidebar UI
------------------------------------------------------------------------------------------------
-function ViragDevTool:ToggleSidebar()
-    self:Toggle(self.wndRef.sideFrame)
-    self.settings.isSideBarOpen = self.wndRef.sideFrame:IsVisible()
-    self:UpdateSideBarUI()
-end
-
-function ViragDevTool:SubmitEditBoxSidebar()
-    local edditBox = self.wndRef.sideFrame.editbox
-    local msg = edditBox:GetText()
-    local selectedTab = self.settings.sideBarTabSelected
-    if selectedTab == "history" then
-        self:AddDataFromString(msg, true)
-    elseif selectedTab == "favourites" then
-        self:AddDataFromString(msg, true)
-    elseif selectedTab == "events" then
-        self:AddDataFromString("eventadd " .. msg, true)
-    end
-    self:UpdateSideBarUI()
-end
-
-function ViragDevTool:EnableSideBarTab(tabStrName)
-    --Update ui
-    local sidebar = self.wndRef.sideFrame
-    sidebar.history:SetChecked(false)
-    sidebar.events:SetChecked(false)
-    sidebar.favourites:SetChecked(false)
-    sidebar[tabStrName]:SetChecked(true)
-
-    -- update selected tab  and function to update cell items
-    self.settings.sideBarTabSelected = tabStrName
-
-    -- refresh ui
-    self:UpdateSideBarUI()
-end
-
-
-function ViragDevTool:UpdateSideBarUI()
-    local scrollFrame = self.wndRef.sideFrame.sideScrollFrame
-
-    local buttons = scrollFrame.buttons;
-
-
-    local data = self.settings[self.settings.sideBarTabSelected]
-    local selectedTab = self.settings.sideBarTabSelected
-
-    data = data and data or {}
-
-    if not buttons then
-        HybridScrollFrame_CreateButtons(scrollFrame, "ViragDevToolSideBarRowTemplate", 0, -2)
-    end
-
-    buttons = scrollFrame.buttons;
-    local offset = HybridScrollFrame_GetOffset(scrollFrame)
-    local totalRowsCount = self:tablelength(data)
-
-    for k, frame in pairs(buttons) do
-        local view = frame.mainButton
-        local sideButton = frame.actionButton
-        local lineplusoffset = k + offset;
-        if lineplusoffset <= totalRowsCount then
-            local currItem = data[lineplusoffset]
-            --history update
-            if selectedTab == "history" then
-
-                local name = tostring(currItem)
-
-                view:SetText(name)
-                view:SetScript("OnMouseUp", function()
-                    ViragDevTool:AddDataFromString(name)
-
-                    --move to top
-                    table.remove(data, lineplusoffset)
-                    table.insert(data, 1, currItem)
-
-                    ViragDevTool:UpdateSideBarUI()
-                end)
-                --favourites update
-            elseif selectedTab == "favourites" then
-                view:SetText("")
-                view:SetScript("OnMouseUp", nil)
-                --events update
-            elseif selectedTab == "events" and type(currItem) == "table" and currItem.event then
-                local color = currItem.active and ViragDevTool.colors.white or ViragDevTool.colors.gray
-                view:SetText(color .. currItem.event)
-                view:SetScript("OnMouseUp", function()
-                    --move to top
-                    ViragDevTool:ToggleMonitorEvent(currItem)
-                    local color = currItem.active and ViragDevTool.colors.white or ViragDevTool.colors.gray
-                    view:SetText(color .. currItem.event)
-                end)
-            end
-            sideButton:SetScript("OnMouseUp", function()
-                --move to top
-                table.remove(data, lineplusoffset)
-                self:UpdateSideBarUI()
-            end)
-            frame:Show();
-        else
-            frame:Hide();
-        end
-    end
-
-    HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
-end
-
------------------------------------------------------------------------------------------------
--- Main table row button clicks setup
------------------------------------------------------------------------------------------------
-function ViragDevTool:SetMainTableButtonScript(button, info)
-    local valueType = type(info.value)
-    if valueType == "table" then
-        button:SetScript("OnMouseUp", function(this, button, down)
-            if info.expanded then
-                self:ColapseCell(info)
+        if valueType == "table" then
+            if name ~= self.METATABLE_NAME then
+                local objectType = self:GetObjectTypeFromWoWAPI(value)
+                if objectType then
+                    valueButton:SetText(objectType .. "  " .. tostring(value))
+                end
             else
-                self:ExpandCell(info)
+                color = self.colors.default
             end
-        end)
-    elseif valueType == "function" then
-        button:SetScript("OnMouseUp", function(this, button, down)
-            self:TryCallFunction(info)
-        end)
-    else
-        button:SetScript("OnMouseUp", nil)
-    end
-end
 
-function ViragDevTool:TryCallFunction(info)
-    -- info.value is just our function to call
-    local parent, ok
-    local fn = info.value
-    local args = self:shallowcopyargs(self.tArgs)
-    local results = {}
+            local resultStringName = tostring(name)
+            local MAX_STRING_SIZE = 60
+            if #resultStringName >= MAX_STRING_SIZE then
+                resultStringName = string.sub(resultStringName, 0, MAX_STRING_SIZE) .. "..."
+            end
 
-    -- lets try safe call first
-    ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
-
-    if not ok then
-        -- if safe call failed we probably could try to find self and call self:fn()
-        parent = info.parent
-
-
-        if parent and parent.value == _G then
-            -- this fn is in global namespace so no parent
-            parent = nil
+            nameButton:SetText(resultStringName .. "   (" .. self:tablelength(value) .. ") ");
+        elseif valueType == "string" then
+            valueButton:SetText(string.gsub(string.gsub(tostring(value), "|n", ""), "\n", ""))
         end
 
-        if parent then
+        nameButton:GetFontString():SetTextColor(unpack(color))
+        typeButton:GetFontString():SetTextColor(unpack(color))
+        valueButton:GetFontString():SetTextColor(unpack(color))
+        rowNumberButton:GetFontString():SetTextColor(unpack(color))
 
-            if parent.name == self.METATABLE_NAME then
-                -- metatable has real object 1 level higher
-                parent = parent.parent
-            end
-            fn = parent.value[info.name]
-            table.insert(args, 1, parent.value)
-            ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
-        end
+        self:SetMainTableButtonScript(nameButton, info)
+        self:SetMainTableButtonScript(valueButton, info)
     end
 
-    self:ProcessCallFunctionData(ok, info, parent, args, results)
-end
-
--- this function is kinda hard to read but it just adds new items to list and prints log in chat.
--- will add 1 row for call result(ok or error) and 1 row for each return value
-function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
-    local nodes = {}
-
-    self:ColapseCell(info) -- if we already called this fn remove old results
-
-    local C = self.colors
-    local list = self.list
-    local padding = info.padding + 1
-
-    --constract full function call name
-    local fnNameWitArgs = C:functionStr(parent, info.name, args)
-    local returnFormatedStr = ""
-
-    -- itterate backwords because we want to include every meaningfull nil result
-    -- and with default itteration like pairs() we will just skip them so
-    -- for example 1, 2, nil, 4 should return only this 4 values nothing more, nothing less.
-    local found = false
-    for i = 10, 1, -1 do
-        if results[i] ~= nil then found = true
-        end
-
-        if found or i == 1 then -- if found some return or if return is nil
-        nodes[i] = list:NewNode(results[i], string.format("  return: %d", i), padding)
-
-        returnFormatedStr = string.format(" %s%s %s(%s)%s", C.white, tostring(results[i]),
-            C.lightblue, type(results[i]), returnFormatedStr)
-        end
-    end
-
-    -- create fist node of result info no need for now. will use debug
-    table.insert(nodes, 1, list:NewNode(string.format("%s - %s", C:stateStr(ok), fnNameWitArgs), -- node value
-        C.white .. date("%X") .. " function call results:", padding))
-
-
-    -- adds call result to our UI list
-    list:AddNodesAfter(nodes, info)
-    self:UpdateMainTableUI()
-
-    --print info to chat
-    self:print(C:stateStr(ok) .. " " .. fnNameWitArgs .. C.gray .. " returns:" .. returnFormatedStr)
-end
-
------------------------------------------------------------------------------------------------
--- HISTORY
------------------------------------------------------------------------------------------------
-function ViragDevTool:AddToHistory(strValue)
-    if self.settings and self.settings.history then
-        local hist = self.settings.history
-
-        -- if already contains value then just move it to top
-        for k, v in pairs(hist or {}) do
-            if v == strValue then
-                table.remove(hist, k)
-                table.insert(hist, 1, strValue)
-                self:UpdateSideBarUI()
-                return
-            end
-        end
-
-
-        table.insert(hist, 1, strValue)
-
-        local maxSize = self.default_settings.MAX_HISTORY_SIZE
-        if self.settings and self.settings.MAX_HISTORY_SIZE then
-            maxSize = self.settings.MAX_HISTORY_SIZE
-        end
-
-        while #hist > maxSize do -- can have only 10 values in history
-        table.remove(hist, maxSize)
-        end
-
+    -----------------------------------------------------------------------------------------------
+    -- Sidebar UI
+    -----------------------------------------------------------------------------------------------
+    function ViragDevTool:ToggleSidebar()
+        self:Toggle(self.wndRef.sideFrame)
+        self.settings.isSideBarOpen = self.wndRef.sideFrame:IsVisible()
         self:UpdateSideBarUI()
     end
-end
 
-
------------------------------------------------------------------------------------------------
--- EVENTS
------------------------------------------------------------------------------------------------
-function ViragDevTool:OnEvent(this, event, ...)
-    local arg = { ... }
-    if event == "ADDON_LOADED" and arg[1] == self.ADDON_NAME then
-        ViragDevTool_Settings = self:SetupForSettings(ViragDevTool_Settings)
-    end
-end
-
-function ViragDevTool:StartMonitorEvent(event, unit)
-    local tEvent = self:GetMonitoredEvent(event, unit)
-
-    if not tEvent then
-        tEvent = { event = event, unit = unit, active = true }
-        table.insert(self.settings.events, tEvent)
+    function ViragDevTool:SubmitEditBoxSidebar()
+        local edditBox = self.wndRef.sideFrame.editbox
+        local msg = edditBox:GetText()
+        local selectedTab = self.settings.sideBarTabSelected
+        if selectedTab == "history" then
+            self:AddDataFromString(msg, true)
+        elseif selectedTab == "favourites" then
+            self:AddDataFromString(msg, true)
+        elseif selectedTab == "events" then
+            self:AddDataFromString("eventadd " .. msg, true)
+        end
+        self:UpdateSideBarUI()
     end
 
-    local f = self.wndRef.listenerFrame
+    function ViragDevTool:EnableSideBarTab(tabStrName)
+        --Update ui
+        local sidebar = self.wndRef.sideFrame
+        sidebar.history:SetChecked(false)
+        sidebar.events:SetChecked(false)
+        sidebar.favourites:SetChecked(false)
+        sidebar[tabStrName]:SetChecked(true)
 
-    if type(unit) == "string" then
-        f:RegisterUnitEvent(event, unit)
-    else
-        f:RegisterEvent(event)
+        -- update selected tab  and function to update cell items
+        self.settings.sideBarTabSelected = tabStrName
+
+        -- refresh ui
+        self:UpdateSideBarUI()
     end
 
-    tEvent.active = true
 
-    local eventName = event
-    if unit then eventName = eventName .. " " .. tostring(unit) end
-    self:print("Start event monitoring: " .. eventName)
-end
+    function ViragDevTool:UpdateSideBarUI()
+        local scrollFrame = self.wndRef.sideFrame.sideScrollFrame
 
-function ViragDevTool:StopMonitorEvent(event, unit)
-    local tEvent = self:GetMonitoredEvent(event, unit)
+        local buttons = scrollFrame.buttons;
 
-    if tEvent and tEvent.active then
+
+        local data = self.settings[self.settings.sideBarTabSelected]
+        local selectedTab = self.settings.sideBarTabSelected
+
+        data = data and data or {}
+
+        if not buttons then
+            HybridScrollFrame_CreateButtons(scrollFrame, "ViragDevToolSideBarRowTemplate", 0, -2)
+        end
+
+        buttons = scrollFrame.buttons;
+        local offset = HybridScrollFrame_GetOffset(scrollFrame)
+        local totalRowsCount = self:tablelength(data)
+
+        for k, frame in pairs(buttons) do
+            local view = frame.mainButton
+            local sideButton = frame.actionButton
+            local lineplusoffset = k + offset;
+            if lineplusoffset <= totalRowsCount then
+                local currItem = data[lineplusoffset]
+                --history update
+                if selectedTab == "history" then
+
+                    local name = tostring(currItem)
+
+                    view:SetText(name)
+                    view:SetScript("OnMouseUp", function()
+                        ViragDevTool:AddDataFromString(name)
+
+                        --move to top
+                        table.remove(data, lineplusoffset)
+                        table.insert(data, 1, currItem)
+
+                        ViragDevTool:UpdateSideBarUI()
+                    end)
+                    --favourites update
+                elseif selectedTab == "favourites" then
+                    view:SetText("")
+                    view:SetScript("OnMouseUp", nil)
+                    --events update
+                elseif selectedTab == "events" and type(currItem) == "table" and currItem.event then
+                    local color = currItem.active and ViragDevTool.colors.white or ViragDevTool.colors.gray
+                    view:SetText(color .. currItem.event)
+                    view:SetScript("OnMouseUp", function()
+                        --move to top
+                        ViragDevTool:ToggleMonitorEvent(currItem)
+                        local color = currItem.active and ViragDevTool.colors.white or ViragDevTool.colors.gray
+                        view:SetText(color .. currItem.event)
+                    end)
+                end
+                sideButton:SetScript("OnMouseUp", function()
+                    --move to top
+                    table.remove(data, lineplusoffset)
+                    self:UpdateSideBarUI()
+                end)
+                frame:Show();
+            else
+                frame:Hide();
+            end
+        end
+
+        HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
+    end
+
+    -----------------------------------------------------------------------------------------------
+    -- Main table row button clicks setup
+    -----------------------------------------------------------------------------------------------
+    function ViragDevTool:SetMainTableButtonScript(button, info)
+        local valueType = type(info.value)
+        if valueType == "table" then
+            button:SetScript("OnMouseUp", function(this, button, down)
+                if info.expanded then
+                    self:ColapseCell(info)
+                else
+                    self:ExpandCell(info)
+                end
+            end)
+        elseif valueType == "function" then
+            button:SetScript("OnMouseUp", function(this, button, down)
+                self:TryCallFunction(info)
+            end)
+        else
+            button:SetScript("OnMouseUp", nil)
+        end
+    end
+
+    function ViragDevTool:TryCallFunction(info)
+        -- info.value is just our function to call
+        local parent, ok
+        local fn = info.value
+        local args = self:shallowcopyargs(self.tArgs)
+        local results = {}
+
+        -- lets try safe call first
+        ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
+
+        if not ok then
+            -- if safe call failed we probably could try to find self and call self:fn()
+            parent = info.parent
+
+
+            if parent and parent.value == _G then
+                -- this fn is in global namespace so no parent
+                parent = nil
+            end
+
+            if parent then
+
+                if parent.name == self.METATABLE_NAME then
+                    -- metatable has real object 1 level higher
+                    parent = parent.parent
+                end
+                fn = parent.value[info.name]
+                table.insert(args, 1, parent.value)
+                ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
+            end
+        end
+
+        self:ProcessCallFunctionData(ok, info, parent, args, results)
+    end
+
+    -- this function is kinda hard to read but it just adds new items to list and prints log in chat.
+    -- will add 1 row for call result(ok or error) and 1 row for each return value
+    function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
+        local nodes = {}
+
+        self:ColapseCell(info) -- if we already called this fn remove old results
+
+        local C = self.colors
+        local list = self.list
+        local padding = info.padding + 1
+
+        --constract full function call name
+        local fnNameWitArgs = C:functionStr(parent, info.name, args)
+        local returnFormatedStr = ""
+
+        -- itterate backwords because we want to include every meaningfull nil result
+        -- and with default itteration like pairs() we will just skip them so
+        -- for example 1, 2, nil, 4 should return only this 4 values nothing more, nothing less.
+        local found = false
+        for i = 10, 1, -1 do
+            if results[i] ~= nil then found = true
+            end
+
+            if found or i == 1 then -- if found some return or if return is nil
+            nodes[i] = list:NewNode(results[i], string.format("  return: %d", i), padding)
+
+            returnFormatedStr = string.format(" %s%s %s(%s)%s", C.white, tostring(results[i]),
+                C.lightblue, type(results[i]), returnFormatedStr)
+            end
+        end
+
+        -- create fist node of result info no need for now. will use debug
+        table.insert(nodes, 1, list:NewNode(string.format("%s - %s", C:stateStr(ok), fnNameWitArgs), -- node value
+            C.white .. date("%X") .. " function call results:", padding))
+
+
+        -- adds call result to our UI list
+        list:AddNodesAfter(nodes, info)
+        self:UpdateMainTableUI()
+
+        --print info to chat
+        self:print(C:stateStr(ok) .. " " .. fnNameWitArgs .. C.gray .. " returns:" .. returnFormatedStr)
+    end
+
+    -----------------------------------------------------------------------------------------------
+    -- HISTORY
+    -----------------------------------------------------------------------------------------------
+    function ViragDevTool:AddToHistory(strValue)
+        if self.settings and self.settings.history then
+            local hist = self.settings.history
+
+            -- if already contains value then just move it to top
+            for k, v in pairs(hist or {}) do
+                if v == strValue then
+                    table.remove(hist, k)
+                    table.insert(hist, 1, strValue)
+                    self:UpdateSideBarUI()
+                    return
+                end
+            end
+
+
+            table.insert(hist, 1, strValue)
+
+            local maxSize = self.default_settings.MAX_HISTORY_SIZE
+            if self.settings and self.settings.MAX_HISTORY_SIZE then
+                maxSize = self.settings.MAX_HISTORY_SIZE
+            end
+
+            while #hist > maxSize do -- can have only 10 values in history
+            table.remove(hist, maxSize)
+            end
+
+            self:UpdateSideBarUI()
+        end
+    end
+
+
+    -----------------------------------------------------------------------------------------------
+    -- EVENTS
+    -----------------------------------------------------------------------------------------------
+    function ViragDevTool:OnEvent(this, event, ...)
+        local arg = { ... }
+        if event == "ADDON_LOADED" and arg[1] == self.ADDON_NAME then
+            ViragDevTool_Settings = self:SetupForSettings(ViragDevTool_Settings)
+        end
+    end
+
+    function ViragDevTool:StartMonitorEvent(event, unit)
+        local tEvent = self:GetMonitoredEvent(event, unit)
+
+        if not tEvent then
+            tEvent = { event = event, unit = unit, active = true }
+            table.insert(self.settings.events, tEvent)
+        end
+
         local f = self.wndRef.listenerFrame
-        f:UnregisterEvent(event)
-        tEvent.active = false
+
+        if type(unit) == "string" then
+            f:RegisterUnitEvent(event, unit)
+        else
+            f:RegisterEvent(event)
+        end
+
+        tEvent.active = true
 
         local eventName = event
         if unit then eventName = eventName .. " " .. tostring(unit) end
-        self:print("Stop  event monitoring: " .. eventName)
+        self:print("Start event monitoring: " .. eventName)
     end
-end
 
-function ViragDevTool:ToggleMonitorEvent(tEvent)
-    if tEvent then
-        if tEvent.active then
-            self:StopMonitorEvent(tEvent.event, tEvent.unit)
-        else
-            self:StartMonitorEvent(tEvent.event, tEvent.unit)
-        end
-    end
-end
+    function ViragDevTool:StopMonitorEvent(event, unit)
+        local tEvent = self:GetMonitoredEvent(event, unit)
 
-function ViragDevTool:SetMonitorEventScript()
-    local f = self.wndRef.listenerFrame
+        if tEvent and tEvent.active then
+            local f = self.wndRef.listenerFrame
+            f:UnregisterEvent(event)
+            tEvent.active = false
 
-    f:SetScript("OnEvent", function(this, ...)
-        local args = { ... }
-        local event = args[1]
-        if ViragDevTool:GetMonitoredEvent(event) then
-            if #args == 1 then args = args[1] end
-            ViragDevTool:Add(args, event)
-        end
-    end);
-end
-
-function ViragDevTool:GetMonitoredEvent(event, args)
-
-    if self.settings == nil or self.settings.events == nil then return end
-
-    local found
-
-    for _, tEvent in pairs(self.settings.events) do
-        if tEvent.event == event then
-            found = tEvent
-            break
+            local eventName = event
+            if unit then eventName = eventName .. " " .. tostring(unit) end
+            self:print("Stop  event monitoring: " .. eventName)
         end
     end
 
-    if found then
-        return found
-    end
-end
-
-function ViragDevTool:SetupForSettings(s)
-
-    if s == nil then
-        s = self.default_settings
-    else
-        -- validating current settings and updating if version changed
-
-        for k,defaultValue in pairs (self.default_settings) do
-            local savedValue = s[k] -- saved value from "newSettings"
-
-            -- if setting is a table of size 0 or if value is nil set it to default
-            -- for now we have only arrays in settings so its fine to use #table
-            if (type(savedValue) == "table" and #savedValue == 0)
-                    or savedValue == nil then
-
-                s[k] = defaultValue
+    function ViragDevTool:ToggleMonitorEvent(tEvent)
+        if tEvent then
+            if tEvent.active then
+                self:StopMonitorEvent(tEvent.event, tEvent.unit)
+            else
+                self:StartMonitorEvent(tEvent.event, tEvent.unit)
             end
         end
     end
 
-    --save to local var, so it is easy to use
-    self.settings = s
+    function ViragDevTool:SetMonitorEventScript()
+        local f = self.wndRef.listenerFrame
 
-    -- refresh gui
+        f:SetScript("OnEvent", function(this, ...)
+            local args = { ... }
+            local event = args[1]
+            if ViragDevTool:GetMonitoredEvent(event) then
+                if #args == 1 then args = args[1] end
+                ViragDevTool:Add(args, event)
+            end
+        end);
+    end
 
-    -- setup open o closed main wnd
-    self:SetVisible(self.wndRef, s.isWndOpen)
+    function ViragDevTool:GetMonitoredEvent(event, args)
 
-    -- setup open o closed sidebar
-    self:SetVisible(self.wndRef.sideFrame, s.isSideBarOpen)
+        if self.settings == nil or self.settings.events == nil then return end
 
-    -- setup selected sidebar tab history/events/ favourites
-    self:EnableSideBarTab(s.sideBarTabSelected)
+        local found
 
-    --setup events part 1 register listeners
-    for _, tEvent in pairs(self.settings.events) do
-        if tEvent.active then
-            self:StartMonitorEvent(tEvent.event, tEvent.unit)
+        for _, tEvent in pairs(self.settings.events) do
+            if tEvent.event == event then
+                found = tEvent
+                break
+            end
+        end
+
+        if found then
+            return found
         end
     end
 
-    -- setup events part 2 set scripts on frame to listen registered events
-    self:SetMonitorEventScript()
+    function ViragDevTool:SetupForSettings(s)
 
-    return s
-end
+        if s == nil then
+            s = self.default_settings
+        else
+            -- validating current settings and updating if version changed
 
------------------------------------------------------------------------------------------------
--- LIFECICLE
------------------------------------------------------------------------------------------------
-function ViragDevTool:OnLoad(mainFrame)
-    self.wndRef = mainFrame
+            for k, defaultValue in pairs(self.default_settings) do
+                local savedValue = s[k] -- saved value from "newSettings"
 
-    self.wndRef:RegisterEvent("ADDON_LOADED")
-    self.wndRef:SetScript("OnEvent", function(this, event, ...)
-        ViragDevTool:OnEvent(this, event, ...); -- call one of the functions above
-    end);
+                -- if setting is a table of size 0 or if value is nil set it to default
+                -- for now we have only arrays in settings so its fine to use #table
+                if (type(savedValue) == "table" and #savedValue == 0)
+                        or savedValue == nil then
 
-    --register update scrollFrame
-    self.wndRef.scrollFrame.update = function()
+                    s[k] = defaultValue
+                end
+            end
+        end
+
+        --save to local var, so it is easy to use
+        self.settings = s
+
+        -- refresh gui
+
+        -- setup open o closed main wnd
+        self:SetVisible(self.wndRef, s.isWndOpen)
+
+        -- setup open o closed sidebar
+        self:SetVisible(self.wndRef.sideFrame, s.isSideBarOpen)
+
+        -- setup selected sidebar tab history/events/ favourites
+        self:EnableSideBarTab(s.sideBarTabSelected)
+
+        --setup events part 1 register listeners
+        for _, tEvent in pairs(self.settings.events) do
+            if tEvent.active then
+                self:StartMonitorEvent(tEvent.event, tEvent.unit)
+            end
+        end
+
+        -- setup events part 2 set scripts on frame to listen registered events
+        self:SetMonitorEventScript()
+
+        return s
+    end
+
+    -----------------------------------------------------------------------------------------------
+    -- LIFECICLE
+    -----------------------------------------------------------------------------------------------
+    function ViragDevTool:OnLoad(mainFrame)
+        self.wndRef = mainFrame
+
+        self.wndRef:RegisterEvent("ADDON_LOADED")
+        self.wndRef:SetScript("OnEvent", function(this, event, ...)
+            ViragDevTool:OnEvent(this, event, ...); -- call one of the functions above
+        end);
+
+        --register update scrollFrame
+        self.wndRef.scrollFrame.update = function()
+            self:UpdateMainTableUI()
+        end
         self:UpdateMainTableUI()
-    end
-    self:UpdateMainTableUI()
 
-    self.wndRef.sideFrame.sideScrollFrame.update = function()
-        self:UpdateSideBarUI()
-    end
-
-
-    -- register slash cmd
-    SLASH_VIRAGDEVTOOLS1 = '/vdt';
-    function SlashCmdList.VIRAGDEVTOOLS(msg, editbox)
-        if msg == "" or msg == nil then
-            self:ToggleUI()
-        else
-            self:AddDataFromString(msg, true)
+        self.wndRef.sideFrame.sideScrollFrame.update = function()
+            self:UpdateSideBarUI()
         end
-    end
-end
 
 
------------------------------------------------------------------------------------------------
--- UTILS
------------------------------------------------------------------------------------------------
-function ViragDevTool:print(strText)
-    print(self.colors.darkred .. "[Virag's DT]: " .. self.colors.white .. strText)
-end
-
-function ViragDevTool:shallowcopyargs(orig)
-    local copy = {}
-    for k, v in pairs(orig) do copy[k] = orig[v]
-    end
-    return copy
-end
-
-function ViragDevTool:split(sep)
-    local sep, fields = sep or ".", {}
-    local pattern = string.format("([^%s]+)", sep)
-    self:gsub(pattern, function(c) fields[#fields + 1] = c
-    end)
-    return fields
-end
-
-function ViragDevTool:tablelength(T)
-    local count = 0
-    for _ in pairs(T) do count = count + 1
-    end
-    return count
-end
-
-function ViragDevTool:printtable(T)
-    print(tostring(T))
-    if type(T) ~= "table" then return end
-    for k, v in pairs(T) do
-        print(tostring(k) .. " => " .. tostring(v))
-    end
-
-end
-function ViragDevTool:GetObjectTypeFromWoWAPI(value)
-    if ACP and value == ACP.L then return end --todo fix this later throws exception
-
-    if type(value) == "table" and value.GetObjectType and value.IsForbidden  then
-
-        local ok, forbidden = pcall(value.IsForbidden, value)
-        if ok and not forbidden then
-
-            local ok, result = pcall(value.GetObjectType, value)
-
-            if ok then
-                return result
+        -- register slash cmd
+        SLASH_VIRAGDEVTOOLS1 = '/vdt';
+        function SlashCmdList.VIRAGDEVTOOLS(msg, editbox)
+            if msg == "" or msg == nil then
+                self:ToggleUI()
+            else
+                self:AddDataFromString(msg, true)
             end
         end
     end
-end
+
+
+    -----------------------------------------------------------------------------------------------
+    -- UTILS
+    -----------------------------------------------------------------------------------------------
+    function ViragDevTool:print(strText)
+        print(self.colors.darkred .. "[Virag's DT]: " .. self.colors.white .. strText)
+    end
+
+    function ViragDevTool:shallowcopyargs(orig)
+        local copy = {}
+        for k, v in pairs(orig) do copy[k] = orig[v]
+        end
+        return copy
+    end
+
+    function ViragDevTool:split(sep)
+        local sep, fields = sep or ".", {}
+        local pattern = string.format("([^%s]+)", sep)
+        self:gsub(pattern, function(c) fields[#fields + 1] = c
+        end)
+        return fields
+    end
+
+    function ViragDevTool:tablelength(T)
+        local count = 0
+        for _ in pairs(T) do count = count + 1
+        end
+        return count
+    end
+
+    function ViragDevTool:printtable(T)
+        print(tostring(T))
+        if type(T) ~= "table" then return end
+        for k, v in pairs(T) do
+            print(tostring(k) .. " => " .. tostring(v))
+        end
+    end
+
+    function ViragDevTool:GetObjectTypeFromWoWAPI(value)
+        if ACP and value == ACP.L then return end --todo fix this later throws exception
+
+        if type(value) == "table" and value.GetObjectType and value.IsForbidden then
+
+            local ok, forbidden = pcall(value.IsForbidden, value)
+            if ok and not forbidden then
+
+                local ok, result = pcall(value.GetObjectType, value)
+
+                if ok then
+                    return result
+                end
+            end
+        end
+    end

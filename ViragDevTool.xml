@@ -2,24 +2,6 @@
 
     <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
     <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
-    <Font name="ViragDevToolTableFont" inherits="ViragDevToolDefaultFont" virtual="true">
-        <Color r="0.41" g="0.80" b="0.94"/>
-    </Font>
-    <Font name="ViragDevToolStringFont" inherits="ViragDevToolDefaultFont" virtual="true">
-        <Color r="0.67" g="0.83" b="0.45"/>
-    </Font>
-    <Font name="ViragDevToolNumberFont" inherits="ViragDevToolDefaultFont" virtual="true">
-        <Color r="1.0" g="0.96" b="0.41"/>
-    </Font>
-    <Font name="ViragDevToolFunctionFont" inherits="ViragDevToolDefaultFont" virtual="true">
-        <Color r="1.0" g="0.49" b="0.04"/>
-    </Font>
-    <Font name="ViragDevToolBaseFont" inherits="ViragDevToolDefaultFont" virtual="true">
-        <Color r="1.0" g="1.0" b="1.0"/>
-    </Font>
-    <Font name="ViragDevToolMetatableFont" inherits="ViragDevToolDefaultFont" virtual="true">
-        <Color r="1.0" g="1.0" b="1.0"/>
-    </Font>
 
     <CheckButton text="Test" name="ViragDevToolTopButton" inherits="UIPanelButtonTemplate" virtual="true">
         <Size>
@@ -87,7 +69,7 @@
             </OnLeave>
         </Scripts>
 
-        <NormalFont style="GameFontHighlightLeft"/>
+        <NormalFont style="ViragDevToolDefaultFont"/>
     </Button>
 
 
@@ -426,7 +408,16 @@
                             <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT"/>
                         </Anchors>
                     </Button>
+                    <Button text="/fstack" name="$parentFrameStack" inherits="ViragDevToolTopButton">
+                        <Scripts>
+                            <OnClick>
 
+                            </OnClick>
+                        </Scripts>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT"/>
+                        </Anchors>
+                    </Button>
                     <Button virtual="true">
                         <Size x="32" y="32"/>
                         <Anchors>
