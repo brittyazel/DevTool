@@ -411,7 +411,11 @@
                     <Button text="/fstack" name="$parentFrameStack" inherits="ViragDevToolTopButton">
                         <Scripts>
                             <OnClick>
-
+                                self.isActive = not self.isActive
+                                UIParentLoadAddOn("Blizzard_DebugTools");
+                                local showHidden = false; -- todo add this functionality
+                                local showRegions = false;
+                                FrameStackTooltip_Toggle(showHidden, showRegions);
                             </OnClick>
                         </Scripts>
                         <Anchors>
