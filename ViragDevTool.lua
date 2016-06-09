@@ -569,6 +569,7 @@ end
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:ToggleSidebar()
     self:Toggle(self.wndRef.sideFrame)
+    self.settings.isSideBarOpen = self.wndRef.sideFrame:IsVisible()
     self:UpdateSideBarUI()
 end
 
