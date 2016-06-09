@@ -449,7 +449,7 @@ function ViragDevTool:SortFnForCells(nodeList)
             return a.name < b.name
         end
     end
-    
+
     if #nodeList > 20000 then --  just optimisation for _G
         cmpFn = function(a, b) return a.name < b.name end
     end
@@ -866,7 +866,7 @@ function ViragDevTool:StartMonitorEvent(event, unit)
 
     local eventName = event
     if unit then eventName = eventName .. " " .. tostring(unit) end
-    self:print("Start event monitoring: " .. eventName)
+    self:print(self.colors.green.."Start"..self.colors.white.." event monitoring: " .. self.colors.lightblue.. eventName)
 end
 
 function ViragDevTool:StopMonitorEvent(event, unit)
@@ -879,7 +879,8 @@ function ViragDevTool:StopMonitorEvent(event, unit)
 
         local eventName = event
         if unit then eventName = eventName .. " " .. tostring(unit) end
-        self:print("Stop  event monitoring: " .. eventName)
+
+        self:print(self.colors.red.."Stop"..self.colors.white.." event monitoring: ".. self.colors.lightblue .. eventName)
     end
 end
 
@@ -901,7 +902,7 @@ function ViragDevTool:SetMonitorEventScript()
         local event = args[1]
         if ViragDevTool:GetMonitoredEvent(event) then
             if #args == 1 then args = args[1] end
-            ViragDevTool:Add(args, event)
+            ViragDevTool:Add(args, date("%X") .." " .. event)
         end
     end);
 end
