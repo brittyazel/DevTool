@@ -75,17 +75,48 @@
             <Anchor point="BOTTOM"/>
             <Anchor point="LEFT"/>
         </Anchors>
+        <Scripts>
+            <OnLoad>
+                self:EnableMouse()
+            </OnLoad>
+            <OnEnter>
+                self:GetParent():LockHighlight()
+            </OnEnter>
+            <OnLeave>
+                self:GetParent():UnlockHighlight()
+            </OnLeave>
+        </Scripts>
+
         <NormalFont style="GameFontHighlightLeft"/>
     </Button>
 
 
-    <Frame name="ViragDevToolEntryTemplate" virtual="true">
+    <Button name="ViragDevToolEntryTemplate" virtual="true">
         <Anchors>
             <Anchor point="TOPLEFT"/>
         </Anchors>
+
         <Size>
             <AbsDimension x="1200" y="13"/>
         </Size>
+        <HighlightTexture  alphaMode="ADD">
+            <Color r="1" g="1" b="1" a="0.2"/>
+        </HighlightTexture>
+        <Layers>
+            <Layer level="OVERLAY">
+
+                <Texture name="$parentHighlight"  >
+                    <Size y="1" />
+                    <Anchors>
+                        <Anchor point="RIGHT" />
+                        <Anchor point="LEFT"  />
+                        <Anchor point="BOTTOM" y="-2"/>
+                    </Anchors>
+                    <Color r="1" g="1" b="1" a="0.1"/>
+                </Texture>
+            </Layer>
+        </Layers>
+
         <Frames>
             <Button text="table" name="$parentRowCellCount" inherits="ViragDevToolRowTemplate"
                     parentKey="rowNumberButton"/>
@@ -116,7 +147,7 @@
             </Button>
 
         </Frames>
-    </Frame>
+    </Button>
 
     <Frame name="ViragDevToolFrame" parent="UIParent" enableMouse="true" movable="true" resizable="true">
         <Size>

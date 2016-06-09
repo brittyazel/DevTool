@@ -1005,11 +1005,24 @@ function ViragDevTool:tablelength(T)
     return count
 end
 
+function ViragDevTool:printtable(T)
+    print(tostring(T))
+    if type(T) ~= "table" then return end
+    for k, v in pairs(T) do
+        print(tostring(k) .. " => " .. tostring(v))
+    end
+
+end
 function ViragDevTool:GetObjectTypeFromWoWAPI(value)
-    if value.GetObjectType and value.IsForbidden then
+    if ACP and value == ACP.L then return end --todo fix this later throws exception
+
+    if type(value) == "table" and value.GetObjectType and value.IsForbidden  then
+
         local ok, forbidden = pcall(value.IsForbidden, value)
         if ok and not forbidden then
+
             local ok, result = pcall(value.GetObjectType, value)
+
             if ok then
                 return result
             end
