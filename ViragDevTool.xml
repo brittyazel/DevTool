@@ -127,6 +127,7 @@
         </Anchors>
         <Scripts>
             <OnLoad>
+                self:SetUserPlaced(true)
                 ViragDevTool:OnLoad(self)
                 self:SetMinResize(600, 100);
                 self:RegisterForDrag("LeftButton");

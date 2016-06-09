@@ -12,27 +12,27 @@ ViragDevTool = {
     CMD = {
         --"/vdt help"
         HELP = function(msg)
-            local arg = function(txt) return "|cFF96C0CE" ..txt.."|cFFFFFFFF" end
-            local arg2 = function(txt) return "|cFFBEB9B5" ..txt.."|cFFFFFFFF" end
-            local arg3 = function(txt) return "|cFF00FF00" ..txt.."|cFFFFFFFF" end
+            local arg = function(txt) return "|cFF96C0CE" .. txt .. "|cFFFFFFFF" end
+            local arg2 = function(txt) return "|cFFBEB9B5" .. txt .. "|cFFFFFFFF" end
+            local arg3 = function(txt) return "|cFF00FF00" .. txt .. "|cFFFFFFFF" end
             -- todo print info to chat
             ViragDevTool:print("/vdt - toggle UI")
             ViragDevTool:print("/vdt " .. arg("name") .. " - add _G." .. arg("name") .. " to the list")
-            ViragDevTool:print("/vdt " .. arg("name") .." ".. arg2("parent")
-                    .. " - add ".. arg2("parent") .. "." .. arg("name") .. " to the list.\n" ..
+            ViragDevTool:print("/vdt " .. arg("name") .. " " .. arg2("parent")
+                    .. " - add " .. arg2("parent") .. "." .. arg("name") .. " to the list.\n" ..
                     arg2("parent") .. " can be like A.B so this will look in _G.A.B." .. arg("name"))
-            ViragDevTool:print("/vdt " .. arg3("find") .." " .. arg("name") .." ".. arg2("parent")
-                    .. " - add " .. arg("name") .." _G." .. arg("*name*") .."to the list" ..
-                    "Adds any field name that has " .. arg("name") .." part in its name")
-            ViragDevTool:print("/vdt " .. arg3("startswith") .." " .. arg("name") .." ".. arg2("parent")
+            ViragDevTool:print("/vdt " .. arg3("find") .. " " .. arg("name") .. " " .. arg2("parent")
+                    .. " - add " .. arg("name") .. " _G." .. arg("*name*") .. "to the list" ..
+                    "Adds any field name that has " .. arg("name") .. " part in its name")
+            ViragDevTool:print("/vdt " .. arg3("startswith") .. " " .. arg("name") .. " " .. arg2("parent")
                     .. " - same as find but will look only for name* ")
-            ViragDevTool:print("/vdt " .. arg3("m") .." add frame at mouse location to the list. Recommendation: use binds for this cmd")
+            ViragDevTool:print("/vdt " .. arg3("m") .. " add frame at mouse location to the list. Recommendation: use binds for this cmd")
 
-            ViragDevTool:print("/vdt " .. arg3("eventadd") .." " .. arg("event") .." ".. arg2("unit")
-                    .."\nExample: /vdt eventadd UNIT_AURA player")
+            ViragDevTool:print("/vdt " .. arg3("eventadd") .. " " .. arg("event") .. " " .. arg2("unit")
+                    .. "\nExample: /vdt eventadd UNIT_AURA player")
 
-            ViragDevTool:print("/vdt " .. arg3("eventremove") .." " .. arg("event")
-                    .."\nExample: /vdt eventremove UNIT_AURA \n /vdt eventremove ALL will reset events in events tab to default state")
+            ViragDevTool:print("/vdt " .. arg3("eventremove") .. " " .. arg("event")
+                    .. "\nExample: /vdt eventremove UNIT_AURA \n /vdt eventremove ALL will reset events in events tab to default state")
 
             return ViragDevTool.CMD, msg
         end,
@@ -109,6 +109,10 @@ ViragDevTool = {
         -- selected list in gui. one of 3 list from settings: history or favourites or events
         sideBarTabSelected = "history",
 
+        -- UI saved state
+        isWndOpen = true,
+        isSideBarOpen = false,
+
         -- stores history of recent calls to /vdt
         MAX_HISTORY_SIZE = 50,
         history = {
@@ -118,13 +122,13 @@ ViragDevTool = {
             "startswith Virag",
             "ViragDevTool.settings.history",
         },
+
         favourites = {}, --todo implement
 
         -- events to monitor
         -- format ({event = "EVENT_NAME", unit = "player", active = true}, ...)
         -- default events inactive
         events = {
-
             {
                 event = "CURSOR_UPDATE",
                 active = false
@@ -138,7 +142,6 @@ ViragDevTool = {
                 event = "CHAT_MSG_CHANNEL",
                 active = false
             }
-
         },
     }
 }
@@ -146,7 +149,6 @@ ViragDevTool = {
 
 -- just remove global reference so it is easy to read with my ide
 local ViragDevTool = ViragDevTool
-
 
 local pairs, tostring, type, print, string, getmetatable, table, pcall =
 pairs, tostring, type, print, string, getmetatable, table, pcall
@@ -447,15 +449,20 @@ end
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:ToggleUI()
     self:Toggle(self.wndRef)
+    self.settings.isWndOpen = self.wndRef:IsVisible()
 end
 
 function ViragDevTool:Toggle(view)
-    if view then
-        if view:IsVisible() then
-            view:Hide()
-        else
-            view:Show()
-        end
+    self:SetVisible(view, not view:IsVisible())
+end
+
+function ViragDevTool:SetVisible(view, isVisible)
+    if not view then return end
+
+    if isVisible then
+        view:Show()
+    else
+        view:Hide()
     end
 end
 
@@ -560,7 +567,6 @@ end
 -----------------------------------------------------------------------------------------------
 -- Sidebar UI
 -----------------------------------------------------------------------------------------------
-
 function ViragDevTool:ToggleSidebar()
     self:Toggle(self.wndRef.sideFrame)
     self:UpdateSideBarUI()
@@ -641,7 +647,7 @@ function ViragDevTool:UpdateSideBarUI()
                 view:SetText("")
                 view:SetScript("OnMouseUp", nil)
                 --events update
-            elseif selectedTab == "events" and type(currItem) =="table" and currItem.event then
+            elseif selectedTab == "events" and type(currItem) == "table" and currItem.event then
                 local color = currItem.active and ViragDevTool.colors.white or ViragDevTool.colors.gray
                 view:SetText(color .. currItem.event)
                 view:SetScript("OnMouseUp", function()
@@ -653,8 +659,8 @@ function ViragDevTool:UpdateSideBarUI()
             end
             sideButton:SetScript("OnMouseUp", function()
                 --move to top
-               table.remove(data,lineplusoffset)
-               self:UpdateSideBarUI()
+                table.remove(data, lineplusoffset)
+                self:UpdateSideBarUI()
             end)
             frame:Show();
         else
@@ -774,7 +780,7 @@ function ViragDevTool:AddToHistory(strValue)
         local hist = self.settings.history
 
         -- if already contains value then just move it to top
-        for k, v in pairs (hist or {}) do
+        for k, v in pairs(hist or {}) do
             if v == strValue then
                 table.remove(hist, k)
                 table.insert(hist, 1, strValue)
@@ -792,7 +798,7 @@ function ViragDevTool:AddToHistory(strValue)
         end
 
         while #hist > maxSize do -- can have only 10 values in history
-            table.remove(hist, maxSize)
+        table.remove(hist, maxSize)
         end
 
         self:UpdateSideBarUI()
@@ -830,7 +836,7 @@ function ViragDevTool:StartMonitorEvent(event, unit)
 
     local eventName = event
     if unit then eventName = eventName .. " " .. tostring(unit) end
-    self:print("Start event monitoring: " .. eventName )
+    self:print("Start event monitoring: " .. eventName)
 end
 
 function ViragDevTool:StopMonitorEvent(event, unit)
@@ -843,7 +849,7 @@ function ViragDevTool:StopMonitorEvent(event, unit)
 
         local eventName = event
         if unit then eventName = eventName .. " " .. tostring(unit) end
-        self:print("Stop  event monitoring: " .. eventName )
+        self:print("Stop  event monitoring: " .. eventName)
     end
 end
 
@@ -862,7 +868,7 @@ function ViragDevTool:SetMonitorEventScript()
 
     f:SetScript("OnEvent", function(this, ...)
         local args = { ... }
-        local event = args [1]
+        local event = args[1]
         if ViragDevTool:GetMonitoredEvent(event) then
             if #args == 1 then args = args[1] end
             ViragDevTool:Add(args, event)
@@ -888,35 +894,50 @@ function ViragDevTool:GetMonitoredEvent(event, args)
     end
 end
 
-function ViragDevTool:SetupForSettings(newSettings)
-    -- need this to update outdated settings
-    -- for now it is just validity check of structure
+function ViragDevTool:SetupForSettings(s)
 
-    local s = newSettings or self.default_settings
-    self.settings = s
-    s.history = s.history or {}
-    s.favourites = s.favourites or {}
-    s.events = s.events or {}
-    if #s.events == 0 then
-        s.events = self.default_settings.events
+
+    if s == nil then
+        s = self.default_settings
+    else
+        -- validating current settings and updating if version changed
+
+        for k,defaultValue in pairs (self.default_settings) do
+            local savedValue = s[k] -- saved value from "newSettings"
+
+            -- if setting is a table of size 0 or if value is nil set it to default
+            -- for now we have only arrays in settings so its fine to use #table
+            if (type(savedValue) == "table" and #savedValue == 0)
+                    or savedValue == nil then
+
+                s[k] = defaultValue
+            end
+        end
     end
 
-    s.sideBarTabSelected = s.sideBarTabSelected or "history"
+    --save to local var, so it is easy to use
+    self.settings = s
 
-    local size = s.MAX_HISTORY_SIZE
-    s.MAX_HISTORY_SIZE = size and size or 50
-
-
-    --end of setup refresh gui and register listeners
+    -- refresh gui
+    -- setup selected sidebar tab history/events/ favourites
     self:EnableSideBarTab(s.sideBarTabSelected)
 
+    -- setup open o closed main wnd
+    self:SetVisible(self.wndRef, s.isWndOpen)
+
+    -- setup open o closed sidebar
+    self:SetVisible(self.wndRef.sideFrame, s.isSideBarOpen)
+
+    --setup events part 1 register listeners
     for _, tEvent in pairs(self.settings.events) do
         if tEvent.active then
             self:StartMonitorEvent(tEvent.event, tEvent.unit)
         end
     end
 
+    -- setup events part 2 set scripts on frame to listen registered events
     self:SetMonitorEventScript()
+
     return s
 end
 
