@@ -81,17 +81,17 @@
         <Size>
             <AbsDimension x="1200" y="13"/>
         </Size>
-        <HighlightTexture  alphaMode="ADD">
+        <HighlightTexture alphaMode="ADD">
             <Color r="1" g="1" b="1" a="0.2"/>
         </HighlightTexture>
         <Layers>
             <Layer level="OVERLAY">
 
-                <Texture name="$parentHighlight"  >
-                    <Size y="1" />
+                <Texture name="$parentHighlight">
+                    <Size y="1"/>
                     <Anchors>
-                        <Anchor point="RIGHT" />
-                        <Anchor point="LEFT"  />
+                        <Anchor point="RIGHT"/>
+                        <Anchor point="LEFT"/>
                         <Anchor point="BOTTOM" y="-2"/>
                     </Anchors>
                     <Color r="1" g="1" b="1" a="0.1"/>
@@ -118,7 +118,8 @@
                 </Anchors>
             </Button>
 
-            <Button text="Test Text" name="$parentValueColumn" inherits="ViragDevToolRowTemplate" parentKey="valueButton">
+            <Button text="Test Text" name="$parentValueColumn" inherits="ViragDevToolRowTemplate"
+                    parentKey="valueButton">
                 <Size>
                     <AbsDimension x="700"/>
                 </Size>
@@ -260,20 +261,18 @@
                                 ViragDevTool:EnableSideBarTab("events")
                             </OnClick>
                         </Scripts>
-
                         <Anchors>
                             <Anchor point="LEFT" relativeTo="$parentHistoryButton" relativePoint="RIGHT"/>
                         </Anchors>
                     </CheckButton>
 
                     <CheckButton text="Fn Call Log" name="$parentLogButton" inherits="ViragDevToolTopButton"
-                                 parentKey="logs" >
+                                 parentKey="logs">
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:EnableSideBarTab("logs")
                             </OnClick>
                         </Scripts>
-
                         <Anchors>
                             <Anchor point="LEFT" relativeTo="$parentEventsButton" relativePoint="RIGHT"/>
                         </Anchors>
@@ -284,8 +283,8 @@
                             <AbsDimension x="280" y="32"/>
                         </Size>
                         <Anchors>
-                            <Anchor point="LEFT" x ="6"/>
-                            <Anchor point="TOP" relativeTo="$parentScrollFrame" relativePoint="BOTTOM" y ="-2"/>
+                            <Anchor point="LEFT" x="6"/>
+                            <Anchor point="TOP" relativeTo="$parentScrollFrame" relativePoint="BOTTOM" y="-2"/>
                         </Anchors>
                         <Scripts>
                             <OnEnterPressed>
@@ -421,6 +420,16 @@
                         </Scripts>
                         <Anchors>
                             <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT"/>
+                        </Anchors>
+                    </Button>
+                    <Button text="help" name="$parentHelpButton" inherits="ViragDevToolTopButton">
+                        <Scripts>
+                            <OnClick>
+                                ViragDevTool:ExecuteCMD("help")
+                            </OnClick>
+                        </Scripts>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT"/>
                         </Anchors>
                     </Button>
                     <Button virtual="true">

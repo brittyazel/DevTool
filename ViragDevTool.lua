@@ -17,7 +17,7 @@ ViragDevTool = {
             local a3 = function(txt) return "|cFF3cb371" .. txt .. "|cFFFFFFFF" end
 
 
-            local cFix = function (str)
+            local cFix = function(str)
                 local result = "|cFFFFFFFF" .. str
                 result = string.gsub(result, "name", a("name"))
                 result = string.gsub(result, "eventName", a("eventName"))
@@ -32,24 +32,24 @@ ViragDevTool = {
                 result = string.gsub(result, "startswith", a3("startswith"))
                 result = string.gsub(result, "eventadd", a3("eventadd"))
                 result = string.gsub(result, "eventstop", a3("eventstop"))
-                result = string.gsub(result, "log", a3("log"))
+                result = string.gsub(result, "logfn", a3("logfn"))
                 result = string.gsub(result, "mouseover", a3("mouseover"))
                 return result
             end
 
             local help = {}
-            help[cFix("1 /vdt")]                                       = cFix("Toggle UI")
-            help[cFix("2 /vdt help")]                                  = cFix("Print help")
-            help[cFix("3 /vdt name parent (optional)")]                = cFix("Add _G.name or _G.parent.name to the list (ex: /vdt name A.B => _G.A.B.name")
-            help[cFix("4 /vdt find name parent (optional)")]           = cFix("Add name _G.*name* to the list. Adds any field name that has name part in its name")
-            help[cFix("5 /vdt mouseover")]                             = cFix("Add hoovered frame to the list with  GetMouseFocus()")
-            help[cFix("6 /vdt startswith name parent (optional)")]     = cFix("Same as find but will look only for name*")
-            help[cFix("7 /vdt eventadd eventName unit (optional)")]    = cFix("ex: /vdt eventadd UNIT_AURA player")
-            help[cFix("8 /vdt eventstop eventName")]                   = cFix("Stops event monitoring if active")
-            help[cFix("9 /vdt log tableName functionName (optional)")] = cFix("Log every function call. _G.tableName.functionName")
+            help[cFix("1 /vdt")] = cFix("Toggle UI")
+            help[cFix("2 /vdt help")] = cFix("Print help")
+            help[cFix("3 /vdt name parent (optional)")] = cFix("Add _G.name or _G.parent.name to the list (ex: /vdt name A.B => _G.A.B.name")
+            help[cFix("4 /vdt find name parent (optional)")] = cFix("Add name _G.*name* to the list. Adds any field name that has name part in its name")
+            help[cFix("5 /vdt mouseover")] = cFix("Add hoovered frame to the list with  GetMouseFocus()")
+            help[cFix("6 /vdt startswith name parent (optional)")] = cFix("Same as find but will look only for name*")
+            help[cFix("7 /vdt eventadd eventName unit (optional)")] = cFix("ex: /vdt eventadd UNIT_AURA player")
+            help[cFix("8 /vdt eventstop eventName")] = cFix("Stops event monitoring if active")
+            help[cFix("9 /vdt logfn tableName functionName (optional)")] = cFix("Log every function call. _G.tableName.functionName")
 
             local sortedTable = {}
-            for k,v in pairs(help) do
+            for k, v in pairs(help) do
                 table.insert(sortedTable, k)
             end
 
@@ -61,31 +61,31 @@ ViragDevTool = {
 
             return help
         end,
-
-        FIND = function(msg2, msg3) -- "/vdt find Data ViragDevTool" or "/vdt find Data"
+        -- "/vdt find Data ViragDevTool" or "/vdt find Data"
+        FIND = function(msg2, msg3)
             local parent = msg3 and ViragDevTool:FromStrToObject(msg3) or _G
             return ViragDevTool:FindIn(parent, msg2, string.match)
         end,
-
-        STARTSWITH = function(msg2, msg3) --"/vdt startswith Data ViragDevTool" or "/vdt startswith Data"
+        --"/vdt startswith Data ViragDevTool" or "/vdt startswith Data"
+        STARTSWITH = function(msg2, msg3)
             local parent = msg3 and ViragDevTool:FromStrToObject(msg3) or _G
             return ViragDevTool:FindIn(parent, msg2, ViragDevTool.starts)
         end,
-
-        MOUSEOVER = function(msg2, msg3) --"/vdt m" --m stands for mouse focus
+        --"/vdt mouseover" --m stands for mouse focus
+        MOUSEOVER = function(msg2, msg3)
             local resultTable = GetMouseFocus()
             return resultTable, resultTable:GetName()
         end,
-
-        EVENTADD = function(msg2, msg3) --"/vdt eventadd ADDON_LOADED"
+        --"/vdt eventadd ADDON_LOADED"
+        EVENTADD = function(msg2, msg3)
             ViragDevTool:StartMonitorEvent(msg2, msg3)
         end,
-
-        EVENTSTOP = function(msg2, msg3) --"/vdt eventremove ADDON_LOADED"
+        --"/vdt eventremove ADDON_LOADED"
+        EVENTSTOP = function(msg2, msg3)
             ViragDevTool:StopMonitorEvent(msg2, msg3)
         end,
-
-        LOGFN = function(msg2, msg3)--"/vdt log tableName fnName" tableName in global namespace and fnName in table
+        --"/vdt log tableName fnName" tableName in global namespace and fnName in table
+        LOGFN = function(msg2, msg3)
             ViragDevTool:StartLogFunctionCalls(msg2, msg3)
         end
     },
@@ -568,8 +568,12 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
 
     if valueType == "table" then
         if name ~= self.METATABLE_NAME then
-            local objectType = self:GetObjectTypeFromWoWAPI(value)
+            local objectType, optionalFrameName = self:GetObjectTypeFromWoWAPI(value)
             if objectType then
+                if optionalFrameName and optionalFrameName ~= name then
+                    objectType = objectType .. " <"..optionalFrameName ..">"
+                end
+
                 valueButton:SetText(objectType .. "  " .. tostring(value))
             end
         else
@@ -609,13 +613,15 @@ function ViragDevTool:SubmitEditBoxSidebar()
     local edditBox = self.wndRef.sideFrame.editbox
     local msg = edditBox:GetText()
     local selectedTab = self.settings.sideBarTabSelected
-    if selectedTab == "history" then
-        self:ExecuteCMD(msg, true)
-    elseif selectedTab == "logs" then
-        self:ExecuteCMD("log " .. msg, true)
+    local cmd = msg
+
+    if selectedTab == "logs" then
+        cmd = "logfn " .. msg
     elseif selectedTab == "events" then
-        self:ExecuteCMD("eventadd " .. msg, true)
+        cmd = "eventadd " .. msg
     end
+
+    self:ExecuteCMD(cmd, true)
     self:UpdateSideBarUI()
 end
 
@@ -690,12 +696,7 @@ function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
         end)
 
     elseif selectedTab == "logs" then
-        local text
-        if currItem.fnName then
-            text = currItem.fnName .. " fn in " .. currItem.parentTableName
-        else
-            text = "ALL fn in " .. currItem.parentTableName
-        end
+        local text = self:LogFunctionCallText(currItem)
 
         -- logs update
         view:SetText(colorForState(currItem.active) .. text)
@@ -713,6 +714,8 @@ function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
         end)
     end
 end
+
+
 
 -----------------------------------------------------------------------------------------------
 -- Main table row button clicks setup
@@ -944,6 +947,15 @@ function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
     local savedInfo = self:GetLogFunctionCalls(strParentPath, strFnToLog)
 
     if savedInfo == nil then
+
+
+        local tParent = self:FromStrToObject(strParentPath)
+        if tParent == nil then
+            self:print(self.colors.red .. "Error: " .. self.colors.white ..
+                    "Cannot add function monitoring: " .. self.colors.lightblue .."_G.".. tostring(strParentPath) .. " == nil")
+            return
+        end
+
         savedInfo = {
             parentTableName = strParentPath,
             fnName = strFnToLog,
@@ -981,6 +993,7 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
         end
     end
 
+    self:print(self.colors.green .. "Start" .. self.colors.white .. " function monitoring: " .. self.colors.lightblue .. self:LogFunctionCallText(info))
     info.active = true
 end
 
@@ -995,6 +1008,7 @@ function ViragDevTool:DeactivateLogFunctionCalls(info)
         end
     end
 
+    self:print(self.colors.red .. "Stop" .. self.colors.white .. " function monitoring: " .. self.colors.lightblue .. self:LogFunctionCallText(info))
     info.active = false
 end
 
@@ -1042,6 +1056,19 @@ function ViragDevTool:GetLogFunctionCalls(strParentTableName, strFnName)
                 and strFnName == v.fnName then
             return v
         end
+    end
+end
+
+function ViragDevTool:LogFunctionCallText(info)
+    if info == nil then return "" end
+
+    local tableName = info.parentTableName == "_G" and "_G" or "_G." .. tostring(info.parentTableName)
+
+    if info.fnName then
+        return info.fnName .. " fn in " .. tableName
+
+    else
+        return "ALL fn in " .. tableName
     end
 end
 
@@ -1191,6 +1218,15 @@ function ViragDevTool:GetObjectTypeFromWoWAPI(value)
         if ok and not forbidden then
 
             local ok, result = pcall(value.GetObjectType, value)
+
+            if ok and value.GetName then
+                local okName, resultName = pcall(value.GetName, value)
+
+                if okName and resultName then
+                    return result , resultName
+                end
+
+            end
 
             if ok then
                 return result
