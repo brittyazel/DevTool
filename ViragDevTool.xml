@@ -100,31 +100,31 @@
         </Layers>
 
         <Frames>
-            <Button text="table" name="$parentRowCellCount" inherits="ViragDevToolRowTemplate"
+            <Button text="table" name="$parentCountColumn" inherits="ViragDevToolRowTemplate"
                     parentKey="rowNumberButton"/>
 
-            <Button text="123456" name="$parentRowType" inherits="ViragDevToolRowTemplate" parentKey="typeButton">
+            <Button text="123456" name="$parentTypeColumn" inherits="ViragDevToolRowTemplate" parentKey="typeButton">
                 <Anchors>
-                    <Anchor point="LEFT" relativeTo="$parentRowCellCount" relativePoint="RIGHT"/>
+                    <Anchor point="LEFT" relativeTo="$parentCountColumn" relativePoint="RIGHT"/>
                 </Anchors>
             </Button>
 
-            <Button text="Test Text" name="$parentNameRow" inherits="ViragDevToolRowTemplate" parentKey="nameButton">
+            <Button text="Test Text" name="$parentNameColumn" inherits="ViragDevToolRowTemplate" parentKey="nameButton">
                 <Size>
                     <AbsDimension x="400"/>
                 </Size>
                 <Anchors>
-                    <Anchor point="LEFT" relativeTo="$parentRowType" relativePoint="RIGHT"/>
+                    <Anchor point="LEFT" relativeTo="$parentTypeColumn" relativePoint="RIGHT"/>
                 </Anchors>
             </Button>
 
-            <Button text="Test Text" name="$parentValueRow" inherits="ViragDevToolRowTemplate" parentKey="valueButton">
+            <Button text="Test Text" name="$parentValueColumn" inherits="ViragDevToolRowTemplate" parentKey="valueButton">
                 <Size>
                     <AbsDimension x="700"/>
                 </Size>
                 <Anchors>
                     <Anchor point="RIGHT"/>
-                    <Anchor point="LEFT" relativeTo="$parentNameRow" relativePoint="RIGHT"/>
+                    <Anchor point="LEFT" relativeTo="$parentNameColumn" relativePoint="RIGHT"/>
                 </Anchors>
             </Button>
 
@@ -266,12 +266,11 @@
                         </Anchors>
                     </CheckButton>
 
-
-                    <CheckButton text="Favourites" name="$parentFavouritesButton" inherits="ViragDevToolTopButton"
-                                 parentKey="favourites"  hidden="true"> <!-- TODO implement and make it visible -->
+                    <CheckButton text="Fn Call Log" name="$parentLogButton" inherits="ViragDevToolTopButton"
+                                 parentKey="logs" >
                         <Scripts>
                             <OnClick>
-                                ViragDevTool:EnableSideBarTab("favourites")
+                                ViragDevTool:EnableSideBarTab("logs")
                             </OnClick>
                         </Scripts>
 
