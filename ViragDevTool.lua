@@ -597,7 +597,7 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
         end
 
         local resultStringName = tostring(name)
-        local MAX_STRING_SIZE = 60
+        local MAX_STRING_SIZE = 100
         if #resultStringName >= MAX_STRING_SIZE then
             resultStringName = string.sub(resultStringName, 0, MAX_STRING_SIZE) .. "..."
         end
@@ -801,8 +801,10 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     local list = self.list
     local padding = info.padding + 1
 
-    --constract full function call name
-    local fnNameWitArgs = self:functionStr(parent, info.name, args)
+    --constract collored full function call name
+    local fnNameWitArgs = C.white .. info.name ..C.lightblue .. "(" .. self:argstostring(args) .. ")" .. C.white
+    fnNameWitArgs = parent and C.gray .. parent.name .. ":" .. fnNameWitArgs or fnNameWitArgs
+
     local returnFormatedStr = ""
 
     -- itterate backwords because we want to include every meaningfull nil result
@@ -1012,10 +1014,15 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
             tParent[fnName] = function(...)
                 local result = { savedOldFn(...) }
                 local args = { ... }
+
+                local fnNameWitArgs =  ViragDevTool.colors.lightgreen .. fnName ..
+                        ViragDevTool.colors.white.. "(" .. self:argstostring(args) .. ")"..
+                        ViragDevTool.colors.lightblue
+
                 ViragDevTool_AddData({
                     OUT = shrinkFn(result),
                     IN = shrinkFn(args)
-                }, ViragDevTool:functionStr(nil, fnName, args))
+                }, fnNameWitArgs)
 
                 return unpack(result)
             end
@@ -1262,30 +1269,17 @@ function ViragDevTool:GetObjectTypeFromWoWAPI(value)
         end
     end
 end
-
-function ViragDevTool:FNNameToString(name, args)
-    -- Create function call string like myFunction(arg1, arg2, arg3)
-    local fnNameWitArgs = ""
-    local delimiter = ""
+function ViragDevTool:argstostring(args)
+    local strArgs = ""
     local found = false
+    local delimiter = ""
     for i = 10, 1, -1 do
         if args[i] ~= nil then found = true end
 
         if found then
-            fnNameWitArgs = tostring(args[i]) .. delimiter .. fnNameWitArgs
+            strArgs = tostring(args[i]) .. delimiter .. strArgs
             delimiter = ", "
         end
     end
-
-    return name .. "(" .. fnNameWitArgs .. ")"
-end
-
-function ViragDevTool:functionStr(parent, name, args)
-    local resultStr = self:FNNameToString(name, args)
-
-    if parent then
-        return self.colors.parent .. parent.name .. ":" .. self.colors.white .. resultStr
-    else
-        return self.colors.white .. resultStr
-    end
+    return strArgs
 end
