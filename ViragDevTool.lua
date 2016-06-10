@@ -34,20 +34,21 @@ ViragDevTool = {
                 result = string.gsub(result, "eventstop", a3("eventstop"))
                 result = string.gsub(result, "logfn", a3("logfn"))
                 result = string.gsub(result, "mouseover", a3("mouseover"))
+                result = string.gsub(result, "vdt_reset_wnd", a3("vdt_reset_wnd"))
                 return result
             end
 
             local help = {}
-            help[cFix("1 /vdt")] = cFix("Toggle UI")
-            help[cFix("2 /vdt help")] = cFix("Print help")
-            help[cFix("3 /vdt name parent (optional)")] = cFix("Add _G.name or _G.parent.name to the list (ex: /vdt name A.B => _G.A.B.name")
-            help[cFix("4 /vdt find name parent (optional)")] = cFix("Add name _G.*name* to the list. Adds any field name that has name part in its name")
-            help[cFix("5 /vdt mouseover")] = cFix("Add hoovered frame to the list with  GetMouseFocus()")
-            help[cFix("6 /vdt startswith name parent (optional)")] = cFix("Same as find but will look only for name*")
-            help[cFix("7 /vdt eventadd eventName unit (optional)")] = cFix("ex: /vdt eventadd UNIT_AURA player")
-            help[cFix("8 /vdt eventstop eventName")] = cFix("Stops event monitoring if active")
-            help[cFix("9 /vdt logfn tableName functionName (optional)")] = cFix("Log every function call. _G.tableName.functionName")
-
+            help[cFix("01 /vdt")] = cFix("Toggle UI")
+            help[cFix("02 /vdt help")] = cFix("Print help")
+            help[cFix("03 /vdt name parent (optional)")] = cFix("Add _G.name or _G.parent.name to the list (ex: /vdt name A.B => _G.A.B.name")
+            help[cFix("04 /vdt find name parent (optional)")] = cFix("Add name _G.*name* to the list. Adds any field name that has name part in its name")
+            help[cFix("05 /vdt mouseover")] = cFix("Add hoovered frame to the list with  GetMouseFocus()")
+            help[cFix("06 /vdt startswith name parent (optional)")] = cFix("Same as find but will look only for name*")
+            help[cFix("07 /vdt eventadd eventName unit (optional)")] = cFix("ex: /vdt eventadd UNIT_AURA player")
+            help[cFix("08 /vdt eventstop eventName")] = cFix("Stops event monitoring if active")
+            help[cFix("09 /vdt logfn tableName functionName (optional)")] = cFix("Log every function call. _G.tableName.functionName")
+            help[cFix("10 /vdt vdt_reset_wnd")] = cFix("Reset main frame position if you lost it for some reason")
             local sortedTable = {}
             for k, v in pairs(help) do
                 table.insert(sortedTable, k)
@@ -87,6 +88,9 @@ ViragDevTool = {
         --"/vdt log tableName fnName" tableName in global namespace and fnName in table
         LOGFN = function(msg2, msg3)
             ViragDevTool:StartLogFunctionCalls(msg2, msg3)
+        end,
+        VDT_RESET_WND = function(msg2, msg3)
+            ViragDevToolFrame:ClearAllPoints() ViragDevToolFrame:SetPoint("CENTER", UIParent)
         end
     },
 
@@ -196,32 +200,7 @@ function ViragDevTool_Colors:errorText()
     return self:stateStr(false) .. self.white .. " function call failed"
 end
 
-function ViragDevTool_Colors:FNNameToString(name, args)
-    -- Create function call string like myFunction(arg1, arg2, arg3)
-    local fnNameWitArgs = ""
-    local delimiter = ""
-    local found = false
-    for i = 10, 1, -1 do
-        if args[i] ~= nil then found = true end
 
-        if found then
-            fnNameWitArgs = tostring(args[i]) .. delimiter .. fnNameWitArgs
-            delimiter = ", "
-        end
-    end
-
-    return name .. "(" .. fnNameWitArgs .. ")"
-end
-
-function ViragDevTool_Colors:functionStr(parent, name, args)
-    local resultStr = self:FNNameToString(name, args)
-
-    if parent then
-        return self.parent .. parent.name .. ":" .. self.white .. resultStr
-    else
-        return self.white .. resultStr
-    end
-end
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevToolLinkedList == ViragDevTool.list
@@ -422,17 +401,22 @@ function ViragDevTool:ExpandCell(info)
 
     local nodeList = {}
     local padding = info.padding + 1
-    local couner = 1
+    local counter = 1
     for k, v in pairs(info.value) do
         if type(v) ~= "userdata" then
-            nodeList[couner] = self.list:NewNode(v, tostring(k), padding, info)
+            nodeList[counter] = self.list:NewNode(v, tostring(k), padding, info)
         else
             local mt = getmetatable(info.value)
+            mt = mt or getmetatable(v)
+
             if mt then
-                nodeList[couner] = self.list:NewNode(mt.__index, self.METATABLE_NAME, padding, info)
+                nodeList[counter] = self.list:NewNode(mt.__index, self.METATABLE_NAME, padding, info)
+            else
+                nodeList[counter] = self.list:NewNode(v, self.METATABLE_NAME .." not found for " ..tostring(k), padding, info)
             end
         end
-        couner = couner + 1
+
+        counter = counter + 1
     end
 
     table.sort(nodeList, self:SortFnForCells(nodeList))
@@ -507,6 +491,10 @@ end
 -----------------------------------------------------------------------------------------------
 -- Main table UI
 -----------------------------------------------------------------------------------------------
+function ViragDevTool:ForceUpdateMainTableUI()
+    self:UpdateMainTableUI(true)
+end
+
 function ViragDevTool:UpdateMainTableUI(force)
     if not force then
         self:UpdateMainTableUIOptimized()
@@ -535,23 +523,29 @@ function ViragDevTool:UpdateMainTableUI(force)
 
     HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
 end
-local waitFrame
+
+local VDTwaitFrame
 function ViragDevTool:UpdateMainTableUIOptimized()
-    if (waitFrame == nil) then
-        waitFrame = CreateFrame("Frame", "WaitFrame", UIParent);
-        waitFrame.lastUpdateTime = 0
-        waitFrame:SetScript("onUpdate", function(self, elapse)
 
-            waitFrame.lastUpdateTime = waitFrame.lastUpdateTime + elapse
-            if waitFrame.lastUpdateTime > 0.2 then
-                --preform update
-                ViragDevTool:UpdateMainTableUI(true)
-                waitFrame.lastUpdateTime = 0
+
+    if (VDTwaitFrame == nil) then
+        VDTwaitFrame = CreateFrame("Frame", "WaitFrame", UIParent);
+        VDTwaitFrame.lastUpdateTime = 0
+        VDTwaitFrame:SetScript("onUpdate", function(self, elapse)
+
+            if VDTwaitFrame.updateNeeded then
+                VDTwaitFrame.lastUpdateTime = VDTwaitFrame.lastUpdateTime + elapse
+                if VDTwaitFrame.lastUpdateTime > 0.1 then
+                    --preform update
+                    ViragDevTool:ForceUpdateMainTableUI()
+                    VDTwaitFrame.updateNeeded = false
+                    VDTwaitFrame.lastUpdateTime = 0
+                end
             end
-
-
         end);
     end
+
+    VDTwaitFrame.updateNeeded = true
 end
 
 function ViragDevTool:MainTableScrollBar_AddChildren(scrollFrame)
@@ -808,7 +802,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     local padding = info.padding + 1
 
     --constract full function call name
-    local fnNameWitArgs = C:functionStr(parent, info.name, args)
+    local fnNameWitArgs = self:functionStr(parent, info.name, args)
     local returnFormatedStr = ""
 
     -- itterate backwords because we want to include every meaningfull nil result
@@ -1017,11 +1011,11 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
 
             tParent[fnName] = function(...)
                 local result = { savedOldFn(...) }
-
+                local args = { ... }
                 ViragDevTool_AddData({
                     OUT = shrinkFn(result),
-                    IN = shrinkFn({ ... })
-                }, self.colors.lightgreen .. fnName)
+                    IN = shrinkFn(args)
+                }, ViragDevTool:functionStr(nil, fnName, args))
 
                 return unpack(result)
             end
@@ -1120,9 +1114,9 @@ function ViragDevTool:OnLoad(mainFrame)
 
     --register update scrollFrame
     self.wndRef.scrollFrame.update = function()
-        self:UpdateMainTableUI()
+        self:ForceUpdateMainTableUI()
     end
-    self:UpdateMainTableUI()
+    self:ForceUpdateMainTableUI()
 
     self.wndRef.sideFrame.sideScrollFrame.update = function()
         self:UpdateSideBarUI()
@@ -1266,5 +1260,32 @@ function ViragDevTool:GetObjectTypeFromWoWAPI(value)
                 return result
             end
         end
+    end
+end
+
+function ViragDevTool:FNNameToString(name, args)
+    -- Create function call string like myFunction(arg1, arg2, arg3)
+    local fnNameWitArgs = ""
+    local delimiter = ""
+    local found = false
+    for i = 10, 1, -1 do
+        if args[i] ~= nil then found = true end
+
+        if found then
+            fnNameWitArgs = tostring(args[i]) .. delimiter .. fnNameWitArgs
+            delimiter = ", "
+        end
+    end
+
+    return name .. "(" .. fnNameWitArgs .. ")"
+end
+
+function ViragDevTool:functionStr(parent, name, args)
+    local resultStr = self:FNNameToString(name, args)
+
+    if parent then
+        return self.colors.parent .. parent.name .. ":" .. self.colors.white .. resultStr
+    else
+        return self.colors.white .. resultStr
     end
 end
