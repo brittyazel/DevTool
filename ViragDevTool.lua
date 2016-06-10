@@ -507,7 +507,11 @@ end
 -----------------------------------------------------------------------------------------------
 -- Main table UI
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:UpdateMainTableUI()
+function ViragDevTool:UpdateMainTableUI(force)
+    if not force then
+        self:UpdateMainTableUIOptimized()
+        return
+    end
 
     local scrollFrame = self.wndRef.scrollFrame
     self:MainTableScrollBar_AddChildren(scrollFrame)
@@ -530,6 +534,24 @@ function ViragDevTool:UpdateMainTableUI()
     end
 
     HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
+end
+local waitFrame
+function ViragDevTool:UpdateMainTableUIOptimized()
+    if (waitFrame == nil) then
+        waitFrame = CreateFrame("Frame", "WaitFrame", UIParent);
+        waitFrame.lastUpdateTime = 0
+        waitFrame:SetScript("onUpdate", function(self, elapse)
+
+            waitFrame.lastUpdateTime = waitFrame.lastUpdateTime + elapse
+            if waitFrame.lastUpdateTime > 0.2 then
+                --preform update
+                ViragDevTool:UpdateMainTableUI(true)
+                waitFrame.lastUpdateTime = 0
+            end
+
+
+        end);
+    end
 end
 
 function ViragDevTool:MainTableScrollBar_AddChildren(scrollFrame)
@@ -571,7 +593,7 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
             local objectType, optionalFrameName = self:GetObjectTypeFromWoWAPI(value)
             if objectType then
                 if optionalFrameName and optionalFrameName ~= name then
-                    objectType = objectType .. " <"..optionalFrameName ..">"
+                    objectType = objectType .. " <" .. optionalFrameName .. ">"
                 end
 
                 valueButton:SetText(objectType .. "  " .. tostring(value))
@@ -952,7 +974,7 @@ function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
         local tParent = self:FromStrToObject(strParentPath)
         if tParent == nil then
             self:print(self.colors.red .. "Error: " .. self.colors.white ..
-                    "Cannot add function monitoring: " .. self.colors.lightblue .."_G.".. tostring(strParentPath) .. " == nil")
+                    "Cannot add function monitoring: " .. self.colors.lightblue .. "_G." .. tostring(strParentPath) .. " == nil")
             return
         end
 
@@ -974,6 +996,15 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
 
     local tParent = self:FromStrToObject(info.parentTableName) or {}
 
+    local shrinkFn = function(table)
+        if #table == 1 then
+            return table[1]
+        elseif #table == 0 then
+            return nil
+        end
+        return table
+    end
+
     for fnName, oldFn in pairs(tParent) do
         if type(oldFn) == "function" and
                 (info.fnName == nil or fnName == info.fnName) then
@@ -985,9 +1016,13 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
             end
 
             tParent[fnName] = function(...)
-                ViragDevTool:Add({ ... }, date("%X") .. " IN " .. fnName)
                 local result = { savedOldFn(...) }
-                ViragDevTool:Add(result, date("%X") .. ViragDevTool.colors.lightgreen .. " OUT " .. fnName)
+
+                ViragDevTool_AddData({
+                    OUT = shrinkFn(result),
+                    IN = shrinkFn({ ... })
+                }, self.colors.lightgreen .. fnName)
+
                 return unpack(result)
             end
         end
@@ -1223,9 +1258,8 @@ function ViragDevTool:GetObjectTypeFromWoWAPI(value)
                 local okName, resultName = pcall(value.GetName, value)
 
                 if okName and resultName then
-                    return result , resultName
+                    return result, resultName
                 end
-
             end
 
             if ok then
