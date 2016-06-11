@@ -412,11 +412,15 @@ function ViragDevTool:ExpandCell(info)
             if mt then
                 nodeList[counter] = self.list:NewNode(mt.__index, self.METATABLE_NAME, padding, info)
             else
-                nodeList[counter] = self.list:NewNode(v, self.METATABLE_NAME .." not found for " ..tostring(k), padding, info)
+                nodeList[counter] = self.list:NewNode(v, self.METATABLE_NAME .. " not found for " .. tostring(k), padding, info)
             end
         end
 
         counter = counter + 1
+    end
+
+    if type(info.value) == "table" and getmetatable(info.value) then
+        nodeList[counter] = self.list:NewNode(getmetatable(info.value), self.METATABLE_NAME, padding, info)
     end
 
     table.sort(nodeList, self:SortFnForCells(nodeList))
@@ -496,6 +500,7 @@ function ViragDevTool:ForceUpdateMainTableUI()
 end
 
 function ViragDevTool:UpdateMainTableUI(force)
+
     if not force then
         self:UpdateMainTableUIOptimized()
         return
@@ -802,7 +807,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     local padding = info.padding + 1
 
     --constract collored full function call name
-    local fnNameWitArgs = C.white .. info.name ..C.lightblue .. "(" .. self:argstostring(args) .. ")" .. C.white
+    local fnNameWitArgs = C.white .. info.name .. C.lightblue .. "(" .. self:argstostring(args) .. ")" .. C.white
     fnNameWitArgs = parent and C.gray .. parent.name .. ":" .. fnNameWitArgs or fnNameWitArgs
 
     local returnFormatedStr = ""
@@ -1015,8 +1020,8 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
                 local result = { savedOldFn(...) }
                 local args = { ... }
 
-                local fnNameWitArgs =  ViragDevTool.colors.lightgreen .. fnName ..
-                        ViragDevTool.colors.white.. "(" .. self:argstostring(args) .. ")"..
+                local fnNameWitArgs = ViragDevTool.colors.lightgreen .. fnName ..
+                        ViragDevTool.colors.white .. "(" .. self:argstostring(args) .. ")" ..
                         ViragDevTool.colors.lightblue
 
                 ViragDevTool_AddData({
@@ -1246,29 +1251,35 @@ end
 
 
 function ViragDevTool:GetObjectTypeFromWoWAPI(value)
-    if ACP and value == ACP.L then return end --todo fix this later throws exception
 
-    if type(value) == "table" and value.GetObjectType and value.IsForbidden then
+    if type(value) == "table" then
+        -- FIX if __index is function we dont want to execute it
+        -- Example in if ACP and value == ACP.L then return end
+        local mt = getmetatable(value)
+        if mt and type(mt.__index) == "function" then return end
+        
+        if value.GetObjectType and value.IsForbidden then
+            local ok, forbidden = pcall(value.IsForbidden, value)
+            if ok and not forbidden then
 
-        local ok, forbidden = pcall(value.IsForbidden, value)
-        if ok and not forbidden then
+                local ok, result = pcall(value.GetObjectType, value)
 
-            local ok, result = pcall(value.GetObjectType, value)
+                if ok and value.GetName then
+                    local okName, resultName = pcall(value.GetName, value)
 
-            if ok and value.GetName then
-                local okName, resultName = pcall(value.GetName, value)
-
-                if okName and resultName then
-                    return result, resultName
+                    if okName and resultName then
+                        return result, resultName
+                    end
                 end
-            end
 
-            if ok then
-                return result
+                if ok then
+                    return result
+                end
             end
         end
     end
 end
+
 function ViragDevTool:argstostring(args)
     local strArgs = ""
     local found = false
