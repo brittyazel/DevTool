@@ -9,7 +9,6 @@ ViragDevTool = {
     --static constant useed for metatable name
     METATABLE_NAME = "$metatable",
     METATABLE_NAME2 = "$metatable.__index",
-
     ADDON_NAME = "ViragDevTool",
 
     -- you can use /vdt find somestr parentname(can be in format _G.Frame.Button)
@@ -129,8 +128,7 @@ ViragDevTool = {
             "startswith Virag",
             "ViragDevTool.settings.history",
         },
-        logs = {
-            --{
+        logs = {--{
             --    fnName = "functionNameHere",
             --    parentTableName = "ViragDevTool.sometable",
             --    active = false
@@ -361,6 +359,8 @@ function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
 end
 
 function ViragDevTool:FromStrToObject(str)
+
+    if str == "_G" then return _G end
     local vars = self.split(str, ".") or {}
 
     local var = _G
@@ -766,7 +766,20 @@ function ViragDevTool:TryCallFunction(info)
     -- info.value is just our function to call
     local parent, ok
     local fn = info.value
-    local args = self.settings.tArgs
+    local args = { unpack(self.settings.tArgs) }
+    for k, v in pairs(args) do
+        if type(v) == "string" and self.starts(v, "t=") then
+
+            local obj = self:FromStrToObject(string.sub(v, 3))
+            if obj then
+                args[k] = obj
+            end
+        end
+    end
+
+
+
+
     -- lets try safe call first
     local ok, results = self:TryCallFunctionWithArgs(fn, args)
 
@@ -775,8 +788,8 @@ function ViragDevTool:TryCallFunction(info)
         parent = self:GetParentTable(info)
 
         if parent then
-            args = {parent.value , unpack(args)} --shallow copy and add parent table
-            ok, results = self:TryCallFunctionWithArgs(fn,args)
+            args = { parent.value, unpack(args) } --shallow copy and add parent table
+            ok, results = self:TryCallFunctionWithArgs(fn, args)
         end
     end
 
@@ -784,7 +797,7 @@ function ViragDevTool:TryCallFunction(info)
 end
 
 function ViragDevTool:GetParentTable(info)
-    local  parent = info.parent
+    local parent = info.parent
     if parent and parent.value == _G then
         -- this fn is in global namespace so no parent
         parent = nil
@@ -801,7 +814,7 @@ function ViragDevTool:GetParentTable(info)
 end
 
 function ViragDevTool:TryCallFunctionWithArgs(fn, args)
-    local results ={ pcall(fn, unpack(args, 1, 10)) }
+    local results = { pcall(fn, unpack(args, 1, 10)) }
     local ok = results[1]
     table.remove(results, 1)
     return ok, results
@@ -864,19 +877,21 @@ function ViragDevTool:SetArgForFunctionCall(arg, position, type)
     elseif type == "boolean" then arg = toboolean(arg)
     elseif type == "nil" then arg = nil
     elseif type == "string" then arg = tostring(arg)
-    else return end -- cant handle this type of args
+    else return
+    end -- cant handle this type of args
 
     self.settings.tArgs[position] = arg
 end
 
 function ViragDevTool:SetArgForFunctionCallFromString(argStr)
-    local args =  self.split(argStr, ",") or {}
+    local args = self.split(argStr, ",") or {}
 
     local trim = function(s)
         return (s:gsub("^%s*(.-)%s*$", "%1"))
     end
 
-    for k,arg in pairs(args) do
+    for k, arg in pairs(args) do
+
         arg = trim(arg)
         if tonumber(arg) then
             args[k] = tonumber(arg)
@@ -1236,7 +1251,7 @@ function ViragDevTool:SetupForSettings(s)
     self:SetVisible(self.wndRef.sideFrame, s.isSideBarOpen)
     self:SetVisible(self.wndRef.topFrame.editbox, s.isSideBarOpen)
     self:SetVisible(self.wndRef.topFrame.clearFnArgsButton, s.isSideBarOpen)
-    
+
     -- setup selected sidebar tab history/events/logs
     self:EnableSideBarTab(s.sideBarTabSelected)
 
@@ -1256,7 +1271,7 @@ function ViragDevTool:SetupForSettings(s)
     local args = ""
     local delim = ""
     for _, arg in pairs(s.tArgs) do
-        args = tostring(arg) .. delim.. args
+        args = tostring(arg) .. delim .. args
         delim = ", "
     end
 

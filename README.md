@@ -11,6 +11,10 @@ Much easier to use then default print or chat debug
 
 **[Curse download page](http://mods.curse.com/addons/wow/varrendevtool)** 
 
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=KWC5QnATlwE
+" target="_blank"><img src="http://img.youtube.com/vi/KWC5QnATlwE/0.jpg" 
+alt="Video Demo" width="400" height="200" border="10" /></a>
+
 ## How To Use
 
 Main (and the only) function you can use is **ViragDevTool_AddData(data, "some string name")**:

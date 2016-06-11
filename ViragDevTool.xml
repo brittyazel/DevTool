@@ -448,7 +448,7 @@
 
                     <EditBox name="$parentTextArea" autoFocus="false" parentKey="editbox">
                         <Size>
-                            <AbsDimension x="290" y="32"/>
+                            <AbsDimension x="400" y="32"/>
                         </Size>
                         <Anchors>
                             <Anchor point="LEFT" relativeTo="$parentFNCallLabelButton" relativePoint="RIGHT" x="10"/>
