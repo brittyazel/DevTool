@@ -102,8 +102,7 @@ ViragDevTool = {
     },
 
 
-    -- stores arguments for fcunction calls --todo implement
-    tArgs = {},
+
 
     -- mapping table is used to store searches and diferent values that are frequently used
     -- for example we may need some api or some variable so we can add it here
@@ -138,8 +137,8 @@ ViragDevTool = {
             --},
         },
 
-        -- this table is for storing arguments if we want to call function with some
-
+        -- stores arguments for fcunction calls --todo implement
+        tArgs = {},
 
         -- events to monitor
         -- format ({event = "EVENT_NAME", unit = "player", active = true}, ...)
@@ -626,6 +625,8 @@ end
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:ToggleSidebar()
     self:Toggle(self.wndRef.sideFrame)
+    self:Toggle(self.wndRef.topFrame.editbox)
+    self:Toggle(self.wndRef.topFrame.clearFnArgsButton)
     self.settings.isSideBarOpen = self.wndRef.sideFrame:IsVisible()
     self:UpdateSideBarUI()
 end
@@ -742,6 +743,7 @@ end
 -- Main table row button clicks setup
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:SetMainTableButtonScript(button, info)
+    --todo add left click = copy to chat
     local valueType = type(info.value)
     if valueType == "table" then
         button:SetScript("OnMouseUp", function(this, button, down)
@@ -764,36 +766,22 @@ function ViragDevTool:TryCallFunction(info)
     -- info.value is just our function to call
     local parent, ok
     local fn = info.value
-    local args = self:shallowcopyargs(self.tArgs)
-
+    local args = self.settings.tArgs
     -- lets try safe call first
     local ok, results = self:TryCallFunctionWithArgs(fn, args)
 
     if not ok then
         -- if safe call failed we probably could try to find self and call self:fn()
-        parent = info.parent
-
-
-        if parent and parent.value == _G then
-            -- this fn is in global namespace so no parent
-            parent = nil
-        end
+        parent = self:GetParentTable(info)
 
         if parent then
-
-            if self:IsMetaTableNode(parent) then
-                -- metatable has real object 1 level higher
-                parent = parent.parent
-            end
-            fn = parent.value[info.name]
-            table.insert(args, 1, parent.value)
-            ok, results = self:TryCallFunctionWithArgs(fn, args)
+            args = {parent.value , unpack(args)} --shallow copy and add parent table
+            ok, results = self:TryCallFunctionWithArgs(fn,args)
         end
     end
 
     self:ProcessCallFunctionData(ok, info, parent, args, results)
 end
-
 
 function ViragDevTool:GetParentTable(info)
     local  parent = info.parent
@@ -813,10 +801,9 @@ function ViragDevTool:GetParentTable(info)
 end
 
 function ViragDevTool:TryCallFunctionWithArgs(fn, args)
-    local results = {}
-    local ok
-    ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
-
+    local results ={ pcall(fn, unpack(args, 1, 10)) }
+    local ok = results[1]
+    table.remove(results, 1)
     return ok, results
 end
 
@@ -837,8 +824,8 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     end
 
     --constract collored full function call name
-    local fnNameWitArgs = C.white .. info.name .. C.lightblue .. "(" .. self:argstostring(args) .. ")" .. C.white
-    fnNameWitArgs = parent and C.gray .. parent.name .. ":" .. fnNameWitArgs or fnNameWitArgs
+    local fnNameWithArgs = C.white .. info.name .. C.lightblue .. "(" .. self:argstostring(args) .. ")" .. C.white
+    fnNameWithArgs = parent and C.gray .. parent.name .. ":" .. fnNameWithArgs or fnNameWithArgs
 
     local returnFormatedStr = ""
 
@@ -859,7 +846,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     end
 
     -- create fist node of result info no need for now. will use debug
-    table.insert(nodes, 1, list:NewNode(string.format("%s - %s", stateStr(ok), fnNameWitArgs), -- node value
+    table.insert(nodes, 1, list:NewNode(string.format("%s - %s", stateStr(ok), fnNameWithArgs), -- node value
         C.white .. date("%X") .. " function call results:", padding))
 
 
@@ -868,18 +855,42 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     self:UpdateMainTableUI()
 
     --print info to chat
-    self:print(stateStr(ok) .. " " .. fnNameWitArgs .. C.gray .. " returns:" .. returnFormatedStr)
+    self:print(stateStr(ok) .. " " .. fnNameWithArgs .. C.gray .. " returns:" .. returnFormatedStr)
 end
 
 -- type can be string or int or bool -- not table or userdata or function for now
-function ViragDevTool:SetSavedArg(arg, position, type)
+function ViragDevTool:SetArgForFunctionCall(arg, position, type)
     if type == "number" then arg = tonumber(arg)
     elseif type == "boolean" then arg = toboolean(arg)
     elseif type == "nil" then arg = nil
     elseif type == "string" then arg = tostring(arg)
     else return end -- cant handle this type of args
 
-    self.tArgs[position] = arg
+    self.settings.tArgs[position] = arg
+end
+
+function ViragDevTool:SetArgForFunctionCallFromString(argStr)
+    local args =  self.split(argStr, ",") or {}
+
+    local trim = function(s)
+        return (s:gsub("^%s*(.-)%s*$", "%1"))
+    end
+
+    for k,arg in pairs(args) do
+        arg = trim(arg)
+        if tonumber(arg) then
+            args[k] = tonumber(arg)
+        elseif arg == "nil" then
+            args[k] = nil
+        elseif arg == "true" then
+            args[k] = true
+        elseif arg == "false" then
+            args[k] = false
+        end
+    end
+
+    self.settings.tArgs = args
+    self:Add(args, "New Args for function calls")
 end
 
 -----------------------------------------------------------------------------------------------
@@ -898,7 +909,6 @@ function ViragDevTool:AddToHistory(strValue)
                 return
             end
         end
-
 
         table.insert(hist, 1, strValue)
 
@@ -1224,7 +1234,9 @@ function ViragDevTool:SetupForSettings(s)
 
     -- setup open or closed sidebar
     self:SetVisible(self.wndRef.sideFrame, s.isSideBarOpen)
-
+    self:SetVisible(self.wndRef.topFrame.editbox, s.isSideBarOpen)
+    self:SetVisible(self.wndRef.topFrame.clearFnArgsButton, s.isSideBarOpen)
+    
     -- setup selected sidebar tab history/events/logs
     self:EnableSideBarTab(s.sideBarTabSelected)
 
@@ -1240,6 +1252,16 @@ function ViragDevTool:SetupForSettings(s)
         end
     end
 
+    -- show in UI fn saved args if you have them
+    local args = ""
+    local delim = ""
+    for _, arg in pairs(s.tArgs) do
+        args = tostring(arg) .. delim.. args
+        delim = ", "
+    end
+
+    self.wndRef.topFrame.editbox:SetText(args)
+
     -- setup events part 2 set scripts on frame to listen registered events
     self:SetMonitorEventScript()
 
@@ -1251,13 +1273,6 @@ end
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:print(strText)
     print(self.colors.darkred .. "[Virag's DT]: " .. self.colors.white .. strText)
-end
-
-function ViragDevTool:shallowcopyargs(orig)
-    local copy = {}
-    for k, v in pairs(orig) do copy[k] = orig[v]
-    end
-    return copy
 end
 
 function ViragDevTool:split(sep)

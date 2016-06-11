@@ -4,12 +4,9 @@
     <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
 
     <CheckButton text="Test" name="ViragDevToolTopButton" inherits="UIPanelButtonTemplate" virtual="true">
-        <Size>
-            <AbsDimension x="100" y="25"/>
-        </Size>
+        <Size x="100" y="25"/>
         <NormalFont style="GameFontHighlightLeft"/>
-        <CheckedTexture file="Interface\Buttons\UI-DialogBox-Button-Highlight" alphaMode="ADD">
-        </CheckedTexture>
+        <CheckedTexture file="Interface\Buttons\UI-DialogBox-Button-Highlight" alphaMode="ADD"/>
     </CheckButton>
 
     <Frame name="ViragDevToolSideBarRowTemplate" virtual="true">
@@ -290,6 +287,7 @@
                             <OnEnterPressed>
                                 ViragDevTool:SubmitEditBoxSidebar()
                                 self:SetText("")
+                                self:ClearFocus();
                             </OnEnterPressed>
                             <OnEscapePressed>
                                 self:ClearFocus();
@@ -378,6 +376,7 @@
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:ToggleSidebar()
+
                             </OnClick>
                         </Scripts>
                         <Anchors>
@@ -432,6 +431,78 @@
                             <Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT"/>
                         </Anchors>
                     </Button>
+                    <Button text="FN Call Args:" name="$parentFNCallLabelButton" parentKey="clearFnArgsButton">
+                        <Size x="75" y="25"/>
+                        <NormalFont style="GameFontHighlightLeft"/>
+                        <Scripts>
+                            <OnClick>
+                                -- clear args
+                                ViragDevTool:SetArgForFunctionCallFromString("")
+                                self:GetParent().editbox:SetText("")
+                            </OnClick>
+                        </Scripts>
+                        <Anchors>
+                            <Anchor point="BOTTOM" relativeTo="$parentClearButton" relativePoint="TOP" y ="2"/>
+                        </Anchors>
+                    </Button>
+
+                    <EditBox name="$parentTextArea" autoFocus="false" parentKey="editbox">
+                        <Size>
+                            <AbsDimension x="290" y="32"/>
+                        </Size>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentFNCallLabelButton" relativePoint="RIGHT" x="10"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnEnterPressed>
+                                ViragDevTool:SetArgForFunctionCallFromString(self:GetText())
+                                self:ClearFocus();
+                            </OnEnterPressed>
+                            <OnEscapePressed>
+                                self:ClearFocus();
+                            </OnEscapePressed>
+                        </Scripts>
+                        <FontString inherits="ChatFontNormal"/>
+                        <Layers>
+                            <Layer level="BACKGROUND">
+                                <Texture name="$parentLeft" file="Interface\ChatFrame\UI-ChatInputBorder-Left2">
+                                    <Size>
+                                        <AbsDimension x="32" y="32"/>
+                                    </Size>
+                                    <Anchors>
+                                        <Anchor point="LEFT" x="-10" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture name="$parentRight" file="Interface\ChatFrame\UI-ChatInputBorder-Right2">
+                                    <Size>
+                                        <AbsDimension x="32" y="32"/>
+                                    </Size>
+                                    <Anchors>
+                                        <Anchor point="RIGHT" x="10" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture name="$parentMid" file="Interface\ChatFrame\UI-ChatInputBorder-Mid2"
+                                         horizTile="true">
+                                    <Size>
+                                        <AbsDimension x="0" y="32"/>
+                                    </Size>
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" relativeTo="$parentLeft" relativePoint="TOPRIGHT">
+                                            <Offset>
+                                                <AbsDimension x="0" y="0"/>
+                                            </Offset>
+                                        </Anchor>
+                                        <Anchor point="TOPRIGHT" relativeTo="$parentRight" relativePoint="TOPLEFT">
+                                            <Offset>
+                                                <AbsDimension x="0" y="0"/>
+                                            </Offset>
+                                        </Anchor>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                    </EditBox>
+
                     <Button virtual="true">
                         <Size x="32" y="32"/>
                         <Anchors>
