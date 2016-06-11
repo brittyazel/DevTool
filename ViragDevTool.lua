@@ -1,10 +1,15 @@
+-- just remove global reference so it is easy to read with my ide
+local pairs, tostring, type, print, string, getmetatable, table, pcall, unpack =
+pairs, tostring, type, print, string, getmetatable, table, pcall, unpack
+local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update =
+HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
+
 -- create global instance
 ViragDevTool = {
     --static constant useed for metatable name
     METATABLE_NAME = "$metatable",
     ADDON_NAME = "ViragDevTool",
 
-    --this 2 keyword are for cmd operations
     -- you can use /vdt find somestr parentname(can be in format _G.Frame.Button)
     -- for examle "/vdt find Virag" will find every variable in _G that has *Virag* pattern
     -- "/vdt find Data ViragDevTool" will find every variable that has *Data* in their name in _G.ViragDevTool object if it exists
@@ -150,23 +155,14 @@ ViragDevTool = {
     }
 }
 
-
 -- just remove global reference so it is easy to read with my ide
 local ViragDevTool = ViragDevTool
 
-local pairs, tostring, type, print, string, getmetatable, table, pcall =
-pairs, tostring, type, print, string, getmetatable, table, pcall
-
-local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update =
-HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
-
 -----------------------------------------------------------------------------------------------
--- ViragDevTool_Colors == ViragDevTool.colors
+-- ViragDevTool.colors
 -----------------------------------------------------------------------------------------------
-
--- todo refactore this class
-
-local ViragDevTool_Colors = {
+-- todo refactore this
+ViragDevTool.colors = {
     white = "|cFFFFFFFF",
     gray = "|cFFBEB9B5",
     lightblue = "|cFF96C0CE",
@@ -180,27 +176,11 @@ local ViragDevTool_Colors = {
 }
 
 --this colors are used in main table text
-ViragDevTool_Colors["table"] = { 0.41, 0.80, 0.94, 1 }
-ViragDevTool_Colors["string"] = { 0.67, 0.83, 0.45, 1 }
-ViragDevTool_Colors["number"] = { 1, 0.96, 0.41, 1 }
-ViragDevTool_Colors["function"] = { 1, 0.49, 0.04, 1 }
-ViragDevTool_Colors["default"] = { 1, 1, 1, 1 }
-
-function ViragDevTool_Colors:forState(state)
-    if state then return self.ok end
-    return self.error
-end
-
-function ViragDevTool_Colors:stateStr(state)
-    if state then return self.ok .. "OK" end
-    return self.error .. "ERROR"
-end
-
-function ViragDevTool_Colors:errorText()
-    return self:stateStr(false) .. self.white .. " function call failed"
-end
-
-
+ViragDevTool.colors["table"] = { 0.41, 0.80, 0.94, 1 }
+ViragDevTool.colors["string"] = { 0.67, 0.83, 0.45, 1 }
+ViragDevTool.colors["number"] = { 1, 0.96, 0.41, 1 }
+ViragDevTool.colors["function"] = { 1, 0.49, 0.04, 1 }
+ViragDevTool.colors["default"] = { 1, 1, 1, 1 }
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevToolLinkedList == ViragDevTool.list
@@ -219,9 +199,7 @@ end
 -- @field parent - parent node after it expanded
 -- @field expanded - true/false/nil
 
-
 local ViragDevToolLinkedList = {}
-
 
 function ViragDevToolLinkedList:new(o)
     o = o or {}
@@ -319,9 +297,7 @@ end
 -----------------------------------------------------------------------------------------------
 -- ViragDevTool main
 -----------------------------------------------------------------------------------------------
-
 ViragDevTool.list = ViragDevToolLinkedList:new()
-ViragDevTool.colors = ViragDevTool_Colors
 
 ---
 -- Main (and the only) function you can use in ViragDevTool API
@@ -391,7 +367,6 @@ function ViragDevTool:FromStrToObject(str)
     return var
 end
 
-
 function ViragDevTool:ClearData()
     self.list:Clear()
     self:UpdateMainTableUI()
@@ -425,10 +400,6 @@ function ViragDevTool:ExpandCell(info)
         nodeList[counter] = self:NewMetatableNode(mt, padding, info)
     else
     end
-    -- if we have metatable but had no userdata, we would like to add this metatable
-    --if type(info.value) == "table" and mt == nil and getmetatable(info.value) then
-    --    nodeList[counter] = self.list:NewNode(getmetatable(info.value), self.METATABLE_NAME, padding, info)
-    --end
 
     table.sort(nodeList, self:SortFnForCells(nodeList))
 
@@ -442,7 +413,7 @@ end
 function ViragDevTool:NewMetatableNode(mt, padding, info)
     if mt then
         if self:tablelength(mt) == 1 and mt.__index then
-            return self.list:NewNode(mt.__index, self.METATABLE_NAME..".__index", padding, info)
+            return self.list:NewNode(mt.__index, self.METATABLE_NAME .. ".__index", padding, info)
         else
             return self.list:NewNode(mt, self.METATABLE_NAME, padding, info)
         end
@@ -547,28 +518,27 @@ function ViragDevTool:UpdateMainTableUI(force)
     HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
 end
 
-local VDTwaitFrame
+
 function ViragDevTool:UpdateMainTableUIOptimized()
 
+    if (self.waitFrame == nil) then
+        self.waitFrame = CreateFrame("Frame", "WaitFrame", UIParent);
+        self.waitFrame.lastUpdateTime = 0
+        self.waitFrame:SetScript("onUpdate", function(self, elapse)
 
-    if (VDTwaitFrame == nil) then
-        VDTwaitFrame = CreateFrame("Frame", "WaitFrame", UIParent);
-        VDTwaitFrame.lastUpdateTime = 0
-        VDTwaitFrame:SetScript("onUpdate", function(self, elapse)
-
-            if VDTwaitFrame.updateNeeded then
-                VDTwaitFrame.lastUpdateTime = VDTwaitFrame.lastUpdateTime + elapse
-                if VDTwaitFrame.lastUpdateTime > 0.1 then
+            if self.updateNeeded then
+                self.lastUpdateTime = self.lastUpdateTime + elapse
+                if self.lastUpdateTime > 0.1 then
                     --preform update
                     ViragDevTool:ForceUpdateMainTableUI()
-                    VDTwaitFrame.updateNeeded = false
-                    VDTwaitFrame.lastUpdateTime = 0
+                    self.updateNeeded = false
+                    self.lastUpdateTime = 0
                 end
             end
         end);
     end
 
-    VDTwaitFrame.updateNeeded = true
+    self.waitFrame.updateNeeded = true
 end
 
 function ViragDevTool:MainTableScrollBar_AddChildren(scrollFrame)
@@ -606,7 +576,7 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     if not color then color = self.colors.default end
 
     if valueType == "table" then
-        if name ~= self.METATABLE_NAME and name ~= self.METATABLE_NAME..".__index" then
+        if name ~= self.METATABLE_NAME and name ~= self.METATABLE_NAME .. ".__index" then
             local objectType, optionalFrameName = self:GetObjectTypeFromWoWAPI(value)
             if objectType then
                 if optionalFrameName and optionalFrameName ~= name then
@@ -824,6 +794,11 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     local list = self.list
     local padding = info.padding + 1
 
+    local stateStr = function(state)
+        if state then return self.ok .. "OK" end
+        return self.error .. "ERROR"
+    end
+
     --constract collored full function call name
     local fnNameWitArgs = C.white .. info.name .. C.lightblue .. "(" .. self:argstostring(args) .. ")" .. C.white
     fnNameWitArgs = parent and C.gray .. parent.name .. ":" .. fnNameWitArgs or fnNameWitArgs
@@ -847,7 +822,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     end
 
     -- create fist node of result info no need for now. will use debug
-    table.insert(nodes, 1, list:NewNode(string.format("%s - %s", C:stateStr(ok), fnNameWitArgs), -- node value
+    table.insert(nodes, 1, list:NewNode(string.format("%s - %s", stateStr(ok), fnNameWitArgs), -- node value
         C.white .. date("%X") .. " function call results:", padding))
 
 
@@ -856,7 +831,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     self:UpdateMainTableUI()
 
     --print info to chat
-    self:print(C:stateStr(ok) .. " " .. fnNameWitArgs .. C.gray .. " returns:" .. returnFormatedStr)
+    self:print(stateStr(ok) .. " " .. fnNameWitArgs .. C.gray .. " returns:" .. returnFormatedStr)
 end
 
 -----------------------------------------------------------------------------------------------
@@ -1252,49 +1227,38 @@ function ViragDevTool:tablelength(T)
     return count
 end
 
-function ViragDevTool:printtable(T)
-    print(tostring(T))
-    if type(T) ~= "table" then return end
-    for k, v in pairs(T) do
-        print(tostring(k) .. " => " .. tostring(v))
-    end
-end
-
-function ViragDevTool:TestFunction(...)
-    local values = { ... }
-    for k, v in pairs(values) do
-        print(k .. "  => " .. v)
-    end
-end
-
-
 function ViragDevTool:GetObjectTypeFromWoWAPI(value)
+    -- this function is helper fn to get table type from wow api.
+    -- if there is GetObjectType then we will return it.
+    -- returns Button, Frame or something like this
 
-    if type(value) == "table" then
-        -- FIX if __index is function we dont want to execute it
-        -- Example in if ACP and value == ACP.L then return end
-        local mt = getmetatable(value)
-        if mt and type(mt.__index) == "function" then return end
+    -- VALIDATION
+    if type(value) ~= "table" then return end
 
-        if value.GetObjectType and value.IsForbidden then
-            local ok, forbidden = pcall(value.IsForbidden, value)
-            if ok and not forbidden then
+    -- VALIDATION FIX if __index is function we dont want to execute it
+    -- Example in ACP.L
+    local mt = getmetatable(value)
+    if mt and type(mt.__index) == "function" then return end
 
-                local ok, result = pcall(value.GetObjectType, value)
+    -- VALIDATION is forbidden from wow api
+    if value.IsForbidden then
+        local ok, forbidden = pcall(value.IsForbidden, value)
+        if not ok or (ok and forbidden) then return end
+    end
+    -- VALIDATION has WoW API
+    if not value.GetObjectType then return end
 
-                if ok and value.GetName then
-                    local okName, resultName = pcall(value.GetName, value)
-
-                    if okName and resultName then
-                        return result, resultName
-                    end
-                end
-
-                if ok then
-                    return result
-                end
-            end
+    -- MAIN PART:
+    local ok, objectType = pcall(value.GetObjectType, value)
+    -- try to get frame name
+    if ok then
+        local name
+        if value.GetName then
+            ok, name = pcall(value.GetName, value)
+            name = ok and name or nil
         end
+
+        return objectType, name
     end
 end
 
