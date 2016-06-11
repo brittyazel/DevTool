@@ -88,6 +88,13 @@ tParent[fnName] = function(...)
 end
 ```
 ![ViragDevTool logger demo][loggerDemo]
+### How to use function arguments:
+You can specify coma separated arguments that will be passed to the function.
+Can be string, number, nil, true/false and table
+to pass table you have to specify prefix `t=` so lets suppose i want to pass ViragDevToolFrame as a argument, then the string has to be `t=ViragDevToolFrame`
+
+Demo1: FN Call Args: `t=Frame, 12, a12` => someFunction(_G.Frame (table) , 12 (number), a12 (string))
+Demo2: FN Call Args: `t=Frame.Frame2.Frame3` => someFunction(_G.Frame.Frame2.Frame3 (table))
 
 ### /CMD
 
@@ -105,15 +112,14 @@ end
 
 ### TODO list:
 
-ViragDevTool is in beta (probably even early alpha) so there is lots of stuff to add and tune.
+ViragDevTool is in beta  so there is lots of stuff to add and tune.
 
 1. Create dynamic text and color size chooser (probably not everyone likes SystemFont_Small)
-2. Create edit text ui so we can call functions with args
-3. Add filters by object name and type
-4. Add object deep copy option
-5. Add predefined buttons for every WoW API (just like _G)
-6. Add row delimiters so we can resize rows in table
-7. Add function args info and description from mapping file
+2. Add filters by object name and type
+3. Add object deep copy option
+4. Add predefined buttons for every WoW API (just like _G)
+5. Add row delimiters so we can resize rows in table
+6. Add function args info and description from mapping file
 
 ### How to contribute
 For now this addon will be updated only when i need certain feature in my other addon's development

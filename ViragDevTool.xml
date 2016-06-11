@@ -141,6 +141,7 @@
                 self:SetUserPlaced(true)
                 ViragDevTool:OnLoad(self)
                 self:SetMinResize(600, 100);
+                self:SetMaxResize(1200, 900);
                 self:RegisterForDrag("LeftButton");
             </OnLoad>
             <OnDragStart>
@@ -380,7 +381,7 @@
                             </OnClick>
                         </Scripts>
                         <Anchors>
-                            <Anchor point="LEFT"/>
+                            <Anchor point="LEFT" x = "5"/>
                         </Anchors>
                         <NormalTexture file="Interface\Buttons\UI-Panel-SmallerButton-Up"/>
                         <PushedTexture file="Interface\Buttons\UI-Panel-SmallerButton-Down"/>
@@ -394,7 +395,7 @@
                         </Scripts>
 
                         <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentToggleSideBarButton" relativePoint="RIGHT"/>
+                            <Anchor point="LEFT" relativeTo="$parentToggleSideBarButton" relativePoint="RIGHT" x = "5"/>
                         </Anchors>
                     </Button>
                     <Button text="_G" name="$parentAddGlobalButton" inherits="ViragDevToolTopButton">
@@ -404,7 +405,7 @@
                             </OnClick>
                         </Scripts>
                         <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT"/>
+                            <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT" x = "5"/>
                         </Anchors>
                     </Button>
                     <Button text="/fstack" name="$parentFrameStack" inherits="ViragDevToolTopButton">
@@ -418,7 +419,7 @@
                             </OnClick>
                         </Scripts>
                         <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT"/>
+                            <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT" x = "5"/>
                         </Anchors>
                     </Button>
                     <Button text="help" name="$parentHelpButton" inherits="ViragDevToolTopButton">
@@ -428,11 +429,11 @@
                             </OnClick>
                         </Scripts>
                         <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT"/>
+                            <Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT" x = "5"/>
                         </Anchors>
                     </Button>
-                    <Button text="FN Call Args:" name="$parentFNCallLabelButton" parentKey="clearFnArgsButton">
-                        <Size x="75" y="25"/>
+                    <Button text="FN Call Args:" name="$parentFNCallLabelButton" parentKey="clearFnArgsButton" >
+                        <Size x="80" y="25"/>
                         <NormalFont style="GameFontHighlightLeft"/>
                         <Scripts>
                             <OnClick>
@@ -442,13 +443,13 @@
                             </OnClick>
                         </Scripts>
                         <Anchors>
-                            <Anchor point="BOTTOM" relativeTo="$parentClearButton" relativePoint="TOP" y ="2"/>
+                            <Anchor point="BOTTOM" relativeTo="$parentToggleSideBarButton" relativePoint="TOP" y ="2"/>
                         </Anchors>
                     </Button>
 
                     <EditBox name="$parentTextArea" autoFocus="false" parentKey="editbox">
                         <Size>
-                            <AbsDimension x="400" y="32"/>
+                            <AbsDimension x="500" y="32"/>
                         </Size>
                         <Anchors>
                             <Anchor point="LEFT" relativeTo="$parentFNCallLabelButton" relativePoint="RIGHT" x="10"/>
