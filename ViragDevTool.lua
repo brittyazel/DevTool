@@ -402,26 +402,33 @@ function ViragDevTool:ExpandCell(info)
     local nodeList = {}
     local padding = info.padding + 1
     local counter = 1
+    local mt
     for k, v in pairs(info.value) do
         if type(v) ~= "userdata" then
             nodeList[counter] = self.list:NewNode(v, tostring(k), padding, info)
         else
-            local mt = getmetatable(info.value)
-            mt = mt or getmetatable(v)
-
+            local mt = getmetatable(v)
             if mt then
-                nodeList[counter] = self.list:NewNode(mt.__index, self.METATABLE_NAME, padding, info)
+                nodeList[counter] = self.list:NewNode(mt, self.METATABLE_NAME .. " for " .. tostring(k), padding, info)
             else
-                nodeList[counter] = self.list:NewNode(v, self.METATABLE_NAME .. " not found for " .. tostring(k), padding, info)
+                if k == 0 then counter = counter - 1 else
+                    nodeList[counter] = self.list:NewNode(v, self.METATABLE_NAME .. " not found for " .. tostring(k), padding, info)
+                end
             end
         end
 
         counter = counter + 1
     end
 
-    if type(info.value) == "table" and getmetatable(info.value) then
-        nodeList[counter] = self.list:NewNode(getmetatable(info.value), self.METATABLE_NAME, padding, info)
+    local mt = getmetatable(info.value)
+    if mt then
+        nodeList[counter] = self:NewMetatableNode(mt, padding, info)
+    else
     end
+    -- if we have metatable but had no userdata, we would like to add this metatable
+    --if type(info.value) == "table" and mt == nil and getmetatable(info.value) then
+    --    nodeList[counter] = self.list:NewNode(getmetatable(info.value), self.METATABLE_NAME, padding, info)
+    --end
 
     table.sort(nodeList, self:SortFnForCells(nodeList))
 
@@ -431,6 +438,17 @@ function ViragDevTool:ExpandCell(info)
 
     ViragDevTool:UpdateMainTableUI()
 end
+
+function ViragDevTool:NewMetatableNode(mt, padding, info)
+    if mt then
+        if self:tablelength(mt) == 1 and mt.__index then
+            return self.list:NewNode(mt.__index, self.METATABLE_NAME..".__index", padding, info)
+        else
+            return self.list:NewNode(mt, self.METATABLE_NAME, padding, info)
+        end
+    end
+end
+
 
 function ViragDevTool:SortFnForCells(nodeList)
 
@@ -588,7 +606,7 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     if not color then color = self.colors.default end
 
     if valueType == "table" then
-        if name ~= self.METATABLE_NAME then
+        if name ~= self.METATABLE_NAME and name ~= self.METATABLE_NAME..".__index" then
             local objectType, optionalFrameName = self:GetObjectTypeFromWoWAPI(value)
             if objectType then
                 if optionalFrameName and optionalFrameName ~= name then
@@ -1257,7 +1275,7 @@ function ViragDevTool:GetObjectTypeFromWoWAPI(value)
         -- Example in if ACP and value == ACP.L then return end
         local mt = getmetatable(value)
         if mt and type(mt.__index) == "function" then return end
-        
+
         if value.GetObjectType and value.IsForbidden then
             local ok, forbidden = pcall(value.IsForbidden, value)
             if ok and not forbidden then
