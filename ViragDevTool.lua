@@ -8,6 +8,8 @@ HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_
 ViragDevTool = {
     --static constant useed for metatable name
     METATABLE_NAME = "$metatable",
+    METATABLE_NAME2 = "$metatable.__index",
+
     ADDON_NAME = "ViragDevTool",
 
     -- you can use /vdt find somestr parentname(can be in format _G.Frame.Button)
@@ -99,6 +101,7 @@ ViragDevTool = {
         end
     },
 
+
     -- stores arguments for fcunction calls --todo implement
     tArgs = {},
 
@@ -127,12 +130,16 @@ ViragDevTool = {
             "startswith Virag",
             "ViragDevTool.settings.history",
         },
-        logs = {--{
+        logs = {
+            --{
             --    fnName = "functionNameHere",
             --    parentTableName = "ViragDevTool.sometable",
             --    active = false
             --},
         },
+
+        -- this table is for storing arguments if we want to call function with some
+
 
         -- events to monitor
         -- format ({event = "EVENT_NAME", unit = "player", active = true}, ...)
@@ -372,6 +379,8 @@ function ViragDevTool:ClearData()
     self:UpdateMainTableUI()
 end
 
+
+
 function ViragDevTool:ExpandCell(info)
 
     local nodeList = {}
@@ -413,13 +422,16 @@ end
 function ViragDevTool:NewMetatableNode(mt, padding, info)
     if mt then
         if self:tablelength(mt) == 1 and mt.__index then
-            return self.list:NewNode(mt.__index, self.METATABLE_NAME .. ".__index", padding, info)
+            return self.list:NewNode(mt.__index, self.METATABLE_NAME2, padding, info)
         else
             return self.list:NewNode(mt, self.METATABLE_NAME, padding, info)
         end
     end
 end
 
+function ViragDevTool:IsMetaTableNode(info)
+    return info.name == self.METATABLE_NAME or info.name == self.METATABLE_NAME2
+end
 
 function ViragDevTool:SortFnForCells(nodeList)
 
@@ -576,7 +588,7 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     if not color then color = self.colors.default end
 
     if valueType == "table" then
-        if name ~= self.METATABLE_NAME and name ~= self.METATABLE_NAME .. ".__index" then
+        if not self:IsMetaTableNode(info) then
             local objectType, optionalFrameName = self:GetObjectTypeFromWoWAPI(value)
             if objectType then
                 if optionalFrameName and optionalFrameName ~= name then
@@ -753,10 +765,9 @@ function ViragDevTool:TryCallFunction(info)
     local parent, ok
     local fn = info.value
     local args = self:shallowcopyargs(self.tArgs)
-    local results = {}
 
     -- lets try safe call first
-    ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
+    local ok, results = self:TryCallFunctionWithArgs(fn, args)
 
     if not ok then
         -- if safe call failed we probably could try to find self and call self:fn()
@@ -770,17 +781,43 @@ function ViragDevTool:TryCallFunction(info)
 
         if parent then
 
-            if parent.name == self.METATABLE_NAME then
+            if self:IsMetaTableNode(parent) then
                 -- metatable has real object 1 level higher
                 parent = parent.parent
             end
             fn = parent.value[info.name]
             table.insert(args, 1, parent.value)
-            ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
+            ok, results = self:TryCallFunctionWithArgs(fn, args)
         end
     end
 
     self:ProcessCallFunctionData(ok, info, parent, args, results)
+end
+
+
+function ViragDevTool:GetParentTable(info)
+    local  parent = info.parent
+    if parent and parent.value == _G then
+        -- this fn is in global namespace so no parent
+        parent = nil
+    end
+
+    if parent then
+        if self:IsMetaTableNode(parent) then
+            -- metatable has real object 1 level higher
+            parent = parent.parent
+        end
+    end
+
+    return parent
+end
+
+function ViragDevTool:TryCallFunctionWithArgs(fn, args)
+    local results = {}
+    local ok
+    ok, results[1], results[2], results[3], results[4], results[5] = pcall(fn, unpack(args, 1, 10))
+
+    return ok, results
 end
 
 -- this function is kinda hard to read but it just adds new items to list and prints log in chat.
@@ -795,8 +832,8 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     local padding = info.padding + 1
 
     local stateStr = function(state)
-        if state then return self.ok .. "OK" end
-        return self.error .. "ERROR"
+        if state then return C.ok .. "OK" end
+        return C.error .. "ERROR"
     end
 
     --constract collored full function call name
@@ -832,6 +869,17 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 
     --print info to chat
     self:print(stateStr(ok) .. " " .. fnNameWitArgs .. C.gray .. " returns:" .. returnFormatedStr)
+end
+
+-- type can be string or int or bool -- not table or userdata or function for now
+function ViragDevTool:SetSavedArg(arg, position, type)
+    if type == "number" then arg = tonumber(arg)
+    elseif type == "boolean" then arg = toboolean(arg)
+    elseif type == "nil" then arg = nil
+    elseif type == "string" then arg = tostring(arg)
+    else return end -- cant handle this type of args
+
+    self.tArgs[position] = arg
 end
 
 -----------------------------------------------------------------------------------------------

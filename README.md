@@ -123,6 +123,8 @@ http://mods.curse.com/addons/wow/varrendevtool
 > Inspired by Rover addon from Wildstar 
 > http://mods.curse.com/ws-addons/wildstar/220043-rover
 
+ViragDevTool is Rover for WoW
+
 [demo]: http://legacy.curseforge.com/media/images/89/812/1844ef88f22d780658b2150f0cc20c19.png "Logo Title Text 2"
 [GDemo]: http://i.gyazo.com/e0287b175965c790b229e4b99418203d.png
 [eventsDemo]: https://i.gyazo.com/1093752a1a066e7143b8cfcf1926d8da.png
