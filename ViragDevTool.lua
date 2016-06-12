@@ -120,6 +120,7 @@ ViragDevTool = {
 
         -- stores history of recent calls to /vdt
         MAX_HISTORY_SIZE = 50,
+        collResizerPosition = 450,
         history = {
             -- examples
             "find LFR",
@@ -552,7 +553,7 @@ function ViragDevTool:UpdateMainTableUIOptimized()
     self.waitFrame.updateNeeded = true
 end
 
-function ViragDevTool:ScrollBar_AddChildren(scrollFrame,strTemplate)
+function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
     if scrollFrame.ScrollBarHeight == nil or scrollFrame:GetHeight() > scrollFrame.ScrollBarHeight then
         scrollFrame.ScrollBarHeight = scrollFrame:GetHeight()
 
@@ -562,6 +563,26 @@ function ViragDevTool:ScrollBar_AddChildren(scrollFrame,strTemplate)
     end
 end
 
+function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
+    local parentFrame = dragFrame:GetParent()
+    local offset = parentFrame:GetLeft()
+    local pos = dragFrame:GetLeft() - offset
+    local minX = 300
+    local maxX = parentFrame:GetWidth() - 150
+    if pos < minX then pos = minX end
+    if pos > maxX then pos = maxX end
+
+    if not ignoreMousePosition then
+        local x, y = GetCursorPosition()
+        x = x / parentFrame:GetEffectiveScale()
+        if x <= (minX + offset) then pos = minX end
+        if x >= (maxX + offset) then pos = maxX  end
+    end
+
+    dragFrame:ClearAllPoints()
+    self.settings.collResizerPosition = pos
+    dragFrame:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", pos, -30)
+end
 
 function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     local nameButton = node.nameButton;
@@ -742,7 +763,7 @@ end
 function ViragDevTool:SetMainTableButtonScript(button, info)
     --todo add left click = copy to chat
     local valueType = type(info.value)
-    local leftClickFn = function () end
+    local leftClickFn = function() end
 
     if valueType == "table" then
         leftClickFn = function(this, button, down)
@@ -760,14 +781,11 @@ function ViragDevTool:SetMainTableButtonScript(button, info)
 
     button:SetScript("OnMouseUp", function(this, button, down)
         if button == "RightButton" then
-            ViragDevTool:print( info.name .. " - "..tostring(info.value) )
+            ViragDevTool:print(info.name .. " - " .. tostring(info.value))
         else
             leftClickFn(this, button, down)
         end
-
     end)
-
-
 end
 
 function ViragDevTool:TryCallFunction(info)
@@ -952,7 +970,6 @@ end
 -----------------------------------------------------------------------------------------------
 -- EVENTS
 -----------------------------------------------------------------------------------------------
-
 function ViragDevTool:GetListenerFrame()
     if (self.listenerFrame == nil) then
         self.listenerFrame = CreateFrame("Frame", "WaitFrame", UIParent);
@@ -1293,6 +1310,8 @@ function ViragDevTool:SetupForSettings(s)
 
     -- setup events part 2 set scripts on frame to listen registered events
     self:SetMonitorEventScript()
+
+    self.wndRef.columnResizer:SetPoint("TOPLEFT", self.wndRef, "TOPLEFT", s.collResizerPosition, -30)
 
     return s
 end
