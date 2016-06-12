@@ -528,6 +528,7 @@ function ViragDevTool:UpdateMainTableUI(force)
     end
 
     HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
+    scrollFrame.scrollChild:SetWidth(scrollFrame:GetWidth())
 end
 
 
@@ -567,8 +568,8 @@ function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
     local parentFrame = dragFrame:GetParent()
     local offset = parentFrame:GetLeft()
     local pos = dragFrame:GetLeft() - offset
-    local minX = 300
-    local maxX = parentFrame:GetWidth() - 150
+    local minX = 150
+    local maxX = parentFrame:GetWidth() - 50
     if pos < minX then pos = minX end
     if pos > maxX then pos = maxX end
 
@@ -586,7 +587,7 @@ end
 
 function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     local nameButton = node.nameButton;
-    local typeButton = node.typeButton
+    --local typeButton = node.typeButton
     local valueButton = node.valueButton
     local rowNumberButton = node.rowNumberButton
 
@@ -594,13 +595,13 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     local name = info.name
     local padding = info.padding
 
-    nameButton:SetPoint("LEFT", node.typeButton, "RIGHT", 20 * padding, 0)
+    nameButton:SetPoint("LEFT", rowNumberButton, "RIGHT", 10 * padding - 10, 0)
 
     local valueType = type(value)
 
     valueButton:SetText(tostring(value))
     nameButton:SetText(tostring(name))
-    typeButton:SetText(valueType)
+    --typeButton:SetText(valueType)
     rowNumberButton:SetText(tostring(id))
 
     -- local color = "ViragDevToolBaseFont"
@@ -633,7 +634,7 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     end
 
     nameButton:GetFontString():SetTextColor(unpack(color))
-    typeButton:GetFontString():SetTextColor(unpack(color))
+   -- typeButton:GetFontString():SetTextColor(unpack(color))
     valueButton:GetFontString():SetTextColor(unpack(color))
     rowNumberButton:GetFontString():SetTextColor(unpack(color))
 

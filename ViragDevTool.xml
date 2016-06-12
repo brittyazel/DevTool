@@ -103,7 +103,11 @@
             <Anchor point="RIGHT" x="-27"/>
             <Anchor point="LEFT" x="5"/>
         </Anchors>
-
+        <Scripts>
+            <OnLoad>
+                self.scrollChild:SetPoint("BOTTOM")
+            </OnLoad>
+        </Scripts>
         <Frames>
             <Slider name="$parentScrollBar" inherits="ViragDevToolMinimalHybridScrollBarTemplate">
                 <Anchors>
@@ -191,13 +195,17 @@
     <!--COLUMN FOR MAIN HybridScrollFrameTemplate -->
 
     <Button text="Test" name="ViragDevToolColumnTemplate" virtual="true">
-        <Size x="50"/>
+        <Size x="42"/>
         <Anchors>
             <Anchor point="TOP"/>
             <Anchor point="BOTTOM"/>
         </Anchors>
         <Scripts>
             <OnLoad>
+                local fontString = self:GetFontString()
+
+                fontString:SetPoint("RIGHT", self, "RIGHT", -5, 0)
+                fontString:SetWordWrap(false)
                 self:EnableMouse()
             </OnLoad>
             <OnEnter>
@@ -252,6 +260,7 @@
             </Button>
             <!--COLUMN 2 item text -->
             <Button text="Test" name="$parentMainButton" inherits="ViragDevToolColumnTemplate" parentKey="mainButton">
+
                 <Anchors>
                     <Anchor point="RIGHT"/>
                     <Anchor point="LEFT" relativeTo="$parentActionButton" relativePoint="RIGHT"/>
@@ -266,29 +275,22 @@
         <Size y="13"/>
         <Frames>
             <!--COLUMN 1-->
-            <Button text="table" name="$parentCountColumn" inherits="ViragDevToolColumnTemplate"
+            <Button text="123456" name="$parentCountColumn" inherits="ViragDevToolColumnTemplate"
                     parentKey="rowNumberButton">
                 <Anchors>
                     <Anchor point="LEFT" x="5"/>
                 </Anchors>
             </Button>
+
             <!--COLUMN 2-->
-            <Button text="123456" name="$parentTypeColumn" inherits="ViragDevToolColumnTemplate" parentKey="typeButton">
-                <Anchors>
-                    <Anchor point="LEFT" relativeTo="$parentCountColumn" relativePoint="RIGHT"/>
-
-                </Anchors>
-            </Button>
-
-            <!--COLUMN 3-->
             <Button text="Test Text" name="$parentNameColumn" inherits="ViragDevToolColumnTemplate"
                     parentKey="nameButton">
                 <Anchors>
-                    <Anchor point="RIGHT" relativeTo="ViragDevToolFrameColumnResizeButton" relativePoint="LEFT" x ="10"/>
-                    <Anchor point="LEFT" relativeTo="$parentTypeColumn" relativePoint="RIGHT"/>
+                    <Anchor point="LEFT" relativeTo="$parentCountColumn" relativePoint="RIGHT"/>
+                     <Anchor point="RIGHT" relativeTo="ViragDevToolFrameColumnResizeButton" relativePoint="LEFT" x="10"/>
                 </Anchors>
             </Button>
-            <!--COLUMN 4-->
+            <!--COLUMN 3-->
             <Button text="Test Text" name="$parentValueColumn" inherits="ViragDevToolColumnTemplate"
                     parentKey="valueButton">
                 <Anchors>
@@ -298,7 +300,6 @@
             </Button>
         </Frames>
     </Button>
-
     <!--*********************************************************************************************************
                                                       MAIN UI  enableMouse="true"
 
@@ -323,7 +324,7 @@
 
             <OnDragStart>
                 self:StartMoving()
-               -- self.columnResizer:
+                -- self.columnResizer:
             </OnDragStart>
 
             <OnDragStop>
@@ -346,13 +347,22 @@
                         self:SetButtonState("PUSHED", true);
                         self:GetHighlightTexture():Hide();
                         self:GetParent():StartSizing("BOTTOMRIGHT");
+                        self.drag = true
                     </OnDragStart>
+                    <OnUpdate>
+                        if self.drag then
+                            ViragDevTool:DragResizeColumn(self:GetParent().columnResizer, true)
+                            ViragDevTool:UpdateMainTableUI()
+                            ViragDevTool:UpdateSideBarUI()
+                        end
+                    </OnUpdate>
                     <OnDragStop>
+                        self.drag = false
+                        local parent = self:GetParent()
                         self:SetButtonState("NORMAL", false);
                         self:GetHighlightTexture():Show();
-                        self:GetParent():StopMovingOrSizing();
-                        self:GetParent().scrollFrame.scrollChild:SetWidth(self:GetParent():GetWidth() - 10 - 22) -- 10 is padding  22 is slider size
-                        ViragDevTool:DragResizeColumn(self:GetParent().columnResizer, true)
+                        parent:StopMovingOrSizing();
+                        ViragDevTool:DragResizeColumn(parent.columnResizer, true)
                         ViragDevTool:UpdateMainTableUI()
                         ViragDevTool:UpdateSideBarUI()
                     </OnDragStop>
@@ -486,12 +496,12 @@
             </ScrollFrame>
 
             <!--TABLE ROW RESIZER BUTTON -->
-            <Button name="$parentColumnResizeButton" parentKey="columnResizer" >
+            <Button name="$parentColumnResizeButton" parentKey="columnResizer">
                 <Size x="15" y="15"/>
 
                 <Scripts>
                     <OnLoad>
-                       -- self:SetFrameStrata("HIGH")
+                        -- self:SetFrameStrata("HIGH")
                         self:RegisterForDrag("LeftButton");
                     </OnLoad>
                     <OnEnter>
@@ -504,7 +514,7 @@
                     </OnDragStart>
                     <OnUpdate>
                         self:GetPoint()
-                        if  self.isMoving then
+                        if self.isMoving then
                             ViragDevTool:DragResizeColumn(self)
                         end
                     </OnUpdate>
@@ -516,10 +526,10 @@
                     </OnDragStop>
 
                 </Scripts>
-                <NormalTexture >
+                <NormalTexture>
                     <Anchors>
-                        <Anchor point="TOPRIGHT" x = "-6" />
-                        <Anchor point="BOTTOMLEFT" x = "6" y = "5"/>
+                        <Anchor point="TOPRIGHT" x="-6"/>
+                        <Anchor point="BOTTOMLEFT" x="6" y="5"/>
                     </Anchors>
                     <Color r="0" g="0.5" b="0" a="0.7"/>
                 </NormalTexture>
