@@ -507,7 +507,7 @@ function ViragDevTool:UpdateMainTableUI(force)
     end
 
     local scrollFrame = self.wndRef.scrollFrame
-    self:MainTableScrollBar_AddChildren(scrollFrame)
+    self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolEntryTemplate")
 
     local buttons = scrollFrame.buttons;
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
@@ -552,12 +552,12 @@ function ViragDevTool:UpdateMainTableUIOptimized()
     self.waitFrame.updateNeeded = true
 end
 
-function ViragDevTool:MainTableScrollBar_AddChildren(scrollFrame)
-    if self.ScrollBarHeight == nil or scrollFrame:GetHeight() > self.ScrollBarHeight then
-        self.ScrollBarHeight = scrollFrame:GetHeight()
+function ViragDevTool:ScrollBar_AddChildren(scrollFrame,strTemplate)
+    if scrollFrame.ScrollBarHeight == nil or scrollFrame:GetHeight() > scrollFrame.ScrollBarHeight then
+        scrollFrame.ScrollBarHeight = scrollFrame:GetHeight()
 
         local scrollBarValue = scrollFrame.scrollBar:GetValue()
-        HybridScrollFrame_CreateButtons(scrollFrame, "ViragDevToolEntryTemplate", 0, -2)
+        HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
         scrollFrame.scrollBar:SetValue(scrollBarValue);
     end
 end
@@ -625,8 +625,6 @@ end
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:ToggleSidebar()
     self:Toggle(self.wndRef.sideFrame)
-    self:Toggle(self.wndRef.topFrame.editbox)
-    self:Toggle(self.wndRef.topFrame.clearFnArgsButton)
     self.settings.isSideBarOpen = self.wndRef.sideFrame:IsVisible()
     self:UpdateSideBarUI()
 end
@@ -665,11 +663,10 @@ end
 
 function ViragDevTool:UpdateSideBarUI()
     local scrollFrame = self.wndRef.sideFrame.sideScrollFrame
+
+    self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolSideBarRowTemplate")
+
     local buttons = scrollFrame.buttons;
-    if not buttons then
-        HybridScrollFrame_CreateButtons(scrollFrame, "ViragDevToolSideBarRowTemplate", 0, -2)
-        buttons = scrollFrame.buttons;
-    end
 
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
     local data = self.settings[self.settings.sideBarTabSelected] or {}
@@ -745,21 +742,32 @@ end
 function ViragDevTool:SetMainTableButtonScript(button, info)
     --todo add left click = copy to chat
     local valueType = type(info.value)
+    local leftClickFn = function () end
+
     if valueType == "table" then
-        button:SetScript("OnMouseUp", function(this, button, down)
+        leftClickFn = function(this, button, down)
             if info.expanded then
                 self:ColapseCell(info)
             else
                 self:ExpandCell(info)
             end
-        end)
+        end
     elseif valueType == "function" then
-        button:SetScript("OnMouseUp", function(this, button, down)
+        leftClickFn = function(this, button, down)
             self:TryCallFunction(info)
-        end)
-    else
-        button:SetScript("OnMouseUp", nil)
+        end
     end
+
+    button:SetScript("OnMouseUp", function(this, button, down)
+        if button == "RightButton" then
+            ViragDevTool:print( info.name .. " - "..tostring(info.value) )
+        else
+            leftClickFn(this, button, down)
+        end
+
+    end)
+
+
 end
 
 function ViragDevTool:TryCallFunction(info)
@@ -944,6 +952,14 @@ end
 -----------------------------------------------------------------------------------------------
 -- EVENTS
 -----------------------------------------------------------------------------------------------
+
+function ViragDevTool:GetListenerFrame()
+    if (self.listenerFrame == nil) then
+        self.listenerFrame = CreateFrame("Frame", "WaitFrame", UIParent);
+    end
+    return self.listenerFrame
+end
+
 function ViragDevTool:StartMonitorEvent(event, unit)
     if not event then return end
 
@@ -954,7 +970,7 @@ function ViragDevTool:StartMonitorEvent(event, unit)
         table.insert(self.settings.events, tEvent)
     end
 
-    local f = self.wndRef.listenerFrame
+    local f = self:GetListenerFrame()
 
     if type(unit) == "string" then
         f:RegisterUnitEvent(event, unit)
@@ -974,7 +990,7 @@ function ViragDevTool:StopMonitorEvent(event, unit)
     local tEvent = self:GetMonitoredEvent(event, unit)
 
     if tEvent and tEvent.active then
-        local f = self.wndRef.listenerFrame
+        local f = self:GetListenerFrame()
         f:UnregisterEvent(event)
         tEvent.active = false
 
@@ -996,7 +1012,7 @@ function ViragDevTool:ToggleMonitorEvent(tEvent)
 end
 
 function ViragDevTool:SetMonitorEventScript()
-    local f = self.wndRef.listenerFrame
+    local f = self:GetListenerFrame()
 
     f:SetScript("OnEvent", function(this, ...)
         local args = { ... }
@@ -1249,8 +1265,6 @@ function ViragDevTool:SetupForSettings(s)
 
     -- setup open or closed sidebar
     self:SetVisible(self.wndRef.sideFrame, s.isSideBarOpen)
-    self:SetVisible(self.wndRef.topFrame.editbox, s.isSideBarOpen)
-    self:SetVisible(self.wndRef.topFrame.clearFnArgsButton, s.isSideBarOpen)
 
     -- setup selected sidebar tab history/events/logs
     self:EnableSideBarTab(s.sideBarTabSelected)
@@ -1275,7 +1289,7 @@ function ViragDevTool:SetupForSettings(s)
         delim = ", "
     end
 
-    self.wndRef.topFrame.editbox:SetText(args)
+    self.wndRef.editbox:SetText(args)
 
     -- setup events part 2 set scripts on frame to listen registered events
     self:SetMonitorEventScript()

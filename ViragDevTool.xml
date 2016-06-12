@@ -1,58 +1,198 @@
 <Ui>
-
+    <!--FONTS -->
     <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
     <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
 
-    <CheckButton text="Test" name="ViragDevToolTopButton" inherits="UIPanelButtonTemplate" virtual="true">
-        <Size x="100" y="25"/>
-        <NormalFont style="GameFontHighlightLeft"/>
-        <CheckedTexture file="Interface\Buttons\UI-DialogBox-Button-Highlight" alphaMode="ADD"/>
-    </CheckButton>
+    <Texture name="ViragDevToolStrokeTexture" virtual="true">
+        <Color r="0.1" g="0.1" b="0.1" a="1"/>
+    </Texture>
 
-    <Frame name="ViragDevToolSideBarRowTemplate" virtual="true">
-        <Size>
-            <AbsDimension y="18"/>
-        </Size>
+    <!--*********************************************************************************************************
+                                                      TEMPLATES
+     *********************************************************************************************************-->
+
+    <!--FRAME -->
+    <Frame name="ViragDevToolFrameTemplate" virtual="true">
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture>
+                    <Size y="35"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                </Texture>
+                <Texture>
+                    <Size y="35"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT"/>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                </Texture>
+                <Texture>
+                    <Size x="5"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" y="-35"/>
+                        <Anchor point="BOTTOM" y="35"/>
+                    </Anchors>
+                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                </Texture>
+                <Texture>
+                    <Size x="5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" y="-35"/>
+                        <Anchor point="BOTTOM" y="35"/>
+                    </Anchors>
+                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="BOTTOMLEFT"/>
+                    </Anchors>
+                    <!-- <Color r="0.5" g="0.7" b="0.9" a="0.8"/>-->
+                    <Color r="0" g="0" b="0.1" a="0.5"/>
+                </Texture>
+
+
+            </Layer>
+        </Layers>
+    </Frame>
+    <Slider name="ViragDevToolMinimalHybridScrollBarTemplate" parentKey="scrollBar" virtual="true">
+        <Size x="22" y="0"/>
+
+        <Frames>
+            <Button name="$parentScrollUpButton" inherits="UIPanelScrollUpButtonTemplate">
+                <Anchors>
+                    <Anchor point="TOP" x="0" y="15"/>
+                </Anchors>
+                <Scripts>
+                    <OnLoad function="HybridScrollFrameScrollUp_OnLoad"/>
+                    <OnClick function="HybridScrollFrameScrollButton_OnClick"/>
+                </Scripts>
+            </Button>
+            <Button name="$parentScrollDownButton" inherits="UIPanelScrollDownButtonTemplate">
+                <Anchors>
+                    <Anchor point="BOTTOM" x="0" y="-15"/>
+                </Anchors>
+                <Scripts>
+                    <OnLoad function="HybridScrollFrameScrollDown_OnLoad"/>
+                    <OnClick function="HybridScrollFrameScrollButton_OnClick"/>
+                </Scripts>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnValueChanged function="HybridScrollFrame_OnValueChanged"/>
+        </Scripts>
+        <ThumbTexture name="$parentThumbTexture" inherits="HybridScrollBarButton" file="Interface\Buttons\UI-ScrollBar-Knob" parentKey="thumbTexture">
+            <Size x="18" y="24"/>
+            <TexCoords left="0.20" right="0.80" top="0.125" bottom="0.875"/>
+        </ThumbTexture>
+    </Slider>
+
+    <!--SCROLL FRAME -->
+    <ScrollFrame name="ViragDevToolScrollFrameTemplate" inherits="HybridScrollFrameTemplate" virtual="true">
         <Anchors>
-            <Anchor point="RIGHT"/>
-            <Anchor point="LEFT"/>
+            <Anchor point="RIGHT" x="-27"/>
+            <Anchor point="LEFT" x="5"/>
         </Anchors>
 
         <Frames>
-            <Button name="$parentActionButton" parentKey="actionButton">
-                <Size>
-                    <AbsDimension x="25" y="25"/>
-                </Size>
+            <Slider name="$parentScrollBar" inherits="ViragDevToolMinimalHybridScrollBarTemplate">
                 <Anchors>
-                    <Anchor point="LEFT"/>
+                    <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" y="-18"/>
+                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" y="16"/>
                 </Anchors>
-                <NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
-                <PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
-                <DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
-                <HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
-            </Button>
-            <Button text="Test" name="$parentMainButton" parentKey="mainButton">
-                <Anchors>
-                    <Anchor point="TOP"/>
-                    <Anchor point="BOTTOM"/>
-                    <Anchor point="RIGHT"/>
-                    <Anchor point="LEFT" relativeTo="$parentActionButton" relativePoint="RIGHT"/>
-                </Anchors>
-
-                <NormalFont style="ViragDevToolMediumFont"/>
-            </Button>
+            </Slider>
         </Frames>
-    </Frame>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture name="$parentHighlight">
+
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" x="22"/>
+                    </Anchors>
+                    <!-- <Color r="0.7" g="0.3" b="0.4" a="1"/>-->
+                    <Color r="0" g="0" b="0.1" a="0.5"/>
+                </Texture>
+            </Layer>
+
+        </Layers>
+    </ScrollFrame>
+
+    <!--BUTTON -->
+    <Button name="ViragDevToolBaseButtonTemplate" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="BOTTOMLEFT"/>
+                    </Anchors>
+                    <Color r="0" g="0" b="0.1" a="0.5"/>
+                </Texture>
+
+                <Texture>
+                    <Size y="25"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                    <Color r="0.55" g="0" b="0" a="0.5"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <NormalTexture file="Interface\ClassTrainerFrame\TrainerTextures">
+            <TexCoords left="0.00195313" right="0.57421875" top="0.65820313" bottom="0.75000000"/>
+        </NormalTexture>
+        <HighlightTexture name="$parentHighlight" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="ADD">
+            <TexCoords left="0.00195313" right="0.57421875" top="0.75390625" bottom="0.84570313"/>
+        </HighlightTexture>
+
+    </Button>
+
+    <CheckButton name="ViragDevToolButtonTemplate" inherits="ViragDevToolBaseButtonTemplate" virtual="true">
+        <Size x="100" y="25"/>
+        <NormalFont style="GameFontHighlight"/>
+        <CheckedTexture name="$parentChecked" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="ADD">
+            <TexCoords left="0.00195313" right="0.57421875" top="0.75390625" bottom="0.84570313"/>
+        </CheckedTexture>
+    </CheckButton>
+
+    <!--EDITBOX -->
+
+    <EditBox name="ViragDevToolEditBoxTemplate" virtual="true">
+        <Size y="25"/>
+
+        <FontString inherits="ChatFontNormal"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="BOTTOMLEFT" x="-5"/>
+                    </Anchors>
+                    <Color r="0" g="0" b="0.1" a="0.5"/>
+                    <!--    <Color r="0" g="0" b="0.1" a="0.5"/>-->
+                </Texture>
+            </Layer>
+        </Layers>
+    </EditBox>
 
 
-    <Button text="Test" name="ViragDevToolRowTemplate" virtual="true">
-        <Size>
-            <AbsDimension x="50"/>
-        </Size>
+
+    <!--COLUMN FOR MAIN HybridScrollFrameTemplate -->
+
+    <Button text="Test" name="ViragDevToolColumnTemplate"  virtual="true">
+        <Size x="50"/>
         <Anchors>
             <Anchor point="TOP"/>
             <Anchor point="BOTTOM"/>
-            <Anchor point="LEFT"/>
         </Anchors>
         <Scripts>
             <OnLoad>
@@ -69,21 +209,17 @@
         <NormalFont style="ViragDevToolDefaultFont"/>
     </Button>
 
-
-    <Button name="ViragDevToolEntryTemplate" virtual="true">
+    <!--ROW BASE HybridScrollFrameTemplate -->
+    <Button name="ViragDevToolRowTemplate" virtual="true">
         <Anchors>
-            <Anchor point="TOPLEFT"/>
+            <Anchor point="RIGHT"/>
+            <Anchor point="LEFT"/>
         </Anchors>
-
-        <Size>
-            <AbsDimension x="1200" y="13"/>
-        </Size>
         <HighlightTexture alphaMode="ADD">
             <Color r="1" g="1" b="1" a="0.2"/>
         </HighlightTexture>
         <Layers>
             <Layer level="OVERLAY">
-
                 <Texture name="$parentHighlight">
                     <Size y="1"/>
                     <Anchors>
@@ -95,195 +231,308 @@
                 </Texture>
             </Layer>
         </Layers>
+    </Button>
 
+    <!--ROW FOR SIDEBAR HybridScrollFrameTemplate -->
+    <Button name="ViragDevToolSideBarRowTemplate" inherits="ViragDevToolRowTemplate" virtual="true">
+        <Size y="18"/>
         <Frames>
-            <Button text="table" name="$parentCountColumn" inherits="ViragDevToolRowTemplate"
-                    parentKey="rowNumberButton"/>
+            <!--COLUMN 1 delete item icon -->
+            <Button name="$parentActionButton" parentKey="actionButton">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="LEFT"/>
+                </Anchors>
+                <NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
+                <PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
+                <DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
+                <HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+            </Button>
+            <!--COLUMN 2 item text -->
+            <Button text="Test" name="$parentMainButton" inherits="ViragDevToolColumnTemplate" parentKey="mainButton">
+                <Anchors>
+                    <Anchor point="RIGHT"/>
+                    <Anchor point="LEFT" relativeTo="$parentActionButton" relativePoint="RIGHT"/>
+                </Anchors>
+                <NormalFont style="ViragDevToolMediumFont"/>
+            </Button>
+        </Frames>
+    </Button>
 
-            <Button text="123456" name="$parentTypeColumn" inherits="ViragDevToolRowTemplate" parentKey="typeButton">
+    <!--ROW FOR MAIN HybridScrollFrameTemplate -->
+    <Button name="ViragDevToolEntryTemplate" inherits="ViragDevToolRowTemplate" virtual="true">
+        <Size y="13"/>
+        <Frames>
+            <!--COLUMN 1-->
+            <Button text="table" name="$parentCountColumn" inherits="ViragDevToolColumnTemplate"
+                    parentKey="rowNumberButton">
+                <Anchors>
+                    <Anchor point="LEFT" x = "5"/>
+                </Anchors>
+            </Button>
+            <!--COLUMN 2-->
+            <Button text="123456" name="$parentTypeColumn" inherits="ViragDevToolColumnTemplate" parentKey="typeButton">
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentCountColumn" relativePoint="RIGHT"/>
                 </Anchors>
             </Button>
-
-            <Button text="Test Text" name="$parentNameColumn" inherits="ViragDevToolRowTemplate" parentKey="nameButton">
-                <Size>
-                    <AbsDimension x="400"/>
-                </Size>
+            <!--COLUMN 3-->
+            <Button text="Test Text" name="$parentNameColumn" inherits="ViragDevToolColumnTemplate" parentKey="nameButton">
+                <Size x="400"/>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentTypeColumn" relativePoint="RIGHT"/>
                 </Anchors>
             </Button>
-
-            <Button text="Test Text" name="$parentValueColumn" inherits="ViragDevToolRowTemplate"
+            <!--COLUMN 4-->
+            <Button text="Test Text" name="$parentValueColumn" inherits="ViragDevToolColumnTemplate"
                     parentKey="valueButton">
-                <Size>
-                    <AbsDimension x="700"/>
-                </Size>
+                <Size x="700"/>
                 <Anchors>
                     <Anchor point="RIGHT"/>
                     <Anchor point="LEFT" relativeTo="$parentNameColumn" relativePoint="RIGHT"/>
                 </Anchors>
             </Button>
-
         </Frames>
     </Button>
 
-    <Frame name="ViragDevToolFrame" parent="UIParent" enableMouse="true" movable="true" resizable="true">
-        <Size>
-            <AbsDimension x="1200" y="600"/>
-        </Size>
+    <!--*********************************************************************************************************
+                                                      MAIN UI  enableMouse="true"
+
+     *********************************************************************************************************-->
+
+    <Frame name="ViragDevToolFrame" inherits="ViragDevToolFrameTemplate" parent="UIParent" movable="true"
+           resizable="true">
+        <Size x="600" y="600"/>
         <Anchors>
             <Anchor point="CENTER"/>
         </Anchors>
         <Scripts>
             <OnLoad>
-                self:SetUserPlaced(true)
                 ViragDevTool:OnLoad(self)
+                self:SetUserPlaced(true)
                 self:SetMinResize(600, 100);
                 self:SetMaxResize(1200, 900);
                 self:RegisterForDrag("LeftButton");
             </OnLoad>
             <OnDragStart>
-                self:StartSizing()
+                self:StopMovingOrSizing();
+                self:StartMoving()
             </OnDragStart>
             <OnDragStop>
-                self.scrollFrame:update()
                 self:StopMovingOrSizing();
-
             </OnDragStop>
         </Scripts>
-        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background"
-                  tile="true">
-
-            <TileSize>
-                <AbsValue val="16"/>
-            </TileSize>
-            <EdgeSize>
-                <AbsValue val="16"/>
-            </EdgeSize>
-        </Backdrop>
-
         <Frames>
-            <ScrollFrame name="$parentScrollFrame" inherits="HybridScrollFrameTemplate" parentKey="scrollFrame">
+            <!--DRAG-RESIZE CORNER BUTTON-->
+            <Button name="$parentResizeButton" parentKey="resizeButton">
+                <Size x="16" y="16"/>
                 <Anchors>
-                    <Anchor point="TOPLEFT">
-                        <Offset>
-                            <AbsDimension x="8" y="-8"/>
-                        </Offset>
-                    </Anchor>
-                    <Anchor point="BOTTOMRIGHT">
-                        <Offset>
-                            <AbsDimension x="-30" y="8"/>
-                        </Offset>
-                    </Anchor>
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$parent"/>
                 </Anchors>
-                <Frames>
-                    <Slider name="$parentScrollBar" inherits="HybridScrollBarTemplate">
-                        <Anchors>
-                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="3" y="-12"/>
-                            <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="3" y="13"/>
-                        </Anchors>
-                    </Slider>
-                </Frames>
+                <Scripts>
+                    <OnLoad>
+                        self:RegisterForDrag("LeftButton");
+                    </OnLoad>
+                    <OnDragStart>
+                        self:GetParent():StopMovingOrSizing();
+                        self:SetButtonState("PUSHED", true);
+                        self:GetHighlightTexture():Hide();
+                        self:GetParent():StartSizing("BOTTOMRIGHT");
+                    </OnDragStart>
+                    <OnDragStop>
+                        self:SetButtonState("NORMAL", false);
+                        self:GetHighlightTexture():Show();
+                        self:GetParent():StopMovingOrSizing();
+                        self:GetParent().scrollFrame.scrollChild:SetWidth(self:GetParent():GetWidth() - 10 - 22) -- 10 is padding  22 is slider size
+                        ViragDevTool:UpdateMainTableUI()
+                        ViragDevTool:UpdateSideBarUI()
+                    </OnDragStop>
+                </Scripts>
+                <NormalTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up"/>
+                <HighlightTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Highlight"/>
+                <PushedTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down"/>
+            </Button>
+            <!--LABEL FOR FUNCTION ARGUMENTS-->
+            <Button text="Fn Arguments:" inherits="ViragDevToolButtonTemplate" name="$parentFNCallLabelButton"
+                    parentKey="clearFnArgsButton">
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" y="5" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        -- clear args
+                        ViragDevTool:SetArgForFunctionCallFromString("")
+                        ViragDevTool:print("Old args cleaned: " .. self:GetParent().editbox:GetText())
+                        self:GetParent().editbox:SetText("")
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <!--FUNCTION ARGUMENTS EDITBOX-->
+            <EditBox name="$parentTextArea" inherits="ViragDevToolEditBoxTemplate" autoFocus="false"
+                     parentKey="editbox">
+                <Anchors>
+                    <Anchor point="RIGHT" relativeTo="$parentResizeButton" relativePoint="LEFT" x="-14"/>
+                    <Anchor point="LEFT" relativeTo="$parentFNCallLabelButton" relativePoint="RIGHT" x="10"/>
+                </Anchors>
+                <Scripts>
+                    <OnEnterPressed>
+                        ViragDevTool:SetArgForFunctionCallFromString(self:GetText())
+                        ViragDevTool:print("New arguments: " .. self:GetText())
+                        self:ClearFocus();
+                    </OnEnterPressed>
+                    <OnEscapePressed>
+                        self:ClearFocus();
+                    </OnEscapePressed>
+                </Scripts>
+            </EditBox>
+
+            <!--********************************** TOP BUTTONS *****************************************************-->
+
+            <!--TOGGLE SIDEBAR BUTTON -->
+            <Button name="$parentToggleSideBarButton">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="5" y="-5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        ViragDevTool:ToggleSidebar()
+                    </OnClick>
+                </Scripts>
+                <NormalTexture file="Interface\Buttons\UI-Panel-SmallerButton-Up"/>
+                <PushedTexture file="Interface\Buttons\UI-Panel-SmallerButton-Down"/>
+                <HighlightTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+            </Button>
+            <!--CLEAR BUTTON -->
+            <Button text="Clear" name="$parentClearButton" inherits="ViragDevToolButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentToggleSideBarButton" relativePoint="RIGHT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        ViragDevTool:ClearData()
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <!--_G BUTTON -->
+            <Button text="_G" name="$parentAddGlobalButton" inherits="ViragDevToolButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        ViragDevTool_AddData(_G, "_G")
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <!--SHOW FRAME STACK BUTTON -->
+            <Button text="/fstack" name="$parentFrameStack" inherits="ViragDevToolButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        self.isActive = not self.isActive
+                        UIParentLoadAddOn("Blizzard_DebugTools");
+                        local showHidden = false; -- todo add this functionality
+                        local showRegions = false;
+                        FrameStackTooltip_Toggle(showHidden, showRegions);
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <!--HELP BUTTON -->
+            <Button text="Help" name="$parentHelpButton" inherits="ViragDevToolButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        ViragDevTool:ExecuteCMD("help")
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <!--CLOSE UI BUTTON -->
+            <Button name="$parentCloseWndButton">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-5" y="-5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        ViragDevTool:ToggleUI()
+                    </OnClick>
+                </Scripts>
+                <NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
+                <PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
+                <DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
+                <HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+            </Button>
+
+            <!--MAIN SCROLL FRAME-->
+            <ScrollFrame name="$parentScrollFrame" inherits="ViragDevToolScrollFrameTemplate" parentKey="scrollFrame">
+                <Anchors>
+                    <Anchor point="TOP" relativeTo="$parentToggleSideBarButton" relativePoint="BOTTOM" y="-5"/>
+                    <Anchor point="BOTTOM" relativeTo="$parentFNCallLabelButton" relativePoint="TOP" y="5"/>
+                </Anchors>
             </ScrollFrame>
 
-            <Frame name="$parentSideBarListener" parentKey="listenerFrame" hidden="true"/>
+            <!--*********************************************************************************************************
+                                                        SIDEBAR
+            *********************************************************************************************************-->
 
-            <Frame name="$parentSideBar" enableMouse="true" parentKey="sideFrame" hidden="true">
-                <Size>
-                    <AbsDimension x="300"/>
-                </Size>
-
+            <Frame name="$parentSideBar" inherits="ViragDevToolFrameTemplate" enableMouse="true" parentKey="sideFrame"
+                   hidden="true">
+                <Size x="320"/>
                 <Anchors>
-                    <Anchor point="TOP">
-                        <Offset>
-                            <AbsDimension x="0" y="25"/>
-                        </Offset>
-                    </Anchor>
+                    <Anchor point="TOP"/>
                     <Anchor point="BOTTOM"/>
                     <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT"/>
                 </Anchors>
-                <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background"
-                          tile="true">
-
-                    <TileSize>
-                        <AbsValue val="16"/>
-                    </TileSize>
-                    <EdgeSize>
-                        <AbsValue val="16"/>
-                    </EdgeSize>
-                </Backdrop>
                 <Frames>
-                    <ScrollFrame name="$parentScrollFrame" inherits="HybridScrollFrameTemplate"
-                                 parentKey="sideScrollFrame">
-                        <Anchors>
-                            <Anchor point="TOPLEFT">
-                                <Offset>
-                                    <AbsDimension x="0" y="-25"/>
-                                </Offset>
-                            </Anchor>
-                            <Anchor point="BOTTOMRIGHT">
-                                <Offset>
-                                    <AbsDimension x="-30" y="32"/>
-                                </Offset>
-                            </Anchor>
-                        </Anchors>
-                        <Frames>
-                            <Slider name="$parentScrollBar" inherits="HybridScrollBarTemplate">
-                                <Anchors>
-                                    <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="3" y="-12"/>
-                                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="3" y="13"/>
-                                </Anchors>
-                            </Slider>
-                        </Frames>
-                    </ScrollFrame>
-
-                    <CheckButton text="\vdt History" name="$parentHistoryButton" inherits="ViragDevToolTopButton"
+                    <!--HISTORY TAB BUTTON-->
+                    <CheckButton text="/vdt history" name="$parentHistoryButton" inherits="ViragDevToolButtonTemplate"
                                  parentKey="history">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" y="-5" x="5"/>
+                        </Anchors>
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:EnableSideBarTab("history")
                             </OnClick>
                         </Scripts>
-                        <Anchors>
-                            <Anchor point="LEFT"/>
-                            <Anchor point="BOTTOM" relativeTo="$parentScrollFrame" relativePoint="TOP"/>
-                        </Anchors>
                     </CheckButton>
-
-                    <CheckButton text="Events" name="$parentEventsButton" inherits="ViragDevToolTopButton"
+                    <!--EVENTS TAB BUTTON-->
+                    <CheckButton text="Events" name="$parentEventsButton" inherits="ViragDevToolButtonTemplate"
                                  parentKey="events">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentHistoryButton" relativePoint="RIGHT" x="5"/>
+                        </Anchors>
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:EnableSideBarTab("events")
                             </OnClick>
                         </Scripts>
-                        <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentHistoryButton" relativePoint="RIGHT"/>
-                        </Anchors>
                     </CheckButton>
-
-                    <CheckButton text="Fn Call Log" name="$parentLogButton" inherits="ViragDevToolTopButton"
+                    <!--FUNCTION LOGGER TAB BUTTON-->
+                    <CheckButton text="Fn Call Log" name="$parentLogButton" inherits="ViragDevToolButtonTemplate"
                                  parentKey="logs">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentEventsButton" relativePoint="RIGHT" x="5"/>
+                        </Anchors>
                         <Scripts>
                             <OnClick>
                                 ViragDevTool:EnableSideBarTab("logs")
                             </OnClick>
                         </Scripts>
-                        <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentEventsButton" relativePoint="RIGHT"/>
-                        </Anchors>
                     </CheckButton>
-
-                    <EditBox name="$parentTextArea" autoFocus="false" parentKey="editbox">
-                        <Size>
-                            <AbsDimension x="280" y="32"/>
-                        </Size>
+                    <!--SIDEBAR EDITBOX-->
+                    <EditBox name="$parentTextArea" inherits="ViragDevToolEditBoxTemplate" autoFocus="false"
+                             parentKey="editbox">
                         <Anchors>
-                            <Anchor point="LEFT" x="6"/>
-                            <Anchor point="TOP" relativeTo="$parentScrollFrame" relativePoint="BOTTOM" y="-2"/>
+                            <Anchor point="BOTTOMLEFT" y="5" x="10"/>
+                            <Anchor point="RIGHT" x="-5"/>
                         </Anchors>
+
                         <Scripts>
                             <OnEnterPressed>
                                 ViragDevTool:SubmitEditBoxSidebar()
@@ -295,230 +544,15 @@
                                 self:SetText("")
                             </OnEscapePressed>
                         </Scripts>
-                        <FontString inherits="ChatFontNormal"/>
-                        <Layers>
-                            <Layer level="BACKGROUND">
-                                <Texture name="$parentLeft" file="Interface\ChatFrame\UI-ChatInputBorder-Left2">
-                                    <Size>
-                                        <AbsDimension x="32" y="32"/>
-                                    </Size>
-                                    <Anchors>
-                                        <Anchor point="LEFT" x="-10" y="0"/>
-                                    </Anchors>
-                                </Texture>
-                                <Texture name="$parentRight" file="Interface\ChatFrame\UI-ChatInputBorder-Right2">
-                                    <Size>
-                                        <AbsDimension x="32" y="32"/>
-                                    </Size>
-                                    <Anchors>
-                                        <Anchor point="RIGHT" x="10" y="0"/>
-                                    </Anchors>
-                                </Texture>
-                                <Texture name="$parentMid" file="Interface\ChatFrame\UI-ChatInputBorder-Mid2"
-                                         horizTile="true">
-                                    <Size>
-                                        <AbsDimension x="0" y="32"/>
-                                    </Size>
-                                    <Anchors>
-                                        <Anchor point="TOPLEFT" relativeTo="$parentLeft" relativePoint="TOPRIGHT">
-                                            <Offset>
-                                                <AbsDimension x="0" y="0"/>
-                                            </Offset>
-                                        </Anchor>
-                                        <Anchor point="TOPRIGHT" relativeTo="$parentRight" relativePoint="TOPLEFT">
-                                            <Offset>
-                                                <AbsDimension x="0" y="0"/>
-                                            </Offset>
-                                        </Anchor>
-                                    </Anchors>
-                                </Texture>
-                            </Layer>
-                        </Layers>
                     </EditBox>
-                </Frames>
-            </Frame>
-
-            <Frame name="$parentTopBar" enableMouse="true" parentKey="topFrame">
-                <Size>
-                    <AbsDimension y="25"/>
-                </Size>
-                <Anchors>
-                    <Anchor point="LEFT"/>
-                    <Anchor point="RIGHT"/>
-                    <Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP"/>
-                </Anchors>
-
-                <Scripts>
-                    <OnLoad>
-                        self:RegisterForDrag("LeftButton");
-                    </OnLoad>
-                    <OnDragStart>
-                        self:GetParent():StartMoving()
-                    </OnDragStart>
-                    <OnDragStop>
-                        self:GetParent():StopMovingOrSizing();
-                    </OnDragStop>
-                </Scripts>
-
-                <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background"
-                          tile="true">
-
-                    <TileSize>
-                        <AbsValue val="16"/>
-                    </TileSize>
-                    <EdgeSize>
-                        <AbsValue val="16"/>
-                    </EdgeSize>
-                </Backdrop>
-
-                <Frames>
-                    <Button name="$parentToggleSideBarButton">
-                        <Size x="32" y="32"/>
-                        <Scripts>
-                            <OnClick>
-                                ViragDevTool:ToggleSidebar()
-
-                            </OnClick>
-                        </Scripts>
+                    <!--SIDEBAR SCROLL FRAME-->
+                    <ScrollFrame name="$parentScrollFrame" inherits="ViragDevToolScrollFrameTemplate"
+                                 parentKey="sideScrollFrame">
                         <Anchors>
-                            <Anchor point="LEFT" x = "5"/>
+                            <Anchor point="TOP" relativeTo="$parentHistoryButton" relativePoint="BOTTOM" y="-5"/>
+                            <Anchor point="BOTTOM" relativeTo="$parentTextArea" relativePoint="TOP" y="5"/>
                         </Anchors>
-                        <NormalTexture file="Interface\Buttons\UI-Panel-SmallerButton-Up"/>
-                        <PushedTexture file="Interface\Buttons\UI-Panel-SmallerButton-Down"/>
-                        <HighlightTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
-                    </Button>
-                    <Button text="CLEAR" name="$parentClearButton" inherits="ViragDevToolTopButton">
-                        <Scripts>
-                            <OnClick>
-                                ViragDevTool:ClearData()
-                            </OnClick>
-                        </Scripts>
-
-                        <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentToggleSideBarButton" relativePoint="RIGHT" x = "5"/>
-                        </Anchors>
-                    </Button>
-                    <Button text="_G" name="$parentAddGlobalButton" inherits="ViragDevToolTopButton">
-                        <Scripts>
-                            <OnClick>
-                                ViragDevTool_AddData(_G, "_G")
-                            </OnClick>
-                        </Scripts>
-                        <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT" x = "5"/>
-                        </Anchors>
-                    </Button>
-                    <Button text="/fstack" name="$parentFrameStack" inherits="ViragDevToolTopButton">
-                        <Scripts>
-                            <OnClick>
-                                self.isActive = not self.isActive
-                                UIParentLoadAddOn("Blizzard_DebugTools");
-                                local showHidden = false; -- todo add this functionality
-                                local showRegions = false;
-                                FrameStackTooltip_Toggle(showHidden, showRegions);
-                            </OnClick>
-                        </Scripts>
-                        <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT" x = "5"/>
-                        </Anchors>
-                    </Button>
-                    <Button text="help" name="$parentHelpButton" inherits="ViragDevToolTopButton">
-                        <Scripts>
-                            <OnClick>
-                                ViragDevTool:ExecuteCMD("help")
-                            </OnClick>
-                        </Scripts>
-                        <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT" x = "5"/>
-                        </Anchors>
-                    </Button>
-                    <Button text="FN Call Args:" name="$parentFNCallLabelButton" parentKey="clearFnArgsButton" >
-                        <Size x="80" y="25"/>
-                        <NormalFont style="GameFontHighlightLeft"/>
-                        <Scripts>
-                            <OnClick>
-                                -- clear args
-                                ViragDevTool:SetArgForFunctionCallFromString("")
-                                self:GetParent().editbox:SetText("")
-                            </OnClick>
-                        </Scripts>
-                        <Anchors>
-                            <Anchor point="BOTTOM" relativeTo="$parentToggleSideBarButton" relativePoint="TOP" y ="2"/>
-                        </Anchors>
-                    </Button>
-
-                    <EditBox name="$parentTextArea" autoFocus="false" parentKey="editbox">
-                        <Size>
-                            <AbsDimension x="500" y="32"/>
-                        </Size>
-                        <Anchors>
-                            <Anchor point="LEFT" relativeTo="$parentFNCallLabelButton" relativePoint="RIGHT" x="10"/>
-                        </Anchors>
-                        <Scripts>
-                            <OnEnterPressed>
-                                ViragDevTool:SetArgForFunctionCallFromString(self:GetText())
-                                self:ClearFocus();
-                            </OnEnterPressed>
-                            <OnEscapePressed>
-                                self:ClearFocus();
-                            </OnEscapePressed>
-                        </Scripts>
-                        <FontString inherits="ChatFontNormal"/>
-                        <Layers>
-                            <Layer level="BACKGROUND">
-                                <Texture name="$parentLeft" file="Interface\ChatFrame\UI-ChatInputBorder-Left2">
-                                    <Size>
-                                        <AbsDimension x="32" y="32"/>
-                                    </Size>
-                                    <Anchors>
-                                        <Anchor point="LEFT" x="-10" y="0"/>
-                                    </Anchors>
-                                </Texture>
-                                <Texture name="$parentRight" file="Interface\ChatFrame\UI-ChatInputBorder-Right2">
-                                    <Size>
-                                        <AbsDimension x="32" y="32"/>
-                                    </Size>
-                                    <Anchors>
-                                        <Anchor point="RIGHT" x="10" y="0"/>
-                                    </Anchors>
-                                </Texture>
-                                <Texture name="$parentMid" file="Interface\ChatFrame\UI-ChatInputBorder-Mid2"
-                                         horizTile="true">
-                                    <Size>
-                                        <AbsDimension x="0" y="32"/>
-                                    </Size>
-                                    <Anchors>
-                                        <Anchor point="TOPLEFT" relativeTo="$parentLeft" relativePoint="TOPRIGHT">
-                                            <Offset>
-                                                <AbsDimension x="0" y="0"/>
-                                            </Offset>
-                                        </Anchor>
-                                        <Anchor point="TOPRIGHT" relativeTo="$parentRight" relativePoint="TOPLEFT">
-                                            <Offset>
-                                                <AbsDimension x="0" y="0"/>
-                                            </Offset>
-                                        </Anchor>
-                                    </Anchors>
-                                </Texture>
-                            </Layer>
-                        </Layers>
-                    </EditBox>
-
-                    <Button virtual="true">
-                        <Size x="32" y="32"/>
-                        <Anchors>
-                            <Anchor point="RIGHT"/>
-                        </Anchors>
-                        <NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
-                        <PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
-                        <DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
-                        <HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
-                        <Scripts>
-                            <OnClick>
-                                ViragDevTool:ToggleUI()
-                            </OnClick>
-                        </Scripts>
-                    </Button>
+                    </ScrollFrame>
                 </Frames>
             </Frame>
         </Frames>
