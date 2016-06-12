@@ -488,6 +488,18 @@
                     <Anchor point="BOTTOM"/>
                     <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT"/>
                 </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self:RegisterForDrag("LeftButton");
+                    </OnLoad>
+                    <OnDragStart>
+                        self:GetParent():StopMovingOrSizing();
+                        self:GetParent():StartMoving()
+                    </OnDragStart>
+                    <OnDragStop>
+                        self:GetParent():StopMovingOrSizing();
+                    </OnDragStop>
+                </Scripts>
                 <Frames>
                     <!--HISTORY TAB BUTTON-->
                     <CheckButton text="/vdt history" name="$parentHistoryButton" inherits="ViragDevToolButtonTemplate"
