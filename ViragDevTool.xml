@@ -317,7 +317,7 @@
                 ViragDevTool:OnLoad(self)
                 self:SetUserPlaced(true)
                 self:SetMinResize(600, 200);
-                self:SetMaxResize(1200, 900);
+                self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight());
                 self:RegisterForDrag("LeftButton");
             </OnLoad>
 
@@ -344,7 +344,11 @@
                         self:RegisterForDrag("LeftButton");
                     </OnLoad>
                     <OnDragStart>
-
+                        local p = self:GetParent()
+                        local x = p:GetLeft()
+                        local y = -1 * (UIParent:GetHeight() - p:GetTop())
+                        p:ClearAllPoints()
+                        p:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x, y)
                         self:SetButtonState("PUSHED", true);
                         self:GetHighlightTexture():Hide();
 

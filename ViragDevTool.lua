@@ -581,9 +581,11 @@ function ViragDevTool:ResizeMainFrame(dragFrame)
     local maxX, maxY = parentFrame:GetMaxResize()
     local minX, minY = parentFrame:GetMinResize()
 
+
     parentFrame:SetSize(self:CalculatePosition(x - left, minX, maxX),
         self:CalculatePosition(top - y, minY, maxY))
 end
+
 
 function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
     local parentFrame = dragFrame:GetParent()
