@@ -344,13 +344,16 @@
                         self:RegisterForDrag("LeftButton");
                     </OnLoad>
                     <OnDragStart>
+
                         self:SetButtonState("PUSHED", true);
                         self:GetHighlightTexture():Hide();
-                        self:GetParent():StartSizing("BOTTOMRIGHT");
+
                         self.drag = true
+
                     </OnDragStart>
                     <OnUpdate>
                         if self.drag then
+                            ViragDevTool:ResizeMainFrame(self)
                             ViragDevTool:DragResizeColumn(self:GetParent().columnResizer, true)
                             ViragDevTool:UpdateMainTableUI()
                             ViragDevTool:UpdateSideBarUI()
@@ -361,7 +364,7 @@
                         local parent = self:GetParent()
                         self:SetButtonState("NORMAL", false);
                         self:GetHighlightTexture():Show();
-                        parent:StopMovingOrSizing();
+                        ViragDevTool:ResizeMainFrame(self)
                         ViragDevTool:DragResizeColumn(parent.columnResizer, true)
                         ViragDevTool:UpdateMainTableUI()
                         ViragDevTool:UpdateSideBarUI()
@@ -509,6 +512,7 @@
                         self:EnableMouse(true)
                     </OnEnter>
                     <OnDragStart>
+                        self:SetButtonState("PUSHED", false);
                         self.isMoving = true
                         self:StartMoving()
                     </OnDragStart>
@@ -520,12 +524,14 @@
                     </OnUpdate>
 
                     <OnDragStop>
+                        self:SetButtonState("NORMAL", false);
                         self:StopMovingOrSizing();
                         ViragDevTool:DragResizeColumn(self)
                         self.isMoving = false
                     </OnDragStop>
 
                 </Scripts>
+
                 <NormalTexture>
                     <Anchors>
                         <Anchor point="TOPRIGHT" x="-6"/>
@@ -534,13 +540,22 @@
                     <Color r="0" g="0.5" b="0" a="0.7"/>
                 </NormalTexture>
 
-                <HighlightTexture>
+                <HighlightTexture alphaMode="ADD">
                     <Anchors>
-                        <Anchor point="TOPRIGHT"/>
-                        <Anchor point="BOTTOMLEFT"/>
+                        <Anchor point="TOPRIGHT" x="-4"/>
+                        <Anchor point="BOTTOMLEFT" x="4" y="0"/>
                     </Anchors>
-                    <Color r="0.1" g="0.5" b="0" a="0.7"/>
+                    <Color r="0" g="0.3" b="0" a="0.8"/>
+
                 </HighlightTexture>
+                <PushedTexture alphaMode="ADD">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-4"/>
+                        <Anchor point="BOTTOMLEFT" x="4" y="0"/>
+                    </Anchors>
+                    <Color r="0" g="0.3" b="0" a="0.8"/>
+
+                </PushedTexture>
             </Button>
 
             <!--*********************************************************************************************************

@@ -114,12 +114,13 @@ Demo2: FN Call Args: `t=Frame.Frame2.Frame3` => someFunction(_G.Frame.Frame2.Fra
 
 ViragDevTool is in beta  so there is lots of stuff to add and tune.
 
-1. Create dynamic text and color size chooser (probably not everyone likes SystemFont_Small)
+1. Create dynamic text color and size chooser (probably not everyone likes SystemFont_Small)
 2. Add filters by object name and type
-3. Add object deep copy option
-4. Add predefined buttons for every WoW API (just like _G)
-5. Add row delimiters so we can resize rows in table
-6. Add function args info and description from mapping file
+
+Not important:
+* Add predefined buttons for every WoW API (just like _G)
+* Add function args info and description from mapping file
+* Add object deep copy option
 
 ### How to contribute
 For now this addon will be updated only when i need certain feature in my other addon's development

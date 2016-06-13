@@ -1,6 +1,6 @@
 -- just remove global reference so it is easy to read with my ide
-local pairs, tostring, type, print, string, getmetatable, table, pcall, unpack =
-pairs, tostring, type, print, string, getmetatable, table, pcall, unpack
+local pairs, tostring, type, print, string, getmetatable, table, pcall, unpack, tonumber =
+pairs, tostring, type, print, string, getmetatable, table, pcall, unpack, tonumber
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update =
 HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
@@ -96,7 +96,9 @@ ViragDevTool = {
             ViragDevTool:StartLogFunctionCalls(msg2, msg3)
         end,
         VDT_RESET_WND = function(msg2, msg3)
-            ViragDevToolFrame:ClearAllPoints() ViragDevToolFrame:SetPoint("CENTER", UIParent)
+            ViragDevToolFrame:ClearAllPoints()
+            ViragDevToolFrame:SetPoint("CENTER", UIParent)
+            ViragDevToolFrame:SetSize(600, 200)
         end
     },
 
@@ -379,8 +381,6 @@ function ViragDevTool:ClearData()
     self:UpdateMainTableUI()
 end
 
-
-
 function ViragDevTool:ExpandCell(info)
 
     local nodeList = {}
@@ -531,7 +531,6 @@ function ViragDevTool:UpdateMainTableUI(force)
     scrollFrame.scrollChild:SetWidth(scrollFrame:GetWidth())
 end
 
-
 function ViragDevTool:UpdateMainTableUIOptimized()
 
     if (self.waitFrame == nil) then
@@ -564,25 +563,59 @@ function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
     end
 end
 
+-- i ddo manual resizing and not the defalt
+-- self:GetParent():StartSizing("BOTTOMRIGHT");
+-- self:GetParent():StopMovingOrSizing();
+-- BEACUSE i don't like default behaviur.
+function ViragDevTool:ResizeMainFrame(dragFrame)
+    local parentFrame = dragFrame:GetParent()
+
+    local left = dragFrame:GetParent():GetLeft()
+    local top = dragFrame:GetParent():GetTop()
+
+    local x, y = GetCursorPosition()
+    local s = parentFrame:GetEffectiveScale()
+    x = x / s
+    y = y / s
+
+    local maxX, maxY = parentFrame:GetMaxResize()
+    local minX, minY = parentFrame:GetMinResize()
+
+    parentFrame:SetSize(self:CalculatePosition(x - left, minX, maxX),
+        self:CalculatePosition(top - y, minY, maxY))
+end
+
 function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
     local parentFrame = dragFrame:GetParent()
-    local offset = parentFrame:GetLeft()
-    local pos = dragFrame:GetLeft() - offset
+
+    -- 150 and 50 are just const values. safe to change
     local minX = 150
     local maxX = parentFrame:GetWidth() - 50
-    if pos < minX then pos = minX end
-    if pos > maxX then pos = maxX end
+
+    local pos = dragFrame:GetLeft() - parentFrame:GetLeft()
+    pos = self:CalculatePosition(pos, minX, maxX)
+
 
     if not ignoreMousePosition then
         local x, y = GetCursorPosition()
-        x = x / parentFrame:GetEffectiveScale()
-        if x <= (minX + offset) then pos = minX end
-        if x >= (maxX + offset) then pos = maxX  end
+        local s = parentFrame:GetEffectiveScale()
+        x = x / s
+        y = y / s
+        if x <= (minX + parentFrame:GetLeft()) then pos = minX end
+        if x >= (maxX + parentFrame:GetLeft()) then pos = maxX end
     end
 
     dragFrame:ClearAllPoints()
+    dragFrame:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", pos, -30) -- 30 is offset from above (top buttons)
+
+    -- save pos so we can restore it on reloda ui or logout
     self.settings.collResizerPosition = pos
-    dragFrame:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", pos, -30)
+end
+
+function ViragDevTool:CalculatePosition(pos, min, max)
+    if pos < min then pos = min end
+    if pos > max then pos = max end
+    return pos
 end
 
 function ViragDevTool:UIUpdateMainTableButton(node, info, id)
@@ -634,7 +667,7 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     end
 
     nameButton:GetFontString():SetTextColor(unpack(color))
-   -- typeButton:GetFontString():SetTextColor(unpack(color))
+    -- typeButton:GetFontString():SetTextColor(unpack(color))
     valueButton:GetFontString():SetTextColor(unpack(color))
     rowNumberButton:GetFontString():SetTextColor(unpack(color))
 
@@ -681,7 +714,6 @@ function ViragDevTool:EnableSideBarTab(tabStrName)
     -- refresh ui
     self:UpdateSideBarUI()
 end
-
 
 function ViragDevTool:UpdateSideBarUI()
     local scrollFrame = self.wndRef.sideFrame.sideScrollFrame
@@ -803,9 +835,6 @@ function ViragDevTool:TryCallFunction(info)
             end
         end
     end
-
-
-
 
     -- lets try safe call first
     local ok, results = self:TryCallFunctionWithArgs(fn, args)
@@ -1160,7 +1189,6 @@ function ViragDevTool:ToggleFnLogger(info)
         self:ActivateLogFunctionCalls(info)
     end
 end
-
 
 function ViragDevTool:GetOldFn(tParent, fnName, oldFn)
     if self.tempOldFns and
