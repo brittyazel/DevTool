@@ -4,5 +4,13 @@
 ## Version: 0.1
 ## SavedVariables: ViragDevTool_Settings
 ViragDevTool.lua
-ViragDevToolMappings.lua
+
+Modules/ViragDevToolModulesCore.lua
+Modules/ViragDevToolEvents.lua
+Modules/ViragDevToolFunctionLogger.lua
+Modules/ViragDevToolHistory.lua
+
 ViragDevTool.xml
+
+ViragDevToolOptions.xml
+ViragDevToolOptions.lua

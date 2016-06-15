@@ -1,7 +1,7 @@
 <Ui>
     <!--FONTS -->
-    <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
-    <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyW="LEFT" justifyH="LEFT" virtual="true"/>
+    <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyV="TOP" justifyH="LEFT" />
+    <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyV="TOP" justifyH="LEFT" virtual="true"/>
 
     <Texture name="ViragDevToolStrokeTexture" virtual="true">
         <Color r="0.1" g="0.1" b="0.1" a="1"/>
@@ -136,13 +136,6 @@
     <Button name="ViragDevToolBaseButtonTemplate" virtual="true">
         <Layers>
             <Layer level="BACKGROUND">
-                <Texture>
-                    <Anchors>
-                        <Anchor point="TOPRIGHT"/>
-                        <Anchor point="BOTTOMLEFT"/>
-                    </Anchors>
-                    <Color r="0" g="0" b="0.1" a="0.5"/>
-                </Texture>
 
                 <Texture>
                     <Size y="25"/>
@@ -150,7 +143,7 @@
                         <Anchor point="TOPRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.55" g="0" b="0" a="0.5"/>
+                    <Color r="0.55" g="0" b="0.1" a="0.5"/>
                 </Texture>
             </Layer>
         </Layers>
@@ -287,7 +280,7 @@
                     parentKey="nameButton">
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentCountColumn" relativePoint="RIGHT"/>
-                     <Anchor point="RIGHT" relativeTo="ViragDevToolFrameColumnResizeButton" relativePoint="LEFT" x="10"/>
+                    <Anchor point="RIGHT" relativeTo="ViragDevToolFrameColumnResizeButton" relativePoint="LEFT" x="10"/>
                 </Anchors>
             </Button>
             <!--COLUMN 3-->
@@ -300,6 +293,10 @@
             </Button>
         </Frames>
     </Button>
+
+
+
+
     <!--*********************************************************************************************************
                                                       MAIN UI  enableMouse="true"
 
@@ -316,7 +313,7 @@
 
                 ViragDevTool:OnLoad(self)
                 self:SetUserPlaced(true)
-                self:SetMinResize(600, 200);
+                self:SetMinResize(635, 200);
                 self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight());
                 self:RegisterForDrag("LeftButton");
             </OnLoad>
@@ -379,7 +376,7 @@
                 <PushedTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down"/>
             </Button>
             <!--LABEL FOR FUNCTION ARGUMENTS-->
-            <Button text="Fn Arguments:" inherits="ViragDevToolButtonTemplate" name="$parentFNCallLabelButton"
+            <Button text="Arguments:" inherits="ViragDevToolButtonTemplate" name="$parentFNCallLabelButton"
                     parentKey="clearFnArgsButton">
                 <Anchors>
                     <Anchor point="BOTTOMLEFT" y="5" x="5"/>
@@ -477,6 +474,7 @@
                     </OnClick>
                 </Scripts>
             </Button>
+
             <!--CLOSE UI BUTTON -->
             <Button name="$parentCloseWndButton">
                 <Size x="25" y="25"/>
@@ -494,6 +492,40 @@
                 <HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
             </Button>
 
+            <!--SETTINGS BUTTON -->
+            <Button name="$parentSettingsButton" inherits="ViragDevToolOptionsToggleButton">
+
+
+
+
+            </Button>
+            <Button name="$parentSettingsButton" virtual="true">
+                <Size x="25" y="25"/>
+                <Scripts>
+                    <OnClick>
+                        ViragDevTool:ToggleOptions()
+                    </OnClick>
+                </Scripts>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeTo="$parentCloseWndButton" relativePoint="LEFT" x="5"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="I" file="Interface\common\help-i">
+                            <Size x="25" y="25"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight">
+                    <Size x="20" y="20"/>
+                    <Anchors>
+                        <Anchor point="CENTER" x="-1" y="1"/>
+                    </Anchors>
+                </HighlightTexture>
+            </Button>
             <!--MAIN SCROLL FRAME-->
             <ScrollFrame name="$parentScrollFrame" inherits="ViragDevToolScrollFrameTemplate" parentKey="scrollFrame">
                 <Anchors>
@@ -654,4 +686,6 @@
             </Frame>
         </Frames>
     </Frame>
+
+
 </Ui>
