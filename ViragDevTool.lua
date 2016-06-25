@@ -133,7 +133,7 @@ ViragDevTool = {
 
         -- stores arguments for fcunction calls --todo implement
         tArgs = {},
-        fontSize = 12, -- font size for default table
+        fontSize = 10, -- font size for default table
         colors = {
             white = "|cFFFFFFFF",
             gray = "|cFFBEB9B5",
