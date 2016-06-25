@@ -7,13 +7,12 @@ end
 
 function ViragDevTool:LoadInterfaceOptions()
     if not self.wndRef.optionsFrame then
-        local frame = CreateFrame("Frame", "ViragDevToolOptionsMainFrame", self.wndRef, "ViragDevToolFrameTemplate")
+        local frame = CreateFrame("Frame", "ViragDevToolOptionsMainFrame", self.wndRef, "ViragDevToolOptionsFrameRowTemplate")
         frame:SetPoint("BOTTOM", self.wndRef, "TOP")
         frame:SetHeight(35)
         frame:SetPoint("LEFT")
         frame:SetPoint("RIGHT")
         frame:Hide()
-        self:Add(frame, "ViragDevToolOptionsFrameRowTemplate")
 
         self:CreateColorPickerFrame(frame)
         self.wndRef.optionsFrame = frame
@@ -70,17 +69,27 @@ function ViragDevTool:CreateColorPickerFrame(parent)
         xOffset = 5
     end
 
+    local updateFontSize = function(button, fontSize)
+        button:SetText("Font: " .. tostring(fontSize))
+        ViragDevTool:UpdateMainTableUI()
+    end
+
     local button = CreateFrame("Button", "VDTFrameColorReset", parent, "ViragDevToolButtonTemplate")
     button:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset)
     button:SetPoint("TOP", parent, "TOP", -5, -5)
     button:SetPoint("BOTTOM", parent, "BOTTOM", -5, 5)
-    button:SetText("Reset")
+
+    updateFontSize(button, self.settings.fontSize)
     button:SetScript("OnMouseUp", function(this, mouseButton, down)
-        for _, button in pairs(buttons) do
-            local color = button:GetText()
-            ViragDevTool.colors[color] = ViragDevTool.default_settings.colors[color]
-            update(button, color)
+        if mouseButton == "RightButton" then
+            self.settings.fontSize = self.settings.fontSize - 1
+
+        elseif mouseButton == "LeftButton" then
+            self.settings.fontSize = self.settings.fontSize + 1
         end
+
+        updateFontSize(this, self.settings.fontSize )
+
     end)
 end
 

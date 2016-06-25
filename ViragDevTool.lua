@@ -133,6 +133,7 @@ ViragDevTool = {
 
         -- stores arguments for fcunction calls --todo implement
         tArgs = {},
+        fontSize = 12, -- font size for default table
         colors = {
             white = "|cFFFFFFFF",
             gray = "|cFFBEB9B5",
@@ -438,7 +439,7 @@ function ViragDevTool:SortFnForCells(nodeList)
     end
     --lets try some better sorting if we have small number of records
     --numbers will be sorted not like 1,10,2 but like 1,2,10
-    if #nodeList < 100 then
+    if #nodeList < 300 then
         cmpFn = function(a, b)
             if a.name == "__index" then return true
             elseif b.name == "__index" then return false
@@ -464,6 +465,11 @@ end
 -----------------------------------------------------------------------------------------------
 -- UI
 -----------------------------------------------------------------------------------------------
+function ViragDevTool:UpdateUI()
+    self:UpdateMainTableUI()
+    self:UpdateSideBarUI()
+end
+
 function ViragDevTool:ToggleUI()
     self:Toggle(self.wndRef)
     self.settings.isWndOpen = self.wndRef:IsVisible()
@@ -559,7 +565,9 @@ function ViragDevTool:UpdateMainTableUI(force)
     self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolEntryTemplate")
 
     local buttons = scrollFrame.buttons;
+
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
+    self:UpdateScrollFrameRowSize(scrollFrame)
     local totalRowsCount = self.list.size
     local lineplusoffset;
 
@@ -576,7 +584,27 @@ function ViragDevTool:UpdateMainTableUI(force)
     end
 
     HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
+
     scrollFrame.scrollChild:SetWidth(scrollFrame:GetWidth())
+end
+
+function ViragDevTool:UpdateScrollFrameRowSize(scrollFrame)
+    local currentFont = self.settings and self.settings.fontSize or 10
+
+    local buttons = scrollFrame.buttons;
+    local cellHeight = currentFont + currentFont * 0.2
+    cellHeight = cellHeight %2 == 0 and cellHeight or cellHeight + 1
+    for _, button in pairs(buttons) do
+        button:SetHeight(cellHeight)
+        local font = button.nameButton:GetFontString():GetFont()
+        button.nameButton:GetFontString():SetFont(font, currentFont)
+        button.rowNumberButton:GetFontString():SetFont(font, currentFont)
+        button.valueButton:GetFontString():SetFont(font, currentFont)
+    end
+
+    scrollFrame.buttonHeight = cellHeight
+
+
 end
 
 function ViragDevTool:UpdateMainTableUIOptimized()
@@ -608,6 +636,7 @@ function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
         local scrollBarValue = scrollFrame.scrollBar:GetValue()
         HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
         scrollFrame.scrollBar:SetValue(scrollBarValue);
+
     end
 end
 
@@ -772,7 +801,7 @@ function ViragDevTool:UpdateSideBarUI()
     local buttons = scrollFrame.buttons;
 
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
-    local data = self.settings[self.settings.sideBarTabSelected] or {}
+    local data = self.settings and self.settings[self.settings.sideBarTabSelected] or {}
     local totalRowsCount = self:tablelength(data)
 
     for k, frame in pairs(buttons) do
@@ -1023,7 +1052,6 @@ function ViragDevTool:OnLoad(mainFrame)
     self.wndRef.scrollFrame.update = function()
         self:ForceUpdateMainTableUI()
     end
-    self:ForceUpdateMainTableUI()
 
     self.wndRef.sideFrame.sideScrollFrame.update = function()
         self:UpdateSideBarUI()
@@ -1038,12 +1066,13 @@ function ViragDevTool:OnLoad(mainFrame)
             self:ExecuteCMD(msg, true)
         end
     end
+
+    self:UpdateUI()
 end
 
 function ViragDevTool:OnAddonSettingsLoaded()
     local s = ViragDevTool_Settings
 
-    self:Add(ViragDevTool_Settings.colors, "ViragDevTool_Settings.colors")
     if s == nil then
         s = self.default_settings
         ViragDevTool_Settings = s
@@ -1111,6 +1140,8 @@ function ViragDevTool:OnAddonSettingsLoaded()
     self:LoadInterfaceOptions()
 
     self.wndRef.columnResizer:SetPoint("TOPLEFT", self.wndRef, "TOPLEFT", s.collResizerPosition, -30)
+
+    self:UpdateUI()
 end
 
 -----------------------------------------------------------------------------------------------

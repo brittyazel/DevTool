@@ -1,7 +1,7 @@
 <Ui>
     <!--FONTS -->
-    <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyV="TOP" justifyH="LEFT" />
-    <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyV="TOP" justifyH="LEFT" virtual="true"/>
+    <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyV="CENTER" justifyH="LEFT" />
+    <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyV="CENTER" justifyH="LEFT" virtual="true"/>
 
     <Texture name="ViragDevToolStrokeTexture" virtual="true">
         <Color r="0.1" g="0.1" b="0.1" a="1"/>
@@ -105,7 +105,7 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                self.scrollChild:SetPoint("BOTTOM")
+                self.scrollChild:SetPoint("BOTTOM", self, "BOTTOM", 0, -100)
             </OnLoad>
         </Scripts>
         <Frames>
@@ -265,7 +265,7 @@
 
     <!--ROW FOR MAIN HybridScrollFrameTemplate -->
     <Button name="ViragDevToolEntryTemplate" inherits="ViragDevToolRowTemplate" virtual="true">
-        <Size y="13"/>
+        <Size y="7"/>
         <Frames>
             <!--COLUMN 1-->
             <Button text="123456" name="$parentCountColumn" inherits="ViragDevToolColumnTemplate"

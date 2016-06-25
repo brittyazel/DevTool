@@ -1,6 +1,6 @@
 local ViragDevTool = ViragDevTool
 
---TODO not implemented yet just an idea
+--TODO not implemented yet just an idea .Dont have time for this right now
 --- This class handles modules that can be registered in this addon.
 -- if you want to create custom module it has to implement following methods
 -- module lifecicle is
