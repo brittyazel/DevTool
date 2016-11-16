@@ -156,6 +156,10 @@ ViragDevTool = {
         -- default events inactive
         events = {
             {
+                event = "ALL",
+                active = false
+            },
+            {
                 event = "CURSOR_UPDATE",
                 active = false
             },

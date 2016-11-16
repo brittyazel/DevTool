@@ -22,7 +22,9 @@ function ViragDevTool:StartMonitorEvent(event, unit)
 
     local f = self:GetListenerFrame()
 
-    if type(unit) == "string" then
+    if event == "ALL" then
+        f:RegisterAllEvents()
+    elseif type(unit) == "string" then
         f:RegisterUnitEvent(event, unit)
     else
         f:RegisterEvent(event)
@@ -41,8 +43,17 @@ function ViragDevTool:StopMonitorEvent(event, unit)
 
     if tEvent and tEvent.active then
         local f = self:GetListenerFrame()
-        f:UnregisterEvent(event)
         tEvent.active = false
+        if event == "ALL"  then
+            f:UnregisterAllEvents()
+            for _, tEvent in pairs(self.settings.events) do
+                if tEvent.active then
+                    self:StartMonitorEvent(tEvent.event, tEvent.unit)
+                end
+            end
+        else
+            f:UnregisterEvent(event)
+        end
 
         local eventName = event
         if unit then eventName = eventName .. " " .. tostring(unit) end
