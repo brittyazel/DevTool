@@ -415,7 +415,7 @@ function ViragDevTool:ExpandCell(info)
 end
 
 function ViragDevTool:NewMetatableNode(mt, padding, info)
-    if mt then
+    if type(mt) =="table" then
         if self:tablelength(mt) == 1 and mt.__index then
             return self.list:NewNode(mt.__index, self.METATABLE_NAME2, padding, info)
         else
