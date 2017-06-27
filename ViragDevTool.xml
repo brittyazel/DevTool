@@ -73,7 +73,7 @@
                     <Anchor point="TOP" x="0" y="15"/>
                 </Anchors>
                 <Scripts>
-                    <OnLoad function="HybridScrollFrameScrollUp_OnLoad"/>
+                        <OnLoad function="HybridScrollFrameScrollUp_OnLoad"/>
                     <OnClick function="HybridScrollFrameScrollButton_OnClick"/>
                 </Scripts>
             </Button>

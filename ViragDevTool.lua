@@ -566,19 +566,23 @@ function ViragDevTool:UpdateMainTableUI(force)
     end
 
     local scrollFrame = self.wndRef.scrollFrame
+
+
     self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolEntryTemplate")
+    self:UpdateScrollFrameRowSize(scrollFrame)
 
     local buttons = scrollFrame.buttons;
 
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
-    self:UpdateScrollFrameRowSize(scrollFrame)
+
     local totalRowsCount = self.list.size
     local lineplusoffset;
 
     local nodeInfo = self.list:GetInfoAtPosition(offset)
+    --print("Buttons:" .. )
     for k, view in pairs(buttons) do
         lineplusoffset = k + offset;
-        if lineplusoffset <= totalRowsCount then
+        if lineplusoffset <= totalRowsCount and k*buttons[1]:GetHeight() < scrollFrame:GetHeight() then
             self:UIUpdateMainTableButton(view, nodeInfo, lineplusoffset)
             nodeInfo = nodeInfo.next
             view:Show();
@@ -593,7 +597,7 @@ function ViragDevTool:UpdateMainTableUI(force)
 end
 
 function ViragDevTool:UpdateScrollFrameRowSize(scrollFrame)
-    local currentFont = self.settings and self.settings.fontSize or 10
+    local currentFont =  self.settings and self.settings.fontSize or 10
 
     local buttons = scrollFrame.buttons;
     local cellHeight = currentFont + currentFont * 0.2
@@ -636,7 +640,6 @@ end
 function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
     if scrollFrame.ScrollBarHeight == nil or scrollFrame:GetHeight() > scrollFrame.ScrollBarHeight then
         scrollFrame.ScrollBarHeight = scrollFrame:GetHeight()
-
         local scrollBarValue = scrollFrame.scrollBar:GetValue()
         HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
         scrollFrame.scrollBar:SetValue(scrollBarValue);
@@ -811,9 +814,7 @@ function ViragDevTool:UpdateSideBarUI()
     for k, frame in pairs(buttons) do
         local lineplusoffset = k + offset;
 
-        if lineplusoffset > totalRowsCount then
-            frame:Hide();
-        else
+        if lineplusoffset <= totalRowsCount and  k*buttons[1]:GetHeight() < scrollFrame:GetHeight() then
             self:UpdateSideBarRow(frame.mainButton, data, lineplusoffset)
 
             --setup remove button for every row
@@ -821,8 +822,9 @@ function ViragDevTool:UpdateSideBarUI()
                 table.remove(data, lineplusoffset)
                 self:UpdateSideBarUI()
             end)
-
             frame:Show();
+        else
+            frame:Hide();
         end
     end
 
