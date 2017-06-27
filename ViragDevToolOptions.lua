@@ -32,7 +32,8 @@ function ViragDevTool:CreateColorPickerFrame(parent)
     local yOffset = -5
 
     local update = function(button, color)
-        button.colorTexture:SetTexture(unpack(self.colors[color]))
+        button.colorTexture:SetColorTexture(unpack(self.colors[color]))
+
         button:GetHighlightTexture():SetVertexColor(unpack(self.colors[color]))
         button:GetFontString():SetTextColor(unpack(self.colors[color]))
         ViragDevTool:UpdateMainTableUI()

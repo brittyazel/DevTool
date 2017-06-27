@@ -582,7 +582,7 @@ function ViragDevTool:UpdateMainTableUI(force)
     --print("Buttons:" .. )
     for k, view in pairs(buttons) do
         lineplusoffset = k + offset;
-        if lineplusoffset <= totalRowsCount and k*buttons[1]:GetHeight() < scrollFrame:GetHeight() then
+        if lineplusoffset <= totalRowsCount and (k-1)*buttons[1]:GetHeight() < scrollFrame:GetHeight() then
             self:UIUpdateMainTableButton(view, nodeInfo, lineplusoffset)
             nodeInfo = nodeInfo.next
             view:Show();
