@@ -565,6 +565,8 @@ function ViragDevTool:UpdateMainTableUI(force)
         return
     end
 
+    if not self.wndRef.scrollFrame:IsVisible()  then return end
+
     local scrollFrame = self.wndRef.scrollFrame
 
 
@@ -1048,9 +1050,14 @@ function ViragDevTool:OnLoad(mainFrame)
     self.wndRef = mainFrame
 
     self.wndRef:RegisterEvent("ADDON_LOADED")
+    self.wndRef:RegisterEvent("VARIABLES_LOADED")
     self.wndRef:SetScript("OnEvent", function(this, event, addonName, ...)
         if event == "ADDON_LOADED" and addonName == self.ADDON_NAME then
             self:OnAddonSettingsLoaded()
+        end
+
+        if event == "VARIABLES_LOADED" then
+            self:UpdateUI()
         end
     end);
 
