@@ -559,29 +559,26 @@ end
 
 
 function ViragDevTool:UpdateMainTableUI(force)
-
+    -- Start of performance checks
+    if not self.initialized then return end
+    if not self.wndRef.scrollFrame:IsVisible() then return end
     if not force then
         self:UpdateMainTableUIOptimized()
         return
     end
-
-    if not self.wndRef.scrollFrame:IsVisible()  then return end
+    -- End of performance checks
 
     local scrollFrame = self.wndRef.scrollFrame
-
-
     self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolEntryTemplate")
     self:UpdateScrollFrameRowSize(scrollFrame)
 
     local buttons = scrollFrame.buttons;
-
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
-
     local totalRowsCount = self.list.size
     local lineplusoffset;
 
     local nodeInfo = self.list:GetInfoAtPosition(offset)
-    --print("Buttons:" .. )
+
     for k, view in pairs(buttons) do
         lineplusoffset = k + offset;
         if lineplusoffset <= totalRowsCount and (k-1)*buttons[1]:GetHeight() < scrollFrame:GetHeight() then
@@ -803,6 +800,7 @@ function ViragDevTool:EnableSideBarTab(tabStrName)
 end
 
 function ViragDevTool:UpdateSideBarUI()
+    if not self.initialized then return end
     local scrollFrame = self.wndRef.sideFrame.sideScrollFrame
 
     self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolSideBarRowTemplate")
@@ -1050,13 +1048,14 @@ function ViragDevTool:OnLoad(mainFrame)
     self.wndRef = mainFrame
 
     self.wndRef:RegisterEvent("ADDON_LOADED")
-    self.wndRef:RegisterEvent("VARIABLES_LOADED")
+    self.wndRef:RegisterEvent("PLAYER_ENTERING_WORLD") --VARIABLES_LOADED
     self.wndRef:SetScript("OnEvent", function(this, event, addonName, ...)
         if event == "ADDON_LOADED" and addonName == self.ADDON_NAME then
             self:OnAddonSettingsLoaded()
         end
 
-        if event == "VARIABLES_LOADED" then
+        if event == "PLAYER_ENTERING_WORLD" then
+            self.initialized = true
             self:UpdateUI()
         end
     end);
@@ -1080,7 +1079,6 @@ function ViragDevTool:OnLoad(mainFrame)
         end
     end
 
-    self:UpdateUI()
 end
 
 function ViragDevTool:OnAddonSettingsLoaded()
@@ -1154,7 +1152,6 @@ function ViragDevTool:OnAddonSettingsLoaded()
 
     self.wndRef.columnResizer:SetPoint("TOPLEFT", self.wndRef, "TOPLEFT", s.collResizerPosition, -30)
 
-    self:UpdateUI()
 end
 
 -----------------------------------------------------------------------------------------------
