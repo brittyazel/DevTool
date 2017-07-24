@@ -687,7 +687,7 @@ end
 
 function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
     local resultStr
-    local ok, objectType = self:TryCallAPIFn(value.GetObjectType, value)
+    local ok, objectType = self:TryCallAPIFn("GetObjectType", value)
 
     -- try to get frame name
     if ok then
@@ -700,11 +700,11 @@ function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
             return resultStr
         end
 
-        local _, name = self:TryCallAPIFn(value.GetName, value)
-        local _, texture = self:TryCallAPIFn(value.GetTexture, value)
-        local _, text = self:TryCallAPIFn(value.GetText, value)
+        local _, name = self:TryCallAPIFn("GetName", value)
+        local _, texture = self:TryCallAPIFn("GetTexture", value)
+        local _, text = self:TryCallAPIFn("GetText", value)
 
-        local hasSize, left, bottom, width, height = self:TryCallAPIFn(value.GetBoundsRect, value)
+        local hasSize, left, bottom, width, height = self:TryCallAPIFn("GetBoundsRect", value)
 
 
         resultStr = objectType or ""
@@ -730,7 +730,7 @@ function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
     return resultStr
 end
 
-function ViragDevTool:TryCallAPIFn(fn, value)
+function ViragDevTool:TryCallAPIFn(fnName, value)
     -- this function is helper fn to get table type from wow api.
     -- if there is GetObjectType then we will return it.
     -- returns Button, Frame or something like this
@@ -751,6 +751,8 @@ function ViragDevTool:TryCallAPIFn(fn, value)
         if not ok or (ok and forbidden) then return
         end
     end
+
+    local fn = value[fnName]
     -- VALIDATION has WoW API
     if not fn or type(fn) ~= "function" then return
     end
