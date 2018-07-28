@@ -1,8 +1,10 @@
-## Interface: 70250
+## Interface: 80000
 ## Title: ViragDevTool
 ## Author: Varren@Azuregos-RU
-## Version: 0.19
+## Version: 0.22
 ## SavedVariables: ViragDevTool_Settings
+
+
 ViragDevTool.lua
 
 Modules/ViragDevToolModulesCore.lua

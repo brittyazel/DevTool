@@ -477,6 +477,9 @@ end
 function ViragDevTool:ToggleUI()
     self:Toggle(self.wndRef)
     self.settings.isWndOpen = self.wndRef:IsVisible()
+    if self.settings.isWndOpen then
+        self:UpdateUI()
+    end
 end
 
 function ViragDevTool:Toggle(view)

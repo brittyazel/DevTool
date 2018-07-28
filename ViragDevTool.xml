@@ -493,10 +493,7 @@
             </Button>
 
             <!--SETTINGS BUTTON -->
-            <Button name="$parentSettingsButton" inherits="ViragDevToolOptionsToggleButton">
-
-
-
+            <Button name="$parentSettingsButton" >
 
             </Button>
             <Button name="$parentSettingsButton" virtual="true">

@@ -6,7 +6,7 @@ end
 
 
 function ViragDevTool:LoadInterfaceOptions()
-    if not self.wndRef.optionsFrame then
+   if not self.wndRef.optionsFrame then
         local frame = CreateFrame("Frame", "ViragDevToolOptionsMainFrame", self.wndRef, "ViragDevToolOptionsFrameRowTemplate")
         frame:SetPoint("BOTTOM", self.wndRef, "TOP")
         frame:SetHeight(35)
@@ -21,6 +21,7 @@ function ViragDevTool:LoadInterfaceOptions()
         --InterfaceAddOnsList_Update();
         --InterfaceOptionsFrame_OpenToCategory(ViragDevTool.ADDON_NAME);
     end
+
 end
 
 
