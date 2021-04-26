@@ -1,3 +1,5 @@
+local ViragDevTool = ViragDevTool
+
 function ViragDevTool:ToggleOptions()
     --   InterfaceOptionsFrame_OpenToCategory(ViragDevTool.ADDON_NAME);
     self:LoadInterfaceOptions()
@@ -33,10 +35,9 @@ function ViragDevTool:CreateColorPickerFrame(parent)
     local yOffset = -5
 
     local update = function(button, color)
-        button.colorTexture:SetColorTexture(unpack(self.colors[color]))
-
-        button:GetHighlightTexture():SetVertexColor(unpack(self.colors[color]))
-        button:GetFontString():SetTextColor(unpack(self.colors[color]))
+        button.colorTexture:SetColorTexture(self.colors[color]:GetRGBA())
+        button:GetHighlightTexture():SetVertexColor(self.colors[color]:GetRGBA())
+        button:GetFontString():SetTextColor(self.colors[color]:GetRGBA())
         ViragDevTool:UpdateMainTableUI()
     end
 
@@ -48,14 +49,16 @@ function ViragDevTool:CreateColorPickerFrame(parent)
         buttons[i] = button
         button:SetText(color)
 
-        button:SetScript("OnMouseUp", function(this, mouseButton, down)
+        button:SetScript("OnMouseUp", function(this, mouseButton)
             if mouseButton == "RightButton" then
-                ViragDevTool.colors[color] = ViragDevTool.default_settings.colors[color]
+                self.settings.colorVals[color] = self.default_settings.colorVals[color]
+                self.colors[color]:SetRGBA(unpack(self.default_settings.colorVals[color]))
                 update(this, color)
             elseif mouseButton == "LeftButton" then
                 self:ShowColorPicker(color, function()
-                    local r, g, b = ColorPickerFrame:GetColorRGB()
-                    ViragDevTool.colors[color] = { r, g, b, 1 }
+                    local r, g, b, a = ColorPickerFrame:GetColorRGB()
+                    self.settings.colorVals[color] = {r,g,b,a}
+                    self.colors[color]:SetRGBA(r,g,b,a)
                     update(this, color)
                 end)
             end
@@ -82,7 +85,7 @@ function ViragDevTool:CreateColorPickerFrame(parent)
     button:SetPoint("BOTTOM", parent, "BOTTOM", -5, 5)
 
     updateFontSize(button, self.settings.fontSize)
-    button:SetScript("OnMouseUp", function(this, mouseButton, down)
+    button:SetScript("OnMouseUp", function(this, mouseButton)
         if mouseButton == "RightButton" then
             self.settings.fontSize = self.settings.fontSize - 1
 
@@ -96,7 +99,7 @@ function ViragDevTool:CreateColorPickerFrame(parent)
 end
 
 function ViragDevTool:ShowColorPicker(color, changedCallback)
-    local r, g, b, a = unpack(ViragDevTool.colors[color])
+    local r, g, b, _ = ViragDevTool.colors[color]:GetRGBA()
 
     ColorPickerFrame.func = function() end
     ColorPickerFrame:SetColorRGB(r, g, b);

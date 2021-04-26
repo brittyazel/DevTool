@@ -18,13 +18,13 @@ ViragDevTool = {
     CMD = {
         --"/vdt help"
         HELP = function()
-            local a = function(txt) return "|cFF96C0CE" .. txt .. "|cFFFFFFFF" end
-            local a2 = function(txt) return "|cFFBEB9B5" .. txt .. "|cFFFFFFFF" end
-            local a3 = function(txt) return "|cFF3cb371" .. txt .. "|cFFFFFFFF" end
 
+            local a = function(txt) return WrapTextInColorCode(txt, "FF96C0CE") end
+            local a2 = function(txt) return WrapTextInColorCode(txt, "FFBEB9B5") end
+            local a3 = function(txt) return WrapTextInColorCode(txt, "FF3cb371") end
 
             local cFix = function(str)
-                local result = "|cFFFFFFFF" .. str
+                local result = WrapTextInColorCode(str, "FFFFFFFF")
                 result = string.gsub(result, "name", a("name"))
                 result = string.gsub(result, "eventName", a("eventName"))
                 result = string.gsub(result, "tableName", a("tableName"))
@@ -56,7 +56,7 @@ ViragDevTool = {
             help[cFix("09 /vdt logfn tableName functionName (optional)")] = cFix("Log every function call. _G.tableName.functionName")
             help[cFix("10 /vdt vdt_reset_wnd")] = cFix("Reset main frame position if you lost it for some reason")
             local sortedTable = {}
-            for k, v in pairs(help) do
+            for k, _ in pairs(help) do
                 table.insert(sortedTable, k)
             end
 
@@ -95,7 +95,7 @@ ViragDevTool = {
         LOGFN = function(msg2, msg3)
             ViragDevTool:StartLogFunctionCalls(msg2, msg3)
         end,
-        VDT_RESET_WND = function(msg2, msg3)
+        VDT_RESET_WND = function()
             ViragDevToolFrame:ClearAllPoints()
             ViragDevToolFrame:SetPoint("CENTER", UIParent)
             ViragDevToolFrame:SetSize(635, 200)
@@ -131,24 +131,15 @@ ViragDevTool = {
             --},
         },
 
-        -- stores arguments for fcunction calls --todo implement
+        -- stores arguments for function calls --todo implement
         tArgs = {},
         fontSize = 10, -- font size for default table
-        colors = {
-            white = "|cFFFFFFFF",
-            gray = "|cFFBEB9B5",
-            lightblue = "|cFF96C0CE",
-            lightgreen = "|cFF98FB98",
-            red = "|cFFFF0000",
-            green = "|cFF00FF00",
-            darkred = "|cFFC25B56",
-            parent = "|cFFBEB9B5",
-            error = "|cFFFF0000",
-            ok = "|cFF00FF00",
-            table = { 0.41, 0.80, 0.94, 1 },
-            string = { 0.67, 0.83, 0.45, 1 },
-            number = { 1, 0.96, 0.41, 1 },
-            default = { 1, 1, 1, 1 },
+        colorVals = {
+            ["table"] = {0.41,0.80,0.94,1},
+            ["string"] = {0.67,0.83,0.45,1},
+            ["number"] = {1,0.96,0.41,1},
+            ["function"] =  {1,0.49,0.04,1},
+            ["default"] = {1,1,1,1},
         },
 
         -- events to monitor
@@ -181,8 +172,25 @@ local ViragDevTool = ViragDevTool
 -----------------------------------------------------------------------------------------------
 -- ViragDevTool.colors additional setup
 -----------------------------------------------------------------------------------------------
-ViragDevTool.default_settings.colors["function"] = { 1, 0.49, 0.04, 1 }
-ViragDevTool.colors = ViragDevTool.default_settings.colors --shortcut
+--store the colors outside the database in a class level table
+ViragDevTool.colors = {}
+
+ViragDevTool.colors["gray"] = CreateColorFromHexString("FFBEB9B5")
+ViragDevTool.colors["lightblue"] = CreateColorFromHexString("FF96C0CE")
+ViragDevTool.colors["lightgreen"] = CreateColorFromHexString("FF98FB98")
+ViragDevTool.colors["red"] = CreateColorFromHexString("FFFF0000")
+ViragDevTool.colors["green"] = CreateColorFromHexString("FF00FF00")
+ViragDevTool.colors["darkred"] = CreateColorFromHexString("FFC25B56")
+ViragDevTool.colors["parent"] = CreateColorFromHexString("FFBEB9B5")
+ViragDevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
+ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
+
+--create the colors from the values stored in the database
+ViragDevTool.colors["table"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["table"]))
+ViragDevTool.colors["string"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["string"]))
+ViragDevTool.colors["number"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["number"]))
+ViragDevTool.colors["function"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["function"]))
+ViragDevTool.colors["default"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["default"]))
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevToolLinkedList == ViragDevTool.list
@@ -386,7 +394,7 @@ function ViragDevTool:ExpandCell(info)
         if type(v) ~= "userdata" then
             nodeList[counter] = self.list:NewNode(v, tostring(k), padding, info)
         else
-            local mt = getmetatable(v)
+            mt = getmetatable(v)
             if mt then
                 nodeList[counter] = self.list:NewNode(mt, self.METATABLE_NAME .. " for " .. tostring(k), padding, info)
             else
@@ -399,7 +407,7 @@ function ViragDevTool:ExpandCell(info)
         counter = counter + 1
     end
 
-    local mt = getmetatable(info.value)
+    mt = getmetatable(info.value)
     if mt then
         nodeList[counter] = self:NewMetatableNode(mt, padding, info)
     else
@@ -651,7 +659,9 @@ end
 
 function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     local color = self.colors[type(info.value)]
-    if not color then color = self.colors.default end
+    if not color then
+        color = self.colors.default
+    end
     if type(info.value) == "table" and self:IsMetaTableNode(info) then
         color = self.colors.default
     end
@@ -662,9 +672,9 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
     node.nameButton:SetText(tostring(info.name))
     node.rowNumberButton:SetText(tostring(id))
 
-    node.nameButton:GetFontString():SetTextColor(unpack(color))
-    node.valueButton:GetFontString():SetTextColor(unpack(color))
-    node.rowNumberButton:GetFontString():SetTextColor(unpack(color))
+    node.nameButton:GetFontString():SetTextColor(color:GetRGBA())
+    node.valueButton:GetFontString():SetTextColor(color:GetRGBA())
+    node.rowNumberButton:GetFontString():SetTextColor(color:GetRGBA())
 
     self:SetMainTableButtonScript(node.nameButton, info)
     self:SetMainTableButtonScript(node.valueButton, info)
@@ -712,22 +722,21 @@ function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
 
         resultStr = objectType or ""
         if hasSize then
-            resultStr = concat(self.colors.white .. "[" ..
+            resultStr = concat("[" ..
                     tostring(self:round(left)) .. ", " ..
                     tostring(self:round(bottom)) .. ", " ..
                     tostring(self:round(width)) .. ", " ..
-                    tostring(self:round(height)) .. "]",
-                self.colors.lightblue)
+                    tostring(self:round(height)) .. "]")
         end
 
 
         if helperText ~= name then
-            resultStr = concat(name, self.colors.gray .. "<", ">" .. self.colors.white)
+            resultStr = self.colors.gray:WrapTextInColorCode(concat(name, "<", ">"))
         end
 
-        resultStr = concat(texture, self.colors.white, self.colors.white)
-        resultStr = concat(text, self.colors.white .. "'", "'")
-        resultStr = concat(tostring(value), self.colors.lightblue)
+        resultStr = concat(texture)
+        resultStr = concat(text, "'", "'")
+        resultStr = self.colors.lightblue:WrapTextInColorCode(concat(tostring(value)))
     end
 
     return resultStr
@@ -841,10 +850,6 @@ function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
 
     local currItem = data[lineplusoffset]
 
-    local colorForState = function(isActive)
-        return isActive and ViragDevTool.colors.white or ViragDevTool.colors.gray
-    end
-
     if selectedTab == "history" then
         -- history update
         local name = tostring(currItem)
@@ -861,18 +866,14 @@ function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
         local text = self:LogFunctionCallText(currItem)
 
         -- logs update
-        view:SetText(colorForState(currItem.active) .. text)
         view:SetScript("OnMouseUp", function()
             ViragDevTool:ToggleFnLogger(currItem)
-            view:SetText(colorForState(currItem.active) .. text)
         end)
 
     elseif selectedTab == "events" then
         -- events  update
-        view:SetText(colorForState(currItem.active) .. currItem.event)
         view:SetScript("OnMouseUp", function()
             ViragDevTool:ToggleMonitorEvent(currItem)
-            view:SetText(colorForState(currItem.active) .. currItem.event)
         end)
     end
 end
@@ -887,7 +888,7 @@ function ViragDevTool:SetMainTableButtonScript(button, info)
     end
 
     if valueType == "table" then
-        leftClickFn = function(this, button, down)
+        leftClickFn = function()
             if info.expanded then
                 self:ColapseCell(info)
             else
@@ -895,7 +896,7 @@ function ViragDevTool:SetMainTableButtonScript(button, info)
             end
         end
     elseif valueType == "function" then
-        leftClickFn = function(this, button, down)
+        leftClickFn = function()
             self:TryCallFunction(info)
         end
     end
@@ -913,7 +914,7 @@ end
 
 function ViragDevTool:TryCallFunction(info)
     -- info.value is just our function to call
-    local parent, ok
+    local parent
     local fn = info.value
     local args = { unpack(self.settings.tArgs) }
     for k, v in pairs(args) do
@@ -978,19 +979,21 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     local padding = info.padding + 1
 
     local stateStr = function(state)
-        if state then return C.ok .. "OK"
+        if state then
+            return C.ok:WrapTextInColorCode("OK")
         end
-        return C.error .. "ERROR"
+        return C.error:WrapTextInColorCode("ERROR")
     end
 
     --constract collored full function call name
-    local fnNameWithArgs = C.white .. info.name .. C.lightblue .. "(" .. self:argstostring(args) .. ")" .. C.white
-    fnNameWithArgs = parent and C.gray .. parent.name .. ":" .. fnNameWithArgs or fnNameWithArgs
+    local fnNameWithArgs = info.name ..
+            C.lightblue:WrapTextInColorCode("(" .. self:argstostring(args) .. ")")
+    fnNameWithArgs = parent and C.gray:WrapTextInColorCode(parent.name .. ":" .. fnNameWithArgs) or fnNameWithArgs
 
     local returnFormatedStr = ""
 
-    -- itterate backwords because we want to include every meaningfull nil result
-    -- and with default itteration like pairs() we will just skip them so
+    -- iterate backwards because we want to include every meaningful nil result
+    -- and with default iteration like pairs() we will just skip them so
     -- for example 1, 2, nil, 4 should return only this 4 values nothing more, nothing less.
     local found = false
     for i = 10, 1, -1 do
@@ -1000,14 +1003,14 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
         if found or i == 1 then -- if found some return or if return is nil
         nodes[i] = list:NewNode(results[i], string.format("  return: %d", i), padding)
 
-        returnFormatedStr = string.format(" %s%s %s(%s)%s", C.white, tostring(results[i]),
-            C.lightblue, type(results[i]), returnFormatedStr)
+        returnFormatedStr = string.format(" %s (%s)%s", tostring(results[i]),
+            C.lightblue:WrapTextInColorCode(type(results[i])), returnFormatedStr)
         end
     end
 
     -- create fist node of result info no need for now. will use debug
     table.insert(nodes, 1, list:NewNode(string.format("%s - %s", stateStr(ok), fnNameWithArgs), -- node value
-        C.white .. date("%X") .. " function call results:", padding))
+        date("%X") .. " function call results:", padding))
 
 
     -- adds call result to our UI list
@@ -1015,11 +1018,11 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     self:UpdateMainTableUI()
 
     --print info to chat
-    self:print(stateStr(ok) .. " " .. fnNameWithArgs .. C.gray .. " returns:" .. returnFormatedStr)
+    self:print(stateStr(ok) .. " " .. fnNameWithArgs .. C.gray:WrapTextInColorCode(" returns:") .. returnFormatedStr)
 end
 
 -----------------------------------------------------------------------------------------------
--- BOTTOM PANEL Fn Arguments button  and arguments input eddit box
+-- BOTTOM PANEL Fn Arguments button  and arguments input edit box
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:SetArgForFunctionCallFromString(argStr)
     local args = self.split(argStr, ",") or {}
@@ -1047,14 +1050,14 @@ function ViragDevTool:SetArgForFunctionCallFromString(argStr)
 end
 
 -----------------------------------------------------------------------------------------------
--- LIFECICLE
+-- LIFECYCLE
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:OnLoad(mainFrame)
     self.wndRef = mainFrame
 
     self.wndRef:RegisterEvent("ADDON_LOADED")
     self.wndRef:RegisterEvent("PLAYER_ENTERING_WORLD") --VARIABLES_LOADED
-    self.wndRef:SetScript("OnEvent", function(this, event, addonName, ...)
+    self.wndRef:SetScript("OnEvent", function(_, event, addonName, ...)
         if event == "ADDON_LOADED" and addonName == self.ADDON_NAME then
             self:OnAddonSettingsLoaded()
         end
@@ -1076,7 +1079,7 @@ function ViragDevTool:OnLoad(mainFrame)
 
     -- register slash cmd
     SLASH_VIRAGDEVTOOLS1 = '/vdt';
-    function SlashCmdList.VIRAGDEVTOOLS(msg, editbox)
+    function SlashCmdList.VIRAGDEVTOOLS(msg)
         if msg == "" or msg == nil then
             self:ToggleUI()
         else
@@ -1149,9 +1152,11 @@ function ViragDevTool:OnAddonSettingsLoaded()
 
 
     --we store colors not in saved settings for now
-    if s.colors then self.colors = s.colors
+    if s.colorVals then
+        for k,v in pairs(s.colorVals) do
+            self.colors[k]:SetRGBA(unpack(v))
+        end
     end
-    s.colors = self.colors
 
     self:LoadInterfaceOptions()
 
@@ -1163,12 +1168,13 @@ end
 -- UTILS
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:print(strText)
-    print(self.colors.darkred .. "[Virag's DT]: " .. self.colors.white .. strText)
+    print(self.colors.darkred:WrapTextInColorCode("[Virag's DT]: ") .. strText)
 end
 
 function ViragDevTool:split(sep)
-    local sep, fields = sep or ".", {}
-    local pattern = string.format("([^%s]+)", sep)
+    local separator, fields
+    separator, fields = sep or ".", {}
+    local pattern = string.format("([^%s]+)", separator)
     self:gsub(pattern, function(c) fields[#fields + 1] = c
     end)
     return fields
@@ -1211,15 +1217,15 @@ function ViragDevTool:round(num, idp)
     return math.floor(num * mult + 0.5) / mult
 end
 
-function ViragDevTool:RGBPercToHex(r, g, b, a)
+--[[function ViragDevTool:RGBPercToHex(r, g, b, a)
     r = r <= 1 and r >= 0 and r or 0
     g = g <= 1 and g >= 0 and g or 0
     b = b <= 1 and b >= 0 and b or 0
     a = a <= 1 and a >= 0 and a or 0
     return string.format("%02x%02x%02x%02x", a * 255, r * 255, g * 255, b * 255)
-end
+end]]
 
-local function HexToRGBPerc(hex)
+--[[local function HexToRGBPerc(hex)
     local rhex, ghex, bhex = string.sub(hex, 1, 2), string.sub(hex, 3, 4), string.sub(hex, 5, 6)
     return tonumber(rhex, 16) / 255, tonumber(ghex, 16) / 255, tonumber(bhex, 16) / 255
-end
+end]]
