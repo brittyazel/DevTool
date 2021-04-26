@@ -517,9 +517,9 @@
                     </Layer>
                 </Layers>
                 <HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight">
-                    <Size x="20" y="20"/>
+                    <Size x="25" y="25"/>
                     <Anchors>
-                        <Anchor point="CENTER" x="-1" y="1"/>
+                        <Anchor point="CENTER" x="0" y="-1"/>
                     </Anchors>
                 </HighlightTexture>
             </Button>
@@ -565,28 +565,28 @@
 
                 </Scripts>
 
-                <NormalTexture>
+                <NormalTexture alphaMode="BLEND">
                     <Anchors>
-                        <Anchor point="TOPRIGHT" x="-6"/>
-                        <Anchor point="BOTTOMLEFT" x="6" y="5"/>
+                        <Anchor point="TOPRIGHT" x="-6" y="-1"/>
+                        <Anchor point="BOTTOMLEFT" x="6" y="4"/>
                     </Anchors>
-                    <Color r="0" g="0.5" b="0" a="0.7"/>
+                    <Color r=".9" g=".9" b=".9" a="0.3"/>
                 </NormalTexture>
 
-                <HighlightTexture alphaMode="ADD">
+                <HighlightTexture alphaMode="BLEND">
                     <Anchors>
-                        <Anchor point="TOPRIGHT" x="-4"/>
-                        <Anchor point="BOTTOMLEFT" x="4" y="0"/>
+                        <Anchor point="TOPRIGHT" x="-5" y="0"/>
+                        <Anchor point="BOTTOMLEFT" x="5" y="3"/>
                     </Anchors>
-                    <Color r="0" g="0.3" b="0" a="0.8"/>
+                    <Color r="1" g=".9" b=".9" a="0.5"/>
 
                 </HighlightTexture>
-                <PushedTexture alphaMode="ADD">
+                <PushedTexture alphaMode="BLEND">
                     <Anchors>
-                        <Anchor point="TOPRIGHT" x="-4"/>
-                        <Anchor point="BOTTOMLEFT" x="4" y="0"/>
+                        <Anchor point="TOPRIGHT" x="-5" y="0"/>
+                        <Anchor point="BOTTOMLEFT" x="5" y="3"/>
                     </Anchors>
-                    <Color r="0" g="0.3" b="0" a="0.8"/>
+                    <Color r="1" g=".9" b=".9" a="0.5"/>
 
                 </PushedTexture>
             </Button>
