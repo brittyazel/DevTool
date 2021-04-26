@@ -135,20 +135,11 @@ ViragDevTool = {
         tArgs = {},
         fontSize = 10, -- font size for default table
         colors = {
-            white = CreateColorFromHexString("FFFFFFFF"),
-            gray = CreateColorFromHexString("FFBEB9B5"),
-            lightblue = CreateColorFromHexString("FF96C0CE"),
-            lightgreen = CreateColorFromHexString("FF98FB98"),
-            red = CreateColorFromHexString("FFFF0000"),
-            green = CreateColorFromHexString("FF00FF00"),
-            darkred = CreateColorFromHexString("FFC25B56"),
-            parent = CreateColorFromHexString("FFBEB9B5"),
-            error = CreateColorFromHexString("FFFF0000"),
-            ok = CreateColorFromHexString("FF00FF00"),
-            table = CreateColor(0.41,0.80,0.94,1),
-            string = CreateColor(0.67,0.83,0.45,1),
-            number = CreateColor(1,0.96,0.41,1),
-            default = CreateColor(1,1,1,1),
+            ["table"] = {0.41,0.80,0.94,1},
+            ["string"] = {0.67,0.83,0.45,1},
+            ["number"] = {1,0.96,0.41,1},
+            ["function"] =  {1,0.49,0.04,1},
+            ["default"] = {1,1,1,1},
         },
 
         -- events to monitor
@@ -181,8 +172,26 @@ local ViragDevTool = ViragDevTool
 -----------------------------------------------------------------------------------------------
 -- ViragDevTool.colors additional setup
 -----------------------------------------------------------------------------------------------
-ViragDevTool.default_settings.colors["function"] = CreateColor(1,0.49,0.04,1)
-ViragDevTool.colors = ViragDevTool.default_settings.colors --shortcut
+--store the colors outside the database in a class level table
+ViragDevTool.colors = {}
+
+ViragDevTool.colors["white"] = CreateColorFromHexString("FFFFFFFF")
+ViragDevTool.colors["gray"] = CreateColorFromHexString("FFBEB9B5")
+ViragDevTool.colors["lightblue"] = CreateColorFromHexString("FF96C0CE")
+ViragDevTool.colors["lightgreen"] = CreateColorFromHexString("FF98FB98")
+ViragDevTool.colors["red"] = CreateColorFromHexString("FFFF0000")
+ViragDevTool.colors["green"] = CreateColorFromHexString("FF00FF00")
+ViragDevTool.colors["darkred"] = CreateColorFromHexString("FFC25B56")
+ViragDevTool.colors["parent"] = CreateColorFromHexString("FFBEB9B5")
+ViragDevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
+ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
+
+--create the colors from the values stored in the database
+ViragDevTool.colors["table"] = CreateColor(unpack(ViragDevTool.default_settings.colors["table"]))
+ViragDevTool.colors["string"] = CreateColor(unpack(ViragDevTool.default_settings.colors["string"]))
+ViragDevTool.colors["number"] = CreateColor(unpack(ViragDevTool.default_settings.colors["number"]))
+ViragDevTool.colors["function"] = CreateColor(unpack(ViragDevTool.default_settings.colors["function"]))
+ViragDevTool.colors["default"] = CreateColor(unpack(ViragDevTool.default_settings.colors["default"]))
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevToolLinkedList == ViragDevTool.list
@@ -1155,11 +1164,10 @@ function ViragDevTool:OnAddonSettingsLoaded()
     --[[if s.colors then
         for k,v in pairs(s.colors) do
             if type(v) == "table" then
-                self.colors[k] = CreateColor(unpack(v))
+                ViragDevTool.colors[k]:SetRGBA(unpack(v))
             end
         end
     end]]
-    --s.colors = self.colors
 
     self:LoadInterfaceOptions()
 
