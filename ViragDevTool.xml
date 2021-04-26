@@ -17,11 +17,12 @@
             <Layer>
                 <Texture>
                     <Size y="35"/>
+                    <Size y="35"/>
                     <Anchors>
                         <Anchor point="TOPRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size y="35"/>
@@ -29,7 +30,7 @@
                         <Anchor point="BOTTOMRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size x="5"/>
@@ -37,7 +38,7 @@
                         <Anchor point="TOPRIGHT" y="-35"/>
                         <Anchor point="BOTTOM" y="35"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size x="5"/>
@@ -45,7 +46,7 @@
                         <Anchor point="TOPLEFT" y="-35"/>
                         <Anchor point="BOTTOM" y="35"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
             </Layer>
             <Layer level="BACKGROUND">
@@ -55,7 +56,7 @@
                         <Anchor point="BOTTOMLEFT"/>
                     </Anchors>
                     <!-- <Color r="0.5" g="0.7" b="0.9" a="0.8"/>-->
-                    <Color r="0" g="0" b="0.1" a="0.5"/>
+                    <Color r="0.1" g="0.1" b="0.1" a="0.7"/>
                 </Texture>
 
 
@@ -143,7 +144,7 @@
                         <Anchor point="TOPRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.55" g="0" b="0.1" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
             </Layer>
         </Layers>

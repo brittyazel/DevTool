@@ -17,7 +17,7 @@
                                 <Anchor point="TOPRIGHT" x="-5" y="-5"/>
                                 <Anchor point="BOTTOM" y="5"/>
                             </Anchors>
-                            <Color r="0.5" g="0" b="0" a="1"/>
+                            <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                         </Texture>
                     </Layer>
                 </Layers>
@@ -42,7 +42,7 @@
                         <Anchor point="BOTTOMLEFT"/>
                     </Anchors>
                     <!-- <Color r="0.5" g="0.7" b="0.9" a="0.8"/>-->
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
             </Layer>
             <Layer level="BACKGROUND">
@@ -62,7 +62,7 @@
                         <Anchor point="BOTTOMRIGHT" />
                         <Anchor point="LEFT" />
                     </Anchors>
-                    <Color r="0.5" g="0.2" b="0.2" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.5"/>
                 </Texture>
             </Layer>
         </Layers>
@@ -139,7 +139,7 @@
                         <Anchor point="TOPRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size y="5"/>
@@ -147,7 +147,7 @@
                         <Anchor point="BOTTOMRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size x="5"/>
@@ -155,7 +155,7 @@
                         <Anchor point="TOPRIGHT" y="-5"/>
                         <Anchor point="BOTTOM" y="5"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size x="5"/>
@@ -163,7 +163,7 @@
                         <Anchor point="TOPLEFT" y="-5"/>
                         <Anchor point="BOTTOM" y="5"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Anchors>
