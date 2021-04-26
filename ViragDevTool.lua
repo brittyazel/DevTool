@@ -134,7 +134,7 @@ ViragDevTool = {
         -- stores arguments for function calls --todo implement
         tArgs = {},
         fontSize = 10, -- font size for default table
-        colors = {
+        colorVals = {
             ["table"] = {0.41,0.80,0.94,1},
             ["string"] = {0.67,0.83,0.45,1},
             ["number"] = {1,0.96,0.41,1},
@@ -175,7 +175,6 @@ local ViragDevTool = ViragDevTool
 --store the colors outside the database in a class level table
 ViragDevTool.colors = {}
 
-ViragDevTool.colors["white"] = CreateColorFromHexString("FFFFFFFF")
 ViragDevTool.colors["gray"] = CreateColorFromHexString("FFBEB9B5")
 ViragDevTool.colors["lightblue"] = CreateColorFromHexString("FF96C0CE")
 ViragDevTool.colors["lightgreen"] = CreateColorFromHexString("FF98FB98")
@@ -187,11 +186,11 @@ ViragDevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
 ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 
 --create the colors from the values stored in the database
-ViragDevTool.colors["table"] = CreateColor(unpack(ViragDevTool.default_settings.colors["table"]))
-ViragDevTool.colors["string"] = CreateColor(unpack(ViragDevTool.default_settings.colors["string"]))
-ViragDevTool.colors["number"] = CreateColor(unpack(ViragDevTool.default_settings.colors["number"]))
-ViragDevTool.colors["function"] = CreateColor(unpack(ViragDevTool.default_settings.colors["function"]))
-ViragDevTool.colors["default"] = CreateColor(unpack(ViragDevTool.default_settings.colors["default"]))
+ViragDevTool.colors["table"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["table"]))
+ViragDevTool.colors["string"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["string"]))
+ViragDevTool.colors["number"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["number"]))
+ViragDevTool.colors["function"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["function"]))
+ViragDevTool.colors["default"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["default"]))
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevToolLinkedList == ViragDevTool.list
@@ -723,11 +722,11 @@ function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
 
         resultStr = objectType or ""
         if hasSize then
-            resultStr = concat(self.colors.white:WrapTextInColorCode("[" ..
+            resultStr = concat("[" ..
                     tostring(self:round(left)) .. ", " ..
                     tostring(self:round(bottom)) .. ", " ..
                     tostring(self:round(width)) .. ", " ..
-                    tostring(self:round(height)) .. "]"))
+                    tostring(self:round(height)) .. "]")
         end
 
 
@@ -735,8 +734,8 @@ function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
             resultStr = self.colors.gray:WrapTextInColorCode(concat(name, "<", ">"))
         end
 
-        resultStr = self.colors.white:WrapTextInColorCode(concat(texture))
-        resultStr = self.colors.white:WrapTextInColorCode(concat(text, "'", "'"))
+        resultStr = concat(texture)
+        resultStr = concat(text, "'", "'")
         resultStr = self.colors.lightblue:WrapTextInColorCode(concat(tostring(value)))
     end
 
@@ -851,10 +850,6 @@ function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
 
     local currItem = data[lineplusoffset]
 
-    local colorForState = function(isActive)
-        return isActive and ViragDevTool.colors.white or ViragDevTool.colors.gray
-    end
-
     if selectedTab == "history" then
         -- history update
         local name = tostring(currItem)
@@ -871,18 +866,14 @@ function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
         local text = self:LogFunctionCallText(currItem)
 
         -- logs update
-        view:SetText(colorForState(currItem.active):WrapTextInColorCode(text))
         view:SetScript("OnMouseUp", function()
             ViragDevTool:ToggleFnLogger(currItem)
-            view:SetText(colorForState(currItem.active):WrapTextInColorCode(text))
         end)
 
     elseif selectedTab == "events" then
         -- events  update
-        view:SetText(colorForState(currItem.active):WrapTextInColorCode(currItem.event))
         view:SetScript("OnMouseUp", function()
             ViragDevTool:ToggleMonitorEvent(currItem)
-            view:SetText(colorForState(currItem.active):WrapTextInColorCode(currItem.event))
         end)
     end
 end
@@ -995,7 +986,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     end
 
     --constract collored full function call name
-    local fnNameWithArgs = C.white:WrapTextInColorCode(info.name) ..
+    local fnNameWithArgs = info.name ..
             C.lightblue:WrapTextInColorCode("(" .. self:argstostring(args) .. ")")
     fnNameWithArgs = parent and C.gray:WrapTextInColorCode(parent.name .. ":" .. fnNameWithArgs) or fnNameWithArgs
 
@@ -1012,7 +1003,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
         if found or i == 1 then -- if found some return or if return is nil
         nodes[i] = list:NewNode(results[i], string.format("  return: %d", i), padding)
 
-        returnFormatedStr = string.format(" %s (%s)%s", C.white:WrapTextInColorCode(tostring(results[i])),
+        returnFormatedStr = string.format(" %s (%s)%s", tostring(results[i]),
             C.lightblue:WrapTextInColorCode(type(results[i])), returnFormatedStr)
         end
     end
@@ -1161,13 +1152,11 @@ function ViragDevTool:OnAddonSettingsLoaded()
 
 
     --we store colors not in saved settings for now
-    --[[if s.colors then
-        for k,v in pairs(s.colors) do
-            if type(v) == "table" then
-                ViragDevTool.colors[k]:SetRGBA(unpack(v))
-            end
+    if s.colorVals then
+        for k,v in pairs(s.colorVals) do
+            self.colors[k]:SetRGBA(unpack(v))
         end
-    end]]
+    end
 
     self:LoadInterfaceOptions()
 
@@ -1179,7 +1168,7 @@ end
 -- UTILS
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:print(strText)
-    print(self.colors.darkred:WrapTextInColorCode("[Virag's DT]: ") .. self.colors.white:WrapTextInColorCode(strText))
+    print(self.colors.darkred:WrapTextInColorCode("[Virag's DT]: ") .. strText)
 end
 
 function ViragDevTool:split(sep)

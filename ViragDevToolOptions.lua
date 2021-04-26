@@ -50,10 +50,14 @@ function ViragDevTool:CreateColorPickerFrame(parent)
         button:SetText(color)
 
         button:SetScript("OnMouseUp", function(this, mouseButton)
-            if mouseButton == "LeftButton" then
+            if mouseButton == "RightButton" then
+                self.settings.colorVals[color] = self.default_settings.colorVals[color]
+                self.colors[color]:SetRGBA(unpack(self.default_settings.colorVals[color]))
+                update(this, color)
+            elseif mouseButton == "LeftButton" then
                 self:ShowColorPicker(color, function()
                     local r, g, b, a = ColorPickerFrame:GetColorRGB()
-                    self.default_settings.colors = {r,g,b,a}
+                    self.settings.colorVals[color] = {r,g,b,a}
                     self.colors[color]:SetRGBA(r,g,b,a)
                     update(this, color)
                 end)

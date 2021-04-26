@@ -35,7 +35,7 @@ function ViragDevTool:StartMonitorEvent(event, unit)
     local eventName = event
     if unit then eventName = eventName .. " " .. tostring(unit) end
     self:print(self.colors.green:WrapTextInColorCode("Start") ..
-            self.colors.white:WrapTextInColorCode(" event monitoring: ") ..
+            " event monitoring: " ..
             self.colors.lightblue:WrapTextInColorCode(eventName))
 end
 
@@ -61,7 +61,7 @@ function ViragDevTool:StopMonitorEvent(event, unit)
         if unit then eventName = eventName .. " " .. tostring(unit) end
 
         self:print(self.colors.red:WrapTextInColorCode("Stop") ..
-                self.colors.white:WrapTextInColorCode(" event monitoring: ") ..
+                " event monitoring: " ..
                 self.colors.lightblue:WrapTextInColorCode(eventName))
     end
 end

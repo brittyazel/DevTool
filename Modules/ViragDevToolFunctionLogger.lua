@@ -16,7 +16,7 @@ function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
         local tParent = self:FromStrToObject(strParentPath)
         if tParent == nil then
             self:print(self.colors.red:WrapTextInColorCode("Error: ") ..
-                    self.colors.white:WrapTextInColorCode("Cannot add function monitoring: ") ..
+                    "Cannot add function monitoring: " ..
                     self.colors.lightblue:WrapTextInColorCode("_G." .. tostring(strParentPath) .. " == nil"))
             return
         end
@@ -62,8 +62,8 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
                 local result = { savedOldFn(...) }
                 local args = { ... }
 
-                local fnNameWitArgs = ViragDevTool.colors.lightgreen:WrapTextInColorCode(fnName) ..
-                        ViragDevTool.colors.white:WrapTextInColorCode("(" .. self:argstostring(args) .. ")")
+                local fnNameWitArgs = self.colors.lightgreen:WrapTextInColorCode(fnName) ..
+                        "(" .. self:argstostring(args) .. ")"
                         --.. ViragDevTool.colors.lightblue
 
                 ViragDevTool_AddData({
@@ -77,7 +77,7 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
     end
 
     self:print(self.colors.green:WrapTextInColorCode("Start") ..
-            self.colors.white:WrapTextInColorCode(" function monitoring: ") ..
+            " function monitoring: " ..
             self.colors.lightblue:WrapTextInColorCode(self:LogFunctionCallText(info)))
     info.active = true
 end
@@ -94,7 +94,7 @@ function ViragDevTool:DeactivateLogFunctionCalls(info)
     end
 
     self:print(self.colors.red:WrapTextInColorCode("Stop") ..
-            self.colors.white:WrapTextInColorCode(" function monitoring: ") ..
+            " function monitoring: " ..
             self.colors.lightblue:WrapTextInColorCode(self:LogFunctionCallText(info)))
     info.active = false
 end
