@@ -34,7 +34,9 @@ function ViragDevTool:StartMonitorEvent(event, unit)
 
     local eventName = event
     if unit then eventName = eventName .. " " .. tostring(unit) end
-    self:print(self.colors.green .. "Start" .. self.colors.white .. " event monitoring: " .. self.colors.lightblue .. eventName)
+    self:print(self.colors.green:WrapTextInColorCode("Start") ..
+            self.colors.white:WrapTextInColorCode(" event monitoring: ") ..
+            self.colors.lightblue:WrapTextInColorCode(eventName))
 end
 
 function ViragDevTool:StopMonitorEvent(event, unit)
@@ -46,9 +48,9 @@ function ViragDevTool:StopMonitorEvent(event, unit)
         tEvent.active = false
         if event == "ALL"  then
             f:UnregisterAllEvents()
-            for _, tEvent in pairs(self.settings.events) do
-                if tEvent.active then
-                    self:StartMonitorEvent(tEvent.event, tEvent.unit)
+            for _, thisEvent in pairs(self.settings.events) do
+                if thisEvent.active then
+                    self:StartMonitorEvent(thisEvent.event, thisEvent.unit)
                 end
             end
         else
@@ -58,7 +60,9 @@ function ViragDevTool:StopMonitorEvent(event, unit)
         local eventName = event
         if unit then eventName = eventName .. " " .. tostring(unit) end
 
-        self:print(self.colors.red .. "Stop" .. self.colors.white .. " event monitoring: " .. self.colors.lightblue .. eventName)
+        self:print(self.colors.red:WrapTextInColorCode("Stop") ..
+                self.colors.white:WrapTextInColorCode(" event monitoring: ") ..
+                self.colors.lightblue:WrapTextInColorCode(eventName))
     end
 end
 
@@ -75,7 +79,7 @@ end
 function ViragDevTool:SetMonitorEventScript()
     local f = self:GetListenerFrame()
 
-    f:SetScript("OnEvent", function(this, ...)
+    f:SetScript("OnEvent", function(_, ...)
         local args = { ... }
         local event = args[1]
 		
@@ -87,7 +91,7 @@ function ViragDevTool:SetMonitorEventScript()
     end);
 end
 
-function ViragDevTool:GetMonitoredEvent(event, args)
+function ViragDevTool:GetMonitoredEvent(event)
 
     if self.settings == nil or self.settings.events == nil then return end
 

@@ -3,12 +3,12 @@ local ViragDevTool = ViragDevTool
 --TODO not implemented yet just an idea .Dont have time for this right now
 --- This class handles modules that can be registered in this addon.
 -- if you want to create custom module it has to implement following methods
--- module lifecicle is
+-- module lifecycle is
 -- 1) Register your module
 -- local newModule = ...
 -- ViragDevTool:AddModule(newModule)
 -- 2) for now every module gets module:Init() on startup
--- 3) every module gets module:Load() if user clics on module tab
+-- 3) every module gets module:Load() if user clicks on module tab
 -- 4) module:UnLoad() if user clicks on some other tab other then your modules
 -- 5) module:UpdateModuleUI(sideFrame) can be called at any time
 --    and here you have to update sidebar scroll list items
