@@ -565,28 +565,28 @@
 
                 </Scripts>
 
-                <NormalTexture alphaMode="BLEND">
+                <NormalTexture>
                     <Anchors>
                         <Anchor point="TOPRIGHT" x="-6" y="-1"/>
                         <Anchor point="BOTTOMLEFT" x="6" y="4"/>
                     </Anchors>
-                    <Color r=".9" g=".9" b=".9" a="0.3"/>
+                    <Color r="0.9" g="0.9" b="0.9" a="0.3"/>
                 </NormalTexture>
 
-                <HighlightTexture alphaMode="BLEND">
+                <HighlightTexture>
                     <Anchors>
                         <Anchor point="TOPRIGHT" x="-5" y="0"/>
                         <Anchor point="BOTTOMLEFT" x="5" y="3"/>
                     </Anchors>
-                    <Color r="1" g=".9" b=".9" a="0.5"/>
+                    <Color r="1" g="0.9" b="0.9" a="0.5"/>
 
                 </HighlightTexture>
-                <PushedTexture alphaMode="BLEND">
+                <PushedTexture>
                     <Anchors>
                         <Anchor point="TOPRIGHT" x="-5" y="0"/>
                         <Anchor point="BOTTOMLEFT" x="5" y="3"/>
                     </Anchors>
-                    <Color r="1" g=".9" b=".9" a="0.5"/>
+                    <Color r="1" g="0.9" b="0.9" a="0.5"/>
 
                 </PushedTexture>
             </Button>

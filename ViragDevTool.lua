@@ -731,7 +731,7 @@ function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
 
 
         if helperText ~= name then
-            resultStr = concat(self.colors.lightblue:WrapTextInColorCode(name), self.colors.gray:WrapTextInColorCode("<"), self.colors.gray:WrapTextInColorCode(">"))
+            resultStr = concat(name, self.colors.gray:WrapTextInColorCode("<"), self.colors.gray:WrapTextInColorCode(">"))
         end
 
         resultStr = concat(texture)
