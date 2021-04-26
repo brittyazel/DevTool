@@ -26,7 +26,7 @@ function ViragDevTool:AddToHistory(strValue)
         end
 
         while #hist > maxSize do -- can have only 10 values in history
-        table.remove(hist, maxSize)
+            table.remove(hist, maxSize)
         end
 
         self:UpdateSideBarUI()

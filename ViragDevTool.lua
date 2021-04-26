@@ -447,7 +447,7 @@ function ViragDevTool:SortFnForCells(nodeList)
     end
 
     if #nodeList > 20000 then --  just optimisation for _G
-    cmpFn = function(a, b) return a.name < b.name end
+        cmpFn = function(a, b) return a.name < b.name end
     end
     --lets try some better sorting if we have small number of records
     --numbers will be sorted not like 1,10,2 but like 1,2,10
@@ -524,7 +524,7 @@ function ViragDevTool:ResizeMainFrame(dragFrame)
 
 
     parentFrame:SetSize(self:CalculatePosition(x - left, minX, maxX),
-        self:CalculatePosition(top - y, minY, maxY))
+            self:CalculatePosition(top - y, minY, maxY))
 end
 
 
@@ -731,12 +731,12 @@ function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
 
 
         if helperText ~= name then
-            resultStr = self.colors.gray:WrapTextInColorCode(concat(name, "<", ">"))
+            resultStr = concat(self.colors.lightblue:WrapTextInColorCode(name), self.colors.gray:WrapTextInColorCode("<"), self.colors.gray:WrapTextInColorCode(">"))
         end
 
         resultStr = concat(texture)
         resultStr = concat(text, "'", "'")
-        resultStr = self.colors.lightblue:WrapTextInColorCode(concat(tostring(value)))
+        resultStr = concat(tostring(value))
     end
 
     return resultStr
@@ -974,21 +974,21 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 
     self:ColapseCell(info) -- if we already called this fn remove old results
 
-    local C = self.colors
+
     local list = self.list
     local padding = info.padding + 1
 
     local stateStr = function(state)
         if state then
-            return C.ok:WrapTextInColorCode("OK")
+            return self.colors.ok:WrapTextInColorCode("OK")
         end
-        return C.error:WrapTextInColorCode("ERROR")
+        return self.colors.error:WrapTextInColorCode("ERROR")
     end
 
     --constract collored full function call name
-    local fnNameWithArgs = info.name ..
-            C.lightblue:WrapTextInColorCode("(" .. self:argstostring(args) .. ")")
-    fnNameWithArgs = parent and C.gray:WrapTextInColorCode(parent.name .. ":" .. fnNameWithArgs) or fnNameWithArgs
+    local fnNameWithArgs = info.name .. self.colors.lightblue:WrapTextInColorCode("(" .. self:argstostring(args) .. ")")
+
+    fnNameWithArgs = parent and self.colors.gray:WrapTextInColorCode(parent.name .. ":" .. fnNameWithArgs) or fnNameWithArgs
 
     local returnFormatedStr = ""
 
@@ -1001,16 +1001,16 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
         end
 
         if found or i == 1 then -- if found some return or if return is nil
-        nodes[i] = list:NewNode(results[i], string.format("  return: %d", i), padding)
+            nodes[i] = list:NewNode(results[i], string.format("  return: %d", i), padding)
 
-        returnFormatedStr = string.format(" %s (%s)%s", tostring(results[i]),
-            C.lightblue:WrapTextInColorCode(type(results[i])), returnFormatedStr)
+            returnFormatedStr = string.format(" %s (%s)%s", tostring(results[i]),
+                    self.colors.lightblue:WrapTextInColorCode(type(results[i])), returnFormatedStr)
         end
     end
 
     -- create fist node of result info no need for now. will use debug
     table.insert(nodes, 1, list:NewNode(string.format("%s - %s", stateStr(ok), fnNameWithArgs), -- node value
-        date("%X") .. " function call results:", padding))
+            date("%X") .. " function call results:", padding))
 
 
     -- adds call result to our UI list
@@ -1018,7 +1018,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     self:UpdateMainTableUI()
 
     --print info to chat
-    self:print(stateStr(ok) .. " " .. fnNameWithArgs .. C.gray:WrapTextInColorCode(" returns:") .. returnFormatedStr)
+    self:print(stateStr(ok) .. " " .. fnNameWithArgs .. self.colors.gray:WrapTextInColorCode(" returns:") .. returnFormatedStr)
 end
 
 -----------------------------------------------------------------------------------------------
@@ -1216,16 +1216,3 @@ function ViragDevTool:round(num, idp)
     local mult = 10 ^ (idp or 0)
     return math.floor(num * mult + 0.5) / mult
 end
-
---[[function ViragDevTool:RGBPercToHex(r, g, b, a)
-    r = r <= 1 and r >= 0 and r or 0
-    g = g <= 1 and g >= 0 and g or 0
-    b = b <= 1 and b >= 0 and b or 0
-    a = a <= 1 and a >= 0 and a or 0
-    return string.format("%02x%02x%02x%02x", a * 255, r * 255, g * 255, b * 255)
-end]]
-
---[[local function HexToRGBPerc(hex)
-    local rhex, ghex, bhex = string.sub(hex, 1, 2), string.sub(hex, 3, 4), string.sub(hex, 5, 6)
-    return tonumber(rhex, 16) / 255, tonumber(ghex, 16) / 255, tonumber(bhex, 16) / 255
-end]]

@@ -82,8 +82,8 @@ function ViragDevTool:SetMonitorEventScript()
     f:SetScript("OnEvent", function(_, ...)
         local args = { ... }
         local event = args[1]
-		
-		local showAllEvents = ViragDevTool:GetMonitoredEvent("ALL")
+
+        local showAllEvents = ViragDevTool:GetMonitoredEvent("ALL")
         if ViragDevTool:GetMonitoredEvent(event) or (showAllEvents and showAllEvents.active) then
             if #args == 1 then args = args[1] end
             ViragDevTool:Add(args, date("%X") .. " " .. event)
