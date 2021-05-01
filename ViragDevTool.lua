@@ -67,15 +67,14 @@ function ViragDevTool:OnEnable()
         self:UpdateSideBarUI()
     end
 
-    -- register slash cmd
-    SLASH_VIRAGDEVTOOLS1 = '/vdt';
-    function SlashCmdList.VIRAGDEVTOOLS(msg)
+    self:RegisterChatCommand("vdt",  function(msg)
         if msg == "" or msg == nil then
             self:ToggleUI()
         else
             self:ExecuteCMD(msg, true)
         end
-    end
+    end)
+
 
 end
 
