@@ -8,13 +8,14 @@
 Libs\embeds.xml
 
 ViragDevTool.lua
+ViragDevTool.xml
+
+ViragDevToolDefaults.lua
 
 Modules\ViragDevToolModulesCore.lua
 Modules\ViragDevToolEvents.lua
 Modules\ViragDevToolFunctionLogger.lua
 Modules\ViragDevToolHistory.lua
-
-ViragDevTool.xml
 
 ViragDevToolOptions.xml
 ViragDevToolOptions.lua
