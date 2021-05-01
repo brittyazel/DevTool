@@ -3,22 +3,22 @@ local ViragDevTool = ViragDevTool
 function ViragDevTool:ToggleOptions()
     --   InterfaceOptionsFrame_OpenToCategory(ViragDevTool.ADDON_NAME);
     self:LoadInterfaceOptions()
-    self:Toggle(self.wndRef.optionsFrame)
+    self:Toggle(ViragDevToolFrame.optionsFrame)
 end
 
 
 function ViragDevTool:LoadInterfaceOptions()
-    if not self.wndRef.optionsFrame then
-        local frame = CreateFrame("Frame", "ViragDevToolOptionsMainFrame", self.wndRef, "ViragDevToolOptionsFrameRowTemplate")
-        frame:SetPoint("BOTTOM", self.wndRef, "TOP")
+    if not ViragDevToolFrame.optionsFrame then
+        local frame = CreateFrame("Frame", "ViragDevToolOptionsMainFrame", ViragDevToolFrame, "ViragDevToolOptionsFrameRowTemplate")
+        frame:SetPoint("BOTTOM", ViragDevToolFrame, "TOP")
         frame:SetHeight(35)
         frame:SetPoint("LEFT")
         frame:SetPoint("RIGHT")
         frame:Hide()
 
         self:CreateColorPickerFrame(frame)
-        self.wndRef.optionsFrame = frame
-        --self.wndRef.optionsFrame.name = self.ADDON_NAME;
+        ViragDevToolFrame.optionsFrame = frame
+        --ViragDevToolFrame.optionsFrame.name = self.ADDON_NAME;
         --InterfaceOptions_AddCategory(frame);
         --InterfaceAddOnsList_Update();
         --InterfaceOptionsFrame_OpenToCategory(ViragDevTool.ADDON_NAME);

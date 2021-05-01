@@ -4,18 +4,164 @@ pairs, tostring, type, print, string, getmetatable, table, pcall, unpack, tonumb
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update =
 HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
--- create global instance
-ViragDevTool = {
-    --static constant useed for metatable name
-    METATABLE_NAME = "$metatable",
-    METATABLE_NAME2 = "$metatable.__index",
-    ADDON_NAME = "ViragDevTool",
+---@class Neuron @define The main addon object for the Neuron Action Bar addon
+ViragDevTool = LibStub("AceAddon-3.0"):NewAddon("ViragDevTool", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0")
+-- just remove global reference so it is easy to read with my ide
+local ViragDevTool = ViragDevTool
 
+--static constant used for metatable name
+ViragDevTool.METATABLE_NAME = "$metatable"
+ViragDevTool.METATABLE_NAME2 = "$metatable.__index"
+ViragDevTool.ADDON_NAME = "ViragDevTool"
+
+--store the colors outside the database in a class level table
+ViragDevTool.colors = {}
+ViragDevTool.colors["gray"] = CreateColorFromHexString("FFBEB9B5")
+ViragDevTool.colors["lightblue"] = CreateColorFromHexString("FF96C0CE")
+ViragDevTool.colors["lightgreen"] = CreateColorFromHexString("FF98FB98")
+ViragDevTool.colors["red"] = CreateColorFromHexString("FFFF0000")
+ViragDevTool.colors["green"] = CreateColorFromHexString("FF00FF00")
+ViragDevTool.colors["darkred"] = CreateColorFromHexString("FFC25B56")
+ViragDevTool.colors["parent"] = CreateColorFromHexString("FFBEB9B5")
+ViragDevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
+ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
+
+
+-------------------------------------------------------------------------
+--------------------Start of Functions-----------------------------------
+-------------------------------------------------------------------------
+
+--- **OnInitialize**, which is called directly after the addon is fully loaded.
+--- do init tasks here, like loading the Saved Variables
+--- or setting up slash commands.
+function ViragDevTool:OnInitialize()
+    self:CreateDefaultOptions()
+end
+
+--- **OnEnable** which gets called during the PLAYER_LOGIN event, when most of the data provided by the game is already present.
+--- Do more initialization here, that really enables the use of your addon.
+--- Register Events, Hook functions, Create Frames, Get information from
+--- the game that wasn't available in OnInitialize
+function ViragDevTool:OnEnable()
+    self:CreateChatCommands()
+
+    ViragDevToolFrame = CreateFrame("Frame","ViragDevToolFrame", UIParent, "ViragDevToolMainFrame")
+
+    --create the colors from the values stored in the database
+    self.colors["table"] = CreateColor(unpack(self.default_settings.colorVals["table"]))
+    self.colors["string"] = CreateColor(unpack(self.default_settings.colorVals["string"]))
+    self.colors["number"] = CreateColor(unpack(self.default_settings.colorVals["number"]))
+    self.colors["function"] = CreateColor(unpack(self.default_settings.colorVals["function"]))
+    self.colors["default"] = CreateColor(unpack(self.default_settings.colorVals["default"]))
+
+
+    self:OnAddonSettingsLoaded()
+    self:UpdateUI()
+
+    --register update scrollFrame
+    ViragDevToolFrame.scrollFrame.update = function()
+        self:ForceUpdateMainTableUI()
+    end
+
+    ViragDevToolFrame.sideFrame.sideScrollFrame.update = function()
+        self:UpdateSideBarUI()
+    end
+
+    -- register slash cmd
+    SLASH_VIRAGDEVTOOLS1 = '/vdt';
+    function SlashCmdList.VIRAGDEVTOOLS(msg)
+        if msg == "" or msg == nil then
+            self:ToggleUI()
+        else
+            self:ExecuteCMD(msg, true)
+        end
+    end
+
+end
+
+--- **OnDisable**, which is only called when your addon is manually being disabled.
+--- Unhook, Unregister Events, Hide frames that you created.
+--- You would probably only use an OnDisable if you want to
+--- build a "standby" mode, or be able to toggle modules on/off.
+function ViragDevTool:OnDisable()
+
+end
+
+-------------------------------------------------
+
+function ViragDevTool:CreateDefaultOptions()
+    -- Default settings
+    -- this variable will be used only on first load so it is just default init with empty values.
+    -- will be replaced with ViragDevTool_Settings at 2-nd start
+    self.default_settings = {
+        -- selected list in gui. one of 3 list from settings: history or function call logs or events
+        sideBarTabSelected = "history",
+
+        -- UI saved state
+        isWndOpen = true,
+        isSideBarOpen = false,
+
+        -- stores history of recent calls to /vdt
+        MAX_HISTORY_SIZE = 50,
+        collResizerPosition = 450,
+        history = {
+            -- examples
+            "find LFR",
+            "find SLASH",
+            "find Data ViragDevTool",
+            "startswith Virag",
+            "ViragDevTool.settings.history",
+        },
+        logs = {--{
+            --    fnName = "functionNameHere",
+            --    parentTableName = "ViragDevTool.sometable",
+            --    active = false
+            --},
+        },
+
+        -- stores arguments for function calls --todo implement
+        tArgs = {},
+        fontSize = 10, -- font size for default table
+        colorVals = {
+            ["table"] = {0.41,0.80,0.94,1},
+            ["string"] = {0.67,0.83,0.45,1},
+            ["number"] = {1,0.96,0.41,1},
+            ["function"] =  {1,0.49,0.04,1},
+            ["default"] = {1,1,1,1},
+        },
+
+        -- events to monitor
+        -- format ({event = "EVENT_NAME", unit = "player", active = true}, ...)
+        -- default events inactive
+        events = {
+            {
+                event = "ALL",
+                active = false
+            },
+            {
+                event = "CURSOR_UPDATE",
+                active = false
+            },
+            {
+                event = "UNIT_AURA",
+                unit = "player",
+                active = false
+            },
+            {
+                event = "CHAT_MSG_CHANNEL",
+                active = false
+            }
+        },
+    }
+end
+
+
+function ViragDevTool:CreateChatCommands()
     -- you can use /vdt find somestr parentname(can be in format _G.Frame.Button)
-    -- for examle "/vdt find Virag" will find every variable in _G that has *Virag* pattern
+    -- for example "/vdt find Virag" will find every variable in _G that has *Virag* pattern
     -- "/vdt find Data ViragDevTool" will find every variable that has *Data* in their name in _G.ViragDevTool object if it exists
     -- same for "startswith"
-    CMD = {
+    self.CMD = {
         --"/vdt help"
         HELP = function()
 
@@ -100,97 +246,142 @@ ViragDevTool = {
             ViragDevToolFrame:SetPoint("CENTER", UIParent)
             ViragDevToolFrame:SetSize(635, 200)
         end
-    },
-
-    -- Default settings
-    -- this variable will be used only on first load so it is just default init with empty values.
-    -- will be replaced with ViragDevTool_Settings at 2-nd start
-    default_settings = {
-        -- selected list in gui. one of 3 list from settings: history or function call logs or events
-        sideBarTabSelected = "history",
-
-        -- UI saved state
-        isWndOpen = true,
-        isSideBarOpen = false,
-
-        -- stores history of recent calls to /vdt
-        MAX_HISTORY_SIZE = 50,
-        collResizerPosition = 450,
-        history = {
-            -- examples
-            "find LFR",
-            "find SLASH",
-            "find Data ViragDevTool",
-            "startswith Virag",
-            "ViragDevTool.settings.history",
-        },
-        logs = {--{
-            --    fnName = "functionNameHere",
-            --    parentTableName = "ViragDevTool.sometable",
-            --    active = false
-            --},
-        },
-
-        -- stores arguments for function calls --todo implement
-        tArgs = {},
-        fontSize = 10, -- font size for default table
-        colorVals = {
-            ["table"] = {0.41,0.80,0.94,1},
-            ["string"] = {0.67,0.83,0.45,1},
-            ["number"] = {1,0.96,0.41,1},
-            ["function"] =  {1,0.49,0.04,1},
-            ["default"] = {1,1,1,1},
-        },
-
-        -- events to monitor
-        -- format ({event = "EVENT_NAME", unit = "player", active = true}, ...)
-        -- default events inactive
-        events = {
-            {
-                event = "ALL",
-                active = false
-            },
-            {
-                event = "CURSOR_UPDATE",
-                active = false
-            },
-            {
-                event = "UNIT_AURA",
-                unit = "player",
-                active = false
-            },
-            {
-                event = "CHAT_MSG_CHANNEL",
-                active = false
-            }
-        },
     }
-}
--- just remove global reference so it is easy to read with my ide
-local ViragDevTool = ViragDevTool
+
+end
 
 -----------------------------------------------------------------------------------------------
--- ViragDevTool.colors additional setup
+-- LIFECYCLE
 -----------------------------------------------------------------------------------------------
---store the colors outside the database in a class level table
-ViragDevTool.colors = {}
 
-ViragDevTool.colors["gray"] = CreateColorFromHexString("FFBEB9B5")
-ViragDevTool.colors["lightblue"] = CreateColorFromHexString("FF96C0CE")
-ViragDevTool.colors["lightgreen"] = CreateColorFromHexString("FF98FB98")
-ViragDevTool.colors["red"] = CreateColorFromHexString("FFFF0000")
-ViragDevTool.colors["green"] = CreateColorFromHexString("FF00FF00")
-ViragDevTool.colors["darkred"] = CreateColorFromHexString("FFC25B56")
-ViragDevTool.colors["parent"] = CreateColorFromHexString("FFBEB9B5")
-ViragDevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
-ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
+function ViragDevTool:OnAddonSettingsLoaded()
+    local s = ViragDevTool_Settings
 
---create the colors from the values stored in the database
-ViragDevTool.colors["table"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["table"]))
-ViragDevTool.colors["string"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["string"]))
-ViragDevTool.colors["number"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["number"]))
-ViragDevTool.colors["function"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["function"]))
-ViragDevTool.colors["default"] = CreateColor(unpack(ViragDevTool.default_settings.colorVals["default"]))
+    if s == nil then
+        s = self.default_settings
+        ViragDevTool_Settings = s
+    else
+        -- validating current settings and updating if version changed
+
+        for k, defaultValue in pairs(self.default_settings) do
+            local savedValue = s[k] -- saved value from "newSettings"
+
+            -- if setting is a table of size 0 or if value is nil set it to default
+            -- for now we have only arrays in settings so its fine to use #table
+            if (type(savedValue) == "table" and self:tablelength(savedValue) == 0)
+                    or savedValue == nil then
+
+                s[k] = defaultValue
+            end
+        end
+    end
+
+    --save to local var, so it is easy to use
+    self.settings = s
+
+    -- refresh gui
+
+    -- setup open o closed main wnd
+    self:SetVisible(ViragDevToolFrame, s.isWndOpen)
+
+    -- setup open or closed sidebar
+    self:SetVisible(ViragDevToolFrame.sideFrame, s.isSideBarOpen)
+
+    -- setup selected sidebar tab history/events/logs
+    self:EnableSideBarTab(s.sideBarTabSelected)
+
+    -- setup logs. Just disable all of them for now on startup
+    for _, tLog in pairs(self.settings.logs) do
+        tLog.active = false
+    end
+
+    -- setup events part 1 register listeners
+    for _, tEvent in pairs(self.settings.events) do
+        if tEvent.active then
+            self:StartMonitorEvent(tEvent.event, tEvent.unit)
+        end
+    end
+
+    -- show in UI fn saved args if you have them
+    local args = ""
+    local delim = ""
+    for _, arg in pairs(s.tArgs) do
+        args = tostring(arg) .. delim .. args
+        delim = ", "
+    end
+
+    ViragDevToolFrame.editbox:SetText(args)
+
+    -- setup events part 2 set scripts on frame to listen registered events
+    self:SetMonitorEventScript()
+
+
+    --we store colors not in saved settings for now
+    if s.colorVals then
+        for k,v in pairs(s.colorVals) do
+            self.colors[k]:SetRGBA(unpack(v))
+        end
+    end
+
+    self:LoadInterfaceOptions()
+
+    ViragDevToolFrame.columnResizer:SetPoint("TOPLEFT", ViragDevToolFrame, "TOPLEFT", s.collResizerPosition, -30)
+
+end
+
+
+-----------------------------------------------------------------------------------------------
+-- UTILS
+-----------------------------------------------------------------------------------------------
+function ViragDevTool:print(strText)
+    print(self.colors.darkred:WrapTextInColorCode("[Virag's DT]: ") .. strText)
+end
+
+function ViragDevTool:split(sep)
+    local separator, fields
+    separator, fields = sep or ".", {}
+    local pattern = string.format("([^%s]+)", separator)
+    self:gsub(pattern, function(c) fields[#fields + 1] = c
+    end)
+    return fields
+end
+
+function ViragDevTool.starts(String, Start)
+    return string.sub(String, 1, string.len(Start)) == Start
+end
+
+function ViragDevTool.ends(String, End)
+    return End == '' or string.sub(String, -string.len(End)) == End
+end
+
+function ViragDevTool:tablelength(T)
+    local count = 0
+    for _ in pairs(T) do count = count + 1
+    end
+    return count
+end
+
+function ViragDevTool:argstostring(args)
+    local strArgs = ""
+    local found = false
+    local delimiter = ""
+    for i = 10, 1, -1 do
+        if args[i] ~= nil then found = true
+        end
+
+        if found then
+            strArgs = tostring(args[i]) .. delimiter .. strArgs
+            delimiter = ", "
+        end
+    end
+    return strArgs
+end
+
+function ViragDevTool:round(num, idp)
+    if num == nil then return nil end
+    local mult = 10 ^ (idp or 0)
+    return math.floor(num * mult + 0.5) / mult
+end
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevToolLinkedList == ViragDevTool.list
@@ -483,8 +674,8 @@ function ViragDevTool:UpdateUI()
 end
 
 function ViragDevTool:ToggleUI()
-    self:Toggle(self.wndRef)
-    self.settings.isWndOpen = self.wndRef:IsVisible()
+    self:Toggle(ViragDevToolFrame)
+    self.settings.isWndOpen = ViragDevToolFrame:IsVisible()
     if self.settings.isWndOpen then
         self:UpdateUI()
     end
@@ -571,15 +762,14 @@ end
 
 function ViragDevTool:UpdateMainTableUI(force)
     -- Start of performance checks
-    if not self.initialized then return end
-    if not self.wndRef.scrollFrame:IsVisible() then return end
+    if not ViragDevToolFrame.scrollFrame:IsVisible() then return end
     if not force then
         self:UpdateMainTableUIOptimized()
         return
     end
     -- End of performance checks
 
-    local scrollFrame = self.wndRef.scrollFrame
+    local scrollFrame = ViragDevToolFrame.scrollFrame
     self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolEntryTemplate")
     self:UpdateScrollFrameRowSize(scrollFrame)
 
@@ -777,13 +967,13 @@ end
 -- Sidebar UI
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:ToggleSidebar()
-    self:Toggle(self.wndRef.sideFrame)
-    self.settings.isSideBarOpen = self.wndRef.sideFrame:IsVisible()
+    self:Toggle(ViragDevToolFrame.sideFrame)
+    self.settings.isSideBarOpen = ViragDevToolFrame.sideFrame:IsVisible()
     self:UpdateSideBarUI()
 end
 
 function ViragDevTool:SubmitEditBoxSidebar()
-    local edditBox = self.wndRef.sideFrame.editbox
+    local edditBox = ViragDevToolFrame.sideFrame.editbox
     local msg = edditBox:GetText()
     local selectedTab = self.settings.sideBarTabSelected
     local cmd = msg
@@ -800,7 +990,7 @@ end
 
 function ViragDevTool:EnableSideBarTab(tabStrName)
     --Update ui
-    local sidebar = self.wndRef.sideFrame
+    local sidebar = ViragDevToolFrame.sideFrame
     sidebar.history:SetChecked(false)
     sidebar.events:SetChecked(false)
     sidebar.logs:SetChecked(false)
@@ -814,8 +1004,7 @@ function ViragDevTool:EnableSideBarTab(tabStrName)
 end
 
 function ViragDevTool:UpdateSideBarUI()
-    if not self.initialized then return end
-    local scrollFrame = self.wndRef.sideFrame.sideScrollFrame
+    local scrollFrame = ViragDevToolFrame.sideFrame.sideScrollFrame
 
     self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolSideBarRowTemplate")
 
@@ -1047,172 +1236,4 @@ function ViragDevTool:SetArgForFunctionCallFromString(argStr)
 
     self.settings.tArgs = args
     self:Add(args, "New Args for function calls")
-end
-
------------------------------------------------------------------------------------------------
--- LIFECYCLE
------------------------------------------------------------------------------------------------
-function ViragDevTool:OnLoad(mainFrame)
-    self.wndRef = mainFrame
-
-    self.wndRef:RegisterEvent("ADDON_LOADED")
-    self.wndRef:RegisterEvent("PLAYER_ENTERING_WORLD") --VARIABLES_LOADED
-    self.wndRef:SetScript("OnEvent", function(_, event, addonName, ...)
-        if event == "ADDON_LOADED" and addonName == self.ADDON_NAME then
-            self:OnAddonSettingsLoaded()
-        end
-
-        if event == "PLAYER_ENTERING_WORLD" then
-            self.initialized = true
-            self:UpdateUI()
-        end
-    end);
-
-    --register update scrollFrame
-    self.wndRef.scrollFrame.update = function()
-        self:ForceUpdateMainTableUI()
-    end
-
-    self.wndRef.sideFrame.sideScrollFrame.update = function()
-        self:UpdateSideBarUI()
-    end
-
-    -- register slash cmd
-    SLASH_VIRAGDEVTOOLS1 = '/vdt';
-    function SlashCmdList.VIRAGDEVTOOLS(msg)
-        if msg == "" or msg == nil then
-            self:ToggleUI()
-        else
-            self:ExecuteCMD(msg, true)
-        end
-    end
-
-end
-
-function ViragDevTool:OnAddonSettingsLoaded()
-    local s = ViragDevTool_Settings
-
-    if s == nil then
-        s = self.default_settings
-        ViragDevTool_Settings = s
-    else
-        -- validating current settings and updating if version changed
-
-        for k, defaultValue in pairs(self.default_settings) do
-            local savedValue = s[k] -- saved value from "newSettings"
-
-            -- if setting is a table of size 0 or if value is nil set it to default
-            -- for now we have only arrays in settings so its fine to use #table
-            if (type(savedValue) == "table" and self:tablelength(savedValue) == 0)
-                    or savedValue == nil then
-
-                s[k] = defaultValue
-            end
-        end
-    end
-
-    --save to local var, so it is easy to use
-    self.settings = s
-
-    -- refresh gui
-
-    -- setup open o closed main wnd
-    self:SetVisible(self.wndRef, s.isWndOpen)
-
-    -- setup open or closed sidebar
-    self:SetVisible(self.wndRef.sideFrame, s.isSideBarOpen)
-
-    -- setup selected sidebar tab history/events/logs
-    self:EnableSideBarTab(s.sideBarTabSelected)
-
-    -- setup logs. Just disable all of them for now on startup
-    for _, tLog in pairs(self.settings.logs) do
-        tLog.active = false
-    end
-
-    -- setup events part 1 register listeners
-    for _, tEvent in pairs(self.settings.events) do
-        if tEvent.active then
-            self:StartMonitorEvent(tEvent.event, tEvent.unit)
-        end
-    end
-
-    -- show in UI fn saved args if you have them
-    local args = ""
-    local delim = ""
-    for _, arg in pairs(s.tArgs) do
-        args = tostring(arg) .. delim .. args
-        delim = ", "
-    end
-
-    self.wndRef.editbox:SetText(args)
-
-    -- setup events part 2 set scripts on frame to listen registered events
-    self:SetMonitorEventScript()
-
-
-    --we store colors not in saved settings for now
-    if s.colorVals then
-        for k,v in pairs(s.colorVals) do
-            self.colors[k]:SetRGBA(unpack(v))
-        end
-    end
-
-    self:LoadInterfaceOptions()
-
-    self.wndRef.columnResizer:SetPoint("TOPLEFT", self.wndRef, "TOPLEFT", s.collResizerPosition, -30)
-
-end
-
------------------------------------------------------------------------------------------------
--- UTILS
------------------------------------------------------------------------------------------------
-function ViragDevTool:print(strText)
-    print(self.colors.darkred:WrapTextInColorCode("[Virag's DT]: ") .. strText)
-end
-
-function ViragDevTool:split(sep)
-    local separator, fields
-    separator, fields = sep or ".", {}
-    local pattern = string.format("([^%s]+)", separator)
-    self:gsub(pattern, function(c) fields[#fields + 1] = c
-    end)
-    return fields
-end
-
-function ViragDevTool.starts(String, Start)
-    return string.sub(String, 1, string.len(Start)) == Start
-end
-
-function ViragDevTool.ends(String, End)
-    return End == '' or string.sub(String, -string.len(End)) == End
-end
-
-function ViragDevTool:tablelength(T)
-    local count = 0
-    for _ in pairs(T) do count = count + 1
-    end
-    return count
-end
-
-function ViragDevTool:argstostring(args)
-    local strArgs = ""
-    local found = false
-    local delimiter = ""
-    for i = 10, 1, -1 do
-        if args[i] ~= nil then found = true
-        end
-
-        if found then
-            strArgs = tostring(args[i]) .. delimiter .. strArgs
-            delimiter = ", "
-        end
-    end
-    return strArgs
-end
-
-function ViragDevTool:round(num, idp)
-    if num == nil then return nil end
-    local mult = 10 ^ (idp or 0)
-    return math.floor(num * mult + 0.5) / mult
 end

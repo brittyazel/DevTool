@@ -298,22 +298,19 @@
 
 
     <!--*********************************************************************************************************
-                                                      MAIN UI  enableMouse="true"
-
+                                                         MAIN UI
      *********************************************************************************************************-->
 
-    <Frame name="ViragDevToolFrame" inherits="ViragDevToolFrameTemplate" parent="UIParent" movable="true"
-           resizable="true">
-        <Size x="635" y="200"/>
+    <Frame name="ViragDevToolMainFrame" inherits="ViragDevToolFrameTemplate" hidden="true" movable="true"
+           resizable="true" virtual="true">
+        <Size x="635" y="500"/>
         <Anchors>
             <Anchor point="CENTER"/>
         </Anchors>
         <Scripts>
             <OnLoad>
-
-                ViragDevTool:OnLoad(self)
                 self:SetUserPlaced(true)
-                self:SetMinResize(635, 200);
+                self:SetMinResize(635, 400);
                 self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight());
                 self:RegisterForDrag("LeftButton");
             </OnLoad>
