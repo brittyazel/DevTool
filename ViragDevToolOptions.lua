@@ -51,13 +51,13 @@ function ViragDevTool:CreateColorPickerFrame(parent)
 
         button:SetScript("OnMouseUp", function(this, mouseButton)
             if mouseButton == "RightButton" then
-                self.settings.colorVals[color] = self.default_settings.colorVals[color]
-                self.colors[color]:SetRGBA(unpack(self.default_settings.colorVals[color]))
+                self.db.profile.colorVals[color] = ViragDevTool_defaults.profile.colorVals[color]
+                self.colors[color]:SetRGBA(unpack(ViragDevTool_defaults.profile.colorVals[color]))
                 update(this, color)
             elseif mouseButton == "LeftButton" then
                 self:ShowColorPicker(color, function()
                     local r, g, b, a = ColorPickerFrame:GetColorRGB()
-                    self.settings.colorVals[color] = {r,g,b,a}
+                    self.db.profile.colorVals[color] = {r,g,b,a}
                     self.colors[color]:SetRGBA(r,g,b,a)
                     update(this, color)
                 end)
@@ -84,16 +84,16 @@ function ViragDevTool:CreateColorPickerFrame(parent)
     button:SetPoint("TOP", parent, "TOP", -5, -5)
     button:SetPoint("BOTTOM", parent, "BOTTOM", -5, 5)
 
-    updateFontSize(button, self.settings.fontSize)
+    updateFontSize(button, self.db.profile.fontSize)
     button:SetScript("OnMouseUp", function(this, mouseButton)
         if mouseButton == "RightButton" then
-            self.settings.fontSize = self.settings.fontSize - 1
+            self.db.profile.fontSize = self.db.profile.fontSize - 1
 
         elseif mouseButton == "LeftButton" then
-            self.settings.fontSize = self.settings.fontSize + 1
+            self.db.profile.fontSize = self.db.profile.fontSize + 1
         end
 
-        updateFontSize(this, self.settings.fontSize )
+        updateFontSize(this, self.db.profile.fontSize )
 
     end)
 end

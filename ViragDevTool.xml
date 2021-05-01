@@ -382,7 +382,7 @@
                     <OnClick>
                         -- clear args
                         ViragDevTool:SetArgForFunctionCallFromString("")
-                        ViragDevTool:print("Old args cleaned: " .. self:GetParent().editbox:GetText())
+                        ViragDevTool:Print("Old args cleaned: " .. self:GetParent().editbox:GetText())
                         self:GetParent().editbox:SetText("")
                     </OnClick>
                 </Scripts>
@@ -397,7 +397,7 @@
                 <Scripts>
                     <OnEnterPressed>
                         ViragDevTool:SetArgForFunctionCallFromString(self:GetText())
-                        ViragDevTool:print("New arguments: " .. self:GetText())
+                        ViragDevTool:Print("New arguments: " .. self:GetText())
                         self:ClearFocus();
                     </OnEnterPressed>
                     <OnEscapePressed>

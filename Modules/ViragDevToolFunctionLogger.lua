@@ -15,7 +15,7 @@ function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
 
         local tParent = self:FromStrToObject(strParentPath)
         if tParent == nil then
-            self:print(self.colors.red:WrapTextInColorCode("Error: ") ..
+            self:Print(self.colors.red:WrapTextInColorCode("Error: ") ..
                     "Cannot add function monitoring: " ..
                     self.colors.lightblue:WrapTextInColorCode("_G." .. tostring(strParentPath) .. " == nil"))
             return
@@ -27,7 +27,7 @@ function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
             active = false
         }
 
-        table.insert(self.settings.logs, savedInfo)
+        table.insert(self.db.profile.logs, savedInfo)
     end
 
     self:ActivateLogFunctionCalls(savedInfo)
@@ -76,7 +76,7 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
         end
     end
 
-    self:print(self.colors.green:WrapTextInColorCode("Start") ..
+    self:Print(self.colors.green:WrapTextInColorCode("Start") ..
             " function monitoring: " ..
             self.colors.lightblue:WrapTextInColorCode(self:LogFunctionCallText(info)))
     info.active = true
@@ -93,7 +93,7 @@ function ViragDevTool:DeactivateLogFunctionCalls(info)
         end
     end
 
-    self:print(self.colors.red:WrapTextInColorCode("Stop") ..
+    self:Print(self.colors.red:WrapTextInColorCode("Stop") ..
             " function monitoring: " ..
             self.colors.lightblue:WrapTextInColorCode(self:LogFunctionCallText(info)))
     info.active = false
@@ -137,7 +137,7 @@ function ViragDevTool:SaveOldFn(tParent, fnName, oldFn)
 end
 
 function ViragDevTool:GetLogFunctionCalls(strParentTableName, strFnName)
-    for _, v in pairs(self.settings.logs) do
+    for _, v in pairs(self.db.profile.logs) do
         if v.parentTableName == strParentTableName
                 and strFnName == v.fnName then
             return v

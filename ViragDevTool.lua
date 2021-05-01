@@ -27,6 +27,7 @@ ViragDevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
 ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 
 
+
 -------------------------------------------------------------------------
 --------------------Start of Functions-----------------------------------
 -------------------------------------------------------------------------
@@ -35,6 +36,8 @@ ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 --- do init tasks here, like loading the Saved Variables
 --- or setting up slash commands.
 function ViragDevTool:OnInitialize()
+
+    self.db = LibStub("AceDB-3.0"):New("ViragDevToolDatabase", ViragDevTool_defaults)
 
 end
 
@@ -48,11 +51,11 @@ function ViragDevTool:OnEnable()
     ViragDevToolFrame = CreateFrame("Frame","ViragDevToolFrame", UIParent, "ViragDevToolMainFrame")
 
     --create the colors from the values stored in the database
-    self.colors["table"] = CreateColor(unpack(self.default_settings.colorVals["table"]))
-    self.colors["string"] = CreateColor(unpack(self.default_settings.colorVals["string"]))
-    self.colors["number"] = CreateColor(unpack(self.default_settings.colorVals["number"]))
-    self.colors["function"] = CreateColor(unpack(self.default_settings.colorVals["function"]))
-    self.colors["default"] = CreateColor(unpack(self.default_settings.colorVals["default"]))
+    self.colors["table"] = CreateColor(unpack(self.db.profile.colorVals["table"]))
+    self.colors["string"] = CreateColor(unpack(self.db.profile.colorVals["string"]))
+    self.colors["number"] = CreateColor(unpack(self.db.profile.colorVals["number"]))
+    self.colors["function"] = CreateColor(unpack(self.db.profile.colorVals["function"]))
+    self.colors["default"] = CreateColor(unpack(self.db.profile.colorVals["default"]))
 
 
     self:OnAddonSettingsLoaded()
@@ -122,29 +125,19 @@ function ViragDevTool:CreateChatCommands()
                 return result
             end
 
-            local help = {}
-            help[cFix("01 /vdt")] = cFix("Toggle UI")
-            help[cFix("02 /vdt help")] = cFix("Print help")
-            help[cFix("03 /vdt name parent (optional)")] = cFix("Add _G.name or _G.parent.name to the list (ex: /vdt name A.B => _G.A.B.name")
-            help[cFix("04 /vdt find name parent (optional)")] = cFix("Add name _G.*name* to the list. Adds any field name that has name part in its name")
-            help[cFix("05 /vdt mouseover")] = cFix("Add hoovered frame to the list with  GetMouseFocus()")
-            help[cFix("06 /vdt startswith name parent (optional)")] = cFix("Same as find but will look only for name*")
-            help[cFix("07 /vdt eventadd eventName unit (optional)")] = cFix("ex: /vdt eventadd UNIT_AURA player")
-            help[cFix("08 /vdt eventstop eventName")] = cFix("Stops event monitoring if active")
-            help[cFix("09 /vdt logfn tableName functionName (optional)")] = cFix("Log every function call. _G.tableName.functionName")
-            help[cFix("10 /vdt vdt_reset_wnd")] = cFix("Reset main frame position if you lost it for some reason")
-            local sortedTable = {}
-            for k, _ in pairs(help) do
-                table.insert(sortedTable, k)
-            end
+            print(cFix("/vdt") .. " - " .. cFix("Toggle UI"))
+            print(cFix("/vdt help") .. " - " .. cFix("Print help"))
+            print(cFix("/vdt name parent (optional)") .. " - " .. cFix("Add _G.name or _G.parent.name to the list (ex: /vdt name A.B => _G.A.B.name"))
+            print(cFix("/vdt find name parent (optional)") .. " - " .. cFix("Add name _G.*name* to the list. Adds any field name that has name part in its name"))
+            print(cFix("/vdt mouseover") .. " - " .. cFix("Add hoovered frame to the list with  GetMouseFocus()"))
+            print(cFix("/vdt startswith name parent (optional)") .. " - " .. cFix("Same as find but will look only for name*"))
+            print(cFix("/vdt eventadd eventName unit (optional)") .. " - " .. cFix("ex: /vdt eventadd UNIT_AURA player"))
+            print(cFix("/vdt eventstop eventName") .. " - " .. cFix("Stops event monitoring if active"))
+            print(cFix("/vdt logfn tableName functionName (optional)") .. " - " .. cFix("Log every function call. _G.tableName.functionName"))
+            print(cFix("/vdt vdt_reset_wnd") .. " - " .. cFix("Reset main frame position if you lost it for some reason"))
 
-            table.sort(sortedTable)
+            return ""
 
-            for _, k in pairs(sortedTable) do
-                ViragDevTool:print(k .. " - " .. help[k])
-            end
-
-            return help
         end,
         -- "/vdt find Data ViragDevTool" or "/vdt find Data"
         FIND = function(msg2, msg3)
@@ -176,7 +169,7 @@ function ViragDevTool:CreateChatCommands()
         VDT_RESET_WND = function()
             ViragDevToolFrame:ClearAllPoints()
             ViragDevToolFrame:SetPoint("CENTER", UIParent)
-            ViragDevToolFrame:SetSize(635, 200)
+            ViragDevToolFrame:SetSize(635, 400)
         end
     }
 
@@ -187,48 +180,25 @@ end
 -----------------------------------------------------------------------------------------------
 
 function ViragDevTool:OnAddonSettingsLoaded()
-    local s = ViragDevTool_Settings
 
-    if s == nil then
-        s = self.default_settings
-        ViragDevTool_Settings = s
-    else
-        -- validating current settings and updating if version changed
-
-        for k, defaultValue in pairs(self.default_settings) do
-            local savedValue = s[k] -- saved value from "newSettings"
-
-            -- if setting is a table of size 0 or if value is nil set it to default
-            -- for now we have only arrays in settings so its fine to use #table
-            if (type(savedValue) == "table" and self:tablelength(savedValue) == 0)
-                    or savedValue == nil then
-
-                s[k] = defaultValue
-            end
-        end
-    end
-
-    --save to local var, so it is easy to use
-    self.settings = s
-
-    -- refresh gui
+    -- validating current settings and updating if version changed
 
     -- setup open o closed main wnd
-    self:SetVisible(ViragDevToolFrame, s.isWndOpen)
+    self:SetVisible(ViragDevToolFrame, self.db.profile.isWndOpen)
 
     -- setup open or closed sidebar
-    self:SetVisible(ViragDevToolFrame.sideFrame, s.isSideBarOpen)
+    self:SetVisible(ViragDevToolFrame.sideFrame, self.db.profile.isSideBarOpen)
 
     -- setup selected sidebar tab history/events/logs
-    self:EnableSideBarTab(s.sideBarTabSelected)
+    self:EnableSideBarTab(self.db.profile.sideBarTabSelected)
 
     -- setup logs. Just disable all of them for now on startup
-    for _, tLog in pairs(self.settings.logs) do
+    for _, tLog in pairs(self.db.profile.logs) do
         tLog.active = false
     end
 
     -- setup events part 1 register listeners
-    for _, tEvent in pairs(self.settings.events) do
+    for _, tEvent in pairs(self.db.profile.events) do
         if tEvent.active then
             self:StartMonitorEvent(tEvent.event, tEvent.unit)
         end
@@ -237,7 +207,7 @@ function ViragDevTool:OnAddonSettingsLoaded()
     -- show in UI fn saved args if you have them
     local args = ""
     local delim = ""
-    for _, arg in pairs(s.tArgs) do
+    for _, arg in pairs(self.db.profile.tArgs) do
         args = tostring(arg) .. delim .. args
         delim = ", "
     end
@@ -249,15 +219,15 @@ function ViragDevTool:OnAddonSettingsLoaded()
 
 
     --we store colors not in saved settings for now
-    if s.colorVals then
-        for k,v in pairs(s.colorVals) do
+    if self.db.profile.colorVals then
+        for k,v in pairs(self.db.profile.colorVals) do
             self.colors[k]:SetRGBA(unpack(v))
         end
     end
 
     self:LoadInterfaceOptions()
 
-    ViragDevToolFrame.columnResizer:SetPoint("TOPLEFT", ViragDevToolFrame, "TOPLEFT", s.collResizerPosition, -30)
+    ViragDevToolFrame.columnResizer:SetPoint("TOPLEFT", ViragDevToolFrame, "TOPLEFT", self.db.profile.collResizerPosition, -30)
 
 end
 
@@ -265,10 +235,6 @@ end
 -----------------------------------------------------------------------------------------------
 -- UTILS
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:print(strText)
-    print(self.colors.darkred:WrapTextInColorCode("[Virag's DT]: ") .. strText)
-end
-
 function ViragDevTool:split(sep)
     local separator, fields
     separator, fields = sep or ".", {}
@@ -446,17 +412,17 @@ ViragDevTool.list = ViragDevToolLinkedList:new()
 -- Default behavior is shallow copy
 -- @param dataName (string or nil) - name tag to show in UI for you variable.
 -- Main purpose is to give readable names to objects you want to track.
-function ViragDevTool_AddData(data, dataName)
+function ViragDevTool:ViragDevTool_AddData(data, dataName)
     if dataName == nil then
         dataName = tostring(data)
     end
 
-    ViragDevTool.list:AddNode(data, tostring(dataName))
-    ViragDevTool:UpdateMainTableUI()
+    self.list:AddNode(data, tostring(dataName))
+    self:UpdateMainTableUI()
 end
 
 function ViragDevTool:Add(data, dataName)
-    ViragDevTool_AddData(data, dataName)
+    self:ViragDevTool_AddData(data, dataName)
 end
 
 function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
@@ -474,7 +440,7 @@ function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
     else
         resultTable = self:FromStrToObject(msg)
         if not resultTable then
-            self:print("_G." .. msg .. " == nil, so can't add")
+            self:Print("_G." .. msg .. " == nil, so can't add")
         end
     end
 
@@ -607,8 +573,8 @@ end
 
 function ViragDevTool:ToggleUI()
     self:Toggle(ViragDevToolFrame)
-    self.settings.isWndOpen = ViragDevToolFrame:IsVisible()
-    if self.settings.isWndOpen then
+    self.db.profile.isWndOpen = ViragDevToolFrame:IsVisible()
+    if self.db.profile.isWndOpen then
         self:UpdateUI()
     end
 end
@@ -675,7 +641,7 @@ function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
     dragFrame:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", pos, -30) -- 30 is offset from above (top buttons)
 
     -- save pos so we can restore it on reloda ui or logout
-    self.settings.collResizerPosition = pos
+    self.db.profile.collResizerPosition = pos
 end
 
 function ViragDevTool:CalculatePosition(pos, min, max)
@@ -729,7 +695,7 @@ function ViragDevTool:UpdateMainTableUI(force)
 end
 
 function ViragDevTool:UpdateScrollFrameRowSize(scrollFrame)
-    local currentFont =  self.settings and self.settings.fontSize or 10
+    local currentFont =  self.db.profile.fontSize or 10
 
     local buttons = scrollFrame.buttons;
     local cellHeight = currentFont + currentFont * 0.2
@@ -900,14 +866,14 @@ end
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:ToggleSidebar()
     self:Toggle(ViragDevToolFrame.sideFrame)
-    self.settings.isSideBarOpen = ViragDevToolFrame.sideFrame:IsVisible()
+    self.db.profile.isSideBarOpen = ViragDevToolFrame.sideFrame:IsVisible()
     self:UpdateSideBarUI()
 end
 
 function ViragDevTool:SubmitEditBoxSidebar()
     local edditBox = ViragDevToolFrame.sideFrame.editbox
     local msg = edditBox:GetText()
-    local selectedTab = self.settings.sideBarTabSelected
+    local selectedTab = self.db.profile.sideBarTabSelected
     local cmd = msg
 
     if selectedTab == "logs" then
@@ -929,7 +895,7 @@ function ViragDevTool:EnableSideBarTab(tabStrName)
     sidebar[tabStrName]:SetChecked(true)
 
     -- update selected tab  and function to update cell items
-    self.settings.sideBarTabSelected = tabStrName
+    self.db.profile.sideBarTabSelected = tabStrName
 
     -- refresh ui
     self:UpdateSideBarUI()
@@ -943,7 +909,7 @@ function ViragDevTool:UpdateSideBarUI()
     local buttons = scrollFrame.buttons;
 
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
-    local data = self.settings and self.settings[self.settings.sideBarTabSelected] or {}
+    local data = self.db.profile[self.db.profile.sideBarTabSelected]
     local totalRowsCount = self:tablelength(data)
 
     for k, frame in pairs(buttons) do
@@ -967,7 +933,7 @@ function ViragDevTool:UpdateSideBarUI()
 end
 
 function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
-    local selectedTab = self.settings.sideBarTabSelected
+    local selectedTab = self.db.profile.sideBarTabSelected
 
     local currItem = data[lineplusoffset]
 
@@ -992,9 +958,17 @@ function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
         end)
 
     elseif selectedTab == "events" then
+        local name = tostring(currItem.event)
+        view:SetText(name)
+        if currItem.active then
+            view:SetText(name)
+        else
+            view:SetText(name.." (disabled)")
+        end
         -- events  update
         view:SetScript("OnMouseUp", function()
             ViragDevTool:ToggleMonitorEvent(currItem)
+            ViragDevTool:UpdateSideBarUI()
         end)
     end
 end
@@ -1026,7 +1000,7 @@ function ViragDevTool:SetMainTableButtonScript(button, info)
         if mouseButton == "RightButton" then
             local nameButton = this:GetParent().nameButton
             local valueButton = this:GetParent().valueButton
-            ViragDevTool:print(nameButton:GetText() .. " - " .. valueButton:GetText())
+            ViragDevTool:Print(nameButton:GetText() .. " - " .. valueButton:GetText())
         else
             leftClickFn(this, mouseButton, down)
         end
@@ -1037,7 +1011,7 @@ function ViragDevTool:TryCallFunction(info)
     -- info.value is just our function to call
     local parent
     local fn = info.value
-    local args = { unpack(self.settings.tArgs) }
+    local args = { unpack(self.db.profile.tArgs) }
     for k, v in pairs(args) do
         if type(v) == "string" and self.starts(v, "t=") then
 
@@ -1139,7 +1113,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     self:UpdateMainTableUI()
 
     --print info to chat
-    self:print(stateStr(ok) .. " " .. fnNameWithArgs .. self.colors.gray:WrapTextInColorCode(" returns:") .. returnFormatedStr)
+    self:Print(stateStr(ok) .. " " .. fnNameWithArgs .. self.colors.gray:WrapTextInColorCode(" returns:") .. returnFormatedStr)
 end
 
 -----------------------------------------------------------------------------------------------
@@ -1166,6 +1140,6 @@ function ViragDevTool:SetArgForFunctionCallFromString(argStr)
         end
     end
 
-    self.settings.tArgs = args
+    self.db.profile.tArgs = args
     self:Add(args, "New Args for function calls")
 end

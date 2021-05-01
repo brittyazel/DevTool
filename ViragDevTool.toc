@@ -2,15 +2,15 @@
 ## Title: ViragDevTool
 ## Author: Varren@Azuregos-RU
 ## Version: 0.23
-## SavedVariables: ViragDevTool_Settings
+## SavedVariables: ViragDevToolDatabase
 
 
 Libs\embeds.xml
 
+ViragDevToolDefaults.lua
+
 ViragDevTool.lua
 ViragDevTool.xml
-
-ViragDevToolDefaults.lua
 
 Modules\ViragDevToolModulesCore.lua
 Modules\ViragDevToolEvents.lua
