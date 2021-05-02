@@ -5,8 +5,8 @@ local ViragDevTool = ViragDevTool
 -- HISTORY
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:AddToHistory(strValue)
-    if self.settings and self.settings.history then
-        local hist = self.settings.history
+    if self.db.profile.history then
+        local hist = self.db.profile.history
 
         -- if already contains value then just move it to top
         for k, v in pairs(hist or {}) do
@@ -20,9 +20,9 @@ function ViragDevTool:AddToHistory(strValue)
 
         table.insert(hist, 1, strValue)
 
-        local maxSize = self.default_settings.MAX_HISTORY_SIZE
-        if self.settings and self.settings.MAX_HISTORY_SIZE then
-            maxSize = self.settings.MAX_HISTORY_SIZE
+        local maxSize = ViragDevTool_defaults.profile.MAX_HISTORY_SIZE
+        if self.db.profile.MAX_HISTORY_SIZE then
+            maxSize = self.db.profile.MAX_HISTORY_SIZE
         end
 
         while #hist > maxSize do -- can have only 10 values in history

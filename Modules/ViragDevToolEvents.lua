@@ -17,7 +17,7 @@ function ViragDevTool:StartMonitorEvent(event, unit)
 
     if not tEvent then
         tEvent = { event = event, unit = unit, active = true }
-        table.insert(self.settings.events, tEvent)
+        table.insert(self.db.profile.events, tEvent)
     end
 
     local f = self:GetListenerFrame()
@@ -34,7 +34,7 @@ function ViragDevTool:StartMonitorEvent(event, unit)
 
     local eventName = event
     if unit then eventName = eventName .. " " .. tostring(unit) end
-    self:print(self.colors.green:WrapTextInColorCode("Start") ..
+    self:Print(self.colors.green:WrapTextInColorCode("Start") ..
             " event monitoring: " ..
             self.colors.lightblue:WrapTextInColorCode(eventName))
 end
@@ -48,7 +48,7 @@ function ViragDevTool:StopMonitorEvent(event, unit)
         tEvent.active = false
         if event == "ALL"  then
             f:UnregisterAllEvents()
-            for _, thisEvent in pairs(self.settings.events) do
+            for _, thisEvent in pairs(self.db.profile.events) do
                 if thisEvent.active then
                     self:StartMonitorEvent(thisEvent.event, thisEvent.unit)
                 end
@@ -60,7 +60,7 @@ function ViragDevTool:StopMonitorEvent(event, unit)
         local eventName = event
         if unit then eventName = eventName .. " " .. tostring(unit) end
 
-        self:print(self.colors.red:WrapTextInColorCode("Stop") ..
+        self:Print(self.colors.red:WrapTextInColorCode("Stop") ..
                 " event monitoring: " ..
                 self.colors.lightblue:WrapTextInColorCode(eventName))
     end
@@ -93,11 +93,13 @@ end
 
 function ViragDevTool:GetMonitoredEvent(event)
 
-    if self.settings == nil or self.settings.events == nil then return end
+    if self.db.profile.events == nil then
+        return
+    end
 
     local found
 
-    for _, tEvent in pairs(self.settings.events) do
+    for _, tEvent in pairs(self.db.profile.events) do
         if tEvent.event == event then
             found = tEvent
             break
