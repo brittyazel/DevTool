@@ -4,7 +4,7 @@ pairs, tostring, type, print, string, getmetatable, table, pcall, unpack, tonumb
 local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update =
 HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
----@class Neuron @define The main addon object for the Neuron Action Bar addon
+---@class ViragDevTool @define The main addon object for the ViragDevTool addon
 ViragDevTool = LibStub("AceAddon-3.0"):NewAddon("ViragDevTool", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0")
 -- just remove global reference so it is easy to read with my ide
 local ViragDevTool = ViragDevTool
