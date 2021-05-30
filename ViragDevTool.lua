@@ -842,7 +842,7 @@ function ViragDevTool:TryCallAPIFn(fnName, value)
     -- VALIDATION FIX if __index is function we dont want to execute it
     -- Example in ACP.L
     local mt = getmetatable(value)
-    if mt and type(mt.__index) == "function" then return
+    if mt and type(mt) ~= "boolean" and type(mt.__index) == "function" then return
     end
 
     -- VALIDATION is forbidden from wow api
