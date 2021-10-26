@@ -660,7 +660,8 @@ end
 
 function ViragDevTool:UpdateMainTableUI(force)
     -- Start of performance checks
-    if not ViragDevToolFrame.scrollFrame:IsVisible() then return end
+    --if not ViragDevToolFrame.scrollFrame:IsVisible() then return end
+   if not ViragDevToolFrame then return end --DiscordGregory
     if not force then
         self:UpdateMainTableUIOptimized()
         return
