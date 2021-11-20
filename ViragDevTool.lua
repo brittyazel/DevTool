@@ -837,8 +837,7 @@ function ViragDevTool:TryCallAPIFn(fnName, value)
     -- returns Button, Frame or something like this
 
     -- VALIDATION
-    if type(value) ~= "table" then return
-    end
+    if type(value) ~= "table" then return end
 
     -- VALIDATION FIX if __index is function we dont want to execute it
     -- Example in ACP.L
