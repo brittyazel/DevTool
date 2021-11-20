@@ -441,7 +441,7 @@
                 </Anchors>
                 <Scripts>
                     <OnClick>
-                        ViragDevTool_AddData(_G, "_G")
+                        ViragDevTool:ViragDevTool_AddData(_G, "_G")
                     </OnClick>
                 </Scripts>
             </Button>
