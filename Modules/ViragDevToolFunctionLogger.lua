@@ -66,7 +66,7 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
                         "(" .. self:argstostring(args) .. ")"
                 --.. ViragDevTool.colors.lightblue
 
-                self:ViragDevTool_AddData({
+                self:AddData({
                     OUT = shrinkFn(result),
                     IN = shrinkFn(args)
                 }, fnNameWitArgs)

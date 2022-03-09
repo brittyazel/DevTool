@@ -405,14 +405,14 @@ ViragDevTool.list = ViragDevToolLinkedList:new()
 -- Lets suppose you have MyModFN function in yours addon
 -- function MyModFN()
 -- local var = {}
--- ViragDevTool_AddData(var, "My local var in MyModFN")
+-- ViragDevTool:AddData(var, "My local var in MyModFN")
 -- end
 -- This will add var as new var in our list
 -- @param data (any type)- is object you would like to track.
 -- Default behavior is shallow copy
 -- @param dataName (string or nil) - name tag to show in UI for you variable.
 -- Main purpose is to give readable names to objects you want to track.
-function ViragDevTool:ViragDevTool_AddData(data, dataName)
+function ViragDevTool:AddData(data, dataName)
     if dataName == nil then
         dataName = tostring(data)
     end
@@ -422,7 +422,7 @@ function ViragDevTool:ViragDevTool_AddData(data, dataName)
 end
 
 function ViragDevTool:Add(data, dataName)
-    self:ViragDevTool_AddData(data, dataName)
+    self:AddData(data, dataName)
 end
 
 function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
