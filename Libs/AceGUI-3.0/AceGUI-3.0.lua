@@ -700,6 +700,17 @@ AceGUI:RegisterLayout("Flow",
 		local oversize
 		for i = 1, #children do
 			local child = children[i]
+			local previous
+			if i > 1 then
+				previous = children[i-1]
+			end
+			if not child then
+				-- print(i)
+				print(#children)
+				-- ViragDevTool:ViragDevTool_AddData(previous)
+				-- ViragDevTool:ViragDevTool_AddData(children[i])
+				ViragDevTool:ViragDevTool_AddData(children)
+			end
 			oversize = nil
 			local frame = child.frame
 			local frameheight = frame.height or frame:GetHeight() or 0
