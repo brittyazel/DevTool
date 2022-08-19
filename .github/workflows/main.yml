@@ -1,0 +1,44 @@
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+
+name: Generate Release With Zip Asset
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get current time
+        uses: srfrnk/current-time@master
+        id: current-time
+        with:
+          format: YYYY.MM.DD.HH.mm
+      - name: Zip project
+        run: |
+          rsync -a . ViragDevTool
+          zip -r ViragDevTool.${{ steps.current-time.outputs.formattedTime }}.zip ViragDevTool
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.current-time.outputs.formattedTime }}
+          release_name: v${{ steps.current-time.outputs.formattedTime }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: ./ViragDevTool.${{ steps.current-time.outputs.formattedTime }}.zip
+          asset_name: ViragDevTool.${{ steps.current-time.outputs.formattedTime }}.zip
+          asset_content_type: application/zip
