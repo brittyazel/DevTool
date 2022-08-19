@@ -1,18 +1,21 @@
-## Interface: 80000
+## Interface: 90005
 ## Title: ViragDevTool
 ## Author: Varren@Azuregos-RU
-## Version: 0.22
-## SavedVariables: ViragDevTool_Settings
+## Version: 0.23
+## SavedVariables: ViragDevToolDatabase
 
+
+Libs\embeds.xml
+
+ViragDevToolDefaults.lua
 
 ViragDevTool.lua
-
-Modules/ViragDevToolModulesCore.lua
-Modules/ViragDevToolEvents.lua
-Modules/ViragDevToolFunctionLogger.lua
-Modules/ViragDevToolHistory.lua
-
 ViragDevTool.xml
+
+Modules\ViragDevToolModulesCore.lua
+Modules\ViragDevToolEvents.lua
+Modules\ViragDevToolFunctionLogger.lua
+Modules\ViragDevToolHistory.lua
 
 ViragDevToolOptions.xml
 ViragDevToolOptions.lua

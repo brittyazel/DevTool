@@ -1,25 +1,14 @@
-<Ui>
-
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://github.com/Gethe/wow-ui-source/blob/live/FrameXML/UI.xsd">
 
     <Frame name="VDTColorPickerFrameItemTemplate" virtual="true">
         <Size x="100" y="25"/>
 
         <Frames>
             <Button text="table" name="$parentButton" inherits="ViragDevToolButtonTemplate" parentKey="picker">
-                <Scripts>
-                    <OnLoad>
-                        local fontString = self:GetFontString()
-                        fontString:SetPoint("LEFT", self, "LEFT", 5, 0)
-                        fontString:SetPoint("CENTER", self, "CENTER", 0, 0)
-                    </OnLoad>
-                </Scripts>
                 <Anchors>
                     <Anchor point="TOPRIGHT"/>
                     <Anchor point="BOTTOMLEFT"/>
                 </Anchors>
-
-
-                <NormalFont style="GameFontHighlight"/>
                 <Layers>
                     <Layer level="OVERLAY">
                         <Texture parentKey="colorTexture">
@@ -28,25 +17,32 @@
                                 <Anchor point="TOPRIGHT" x="-5" y="-5"/>
                                 <Anchor point="BOTTOM" y="5"/>
                             </Anchors>
-                            <Color r="0.5" g="0" b="0" a="1"/>
+                            <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                         </Texture>
                     </Layer>
-
                 </Layers>
+                <Scripts>
+                    <OnLoad>
+                        local fontString = self:GetFontString()
+                        fontString:SetPoint("LEFT", self, "LEFT", 5, 0)
+                        fontString:SetPoint("CENTER", self, "CENTER", 0, 0)
+                    </OnLoad>
+                </Scripts>
+                <NormalFont style="GameFontHighlight"/>
             </Button>
         </Frames>
     </Frame>
 
     <Frame name="ViragDevToolOptionsFrameRowTemplate" virtual="true">
         <Layers>
-            <Layer level="ARTWORK">
+            <Layer>
                 <Texture>
                     <Anchors>
                         <Anchor point="TOPRIGHT"/>
                         <Anchor point="BOTTOMLEFT"/>
                     </Anchors>
                     <!-- <Color r="0.5" g="0.7" b="0.9" a="0.8"/>-->
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
             </Layer>
             <Layer level="BACKGROUND">
@@ -66,7 +62,7 @@
                         <Anchor point="BOTTOMRIGHT" />
                         <Anchor point="LEFT" />
                     </Anchors>
-                    <Color r="0.5" g="0.2" b="0.2" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.5"/>
                 </Texture>
             </Layer>
         </Layers>
@@ -75,6 +71,10 @@
     <Frame name="ViragDevToolOptionsFrameHeaderTemplate" virtual="true">
         <Frames>
             <Button text="Header" name="$parentButton" parentKey="header">
+                <Anchors>
+                    <Anchor point="TOPRIGHT"/>
+                    <Anchor point="BOTTOMLEFT"/>
+                </Anchors>
                 <Scripts>
                     <OnLoad>
                         local fontString = self:GetFontString()
@@ -82,13 +82,6 @@
                         fontString:SetPoint("CENTER", self, "CENTER", 0, 0)
                     </OnLoad>
                 </Scripts>
-
-                <Anchors>
-                    <Anchor point="TOPRIGHT"/>
-                    <Anchor point="BOTTOMLEFT"/>
-                </Anchors>
-
-
                 <NormalFont style="GameFontHighlight"/>
                 <NormalTexture>
                     <Size x="15"/>
@@ -117,7 +110,7 @@
                     <Anchor point="LEFT" x="5"/>
                 </Anchors>
                 <Layers>
-                    <Layer level="ARTWORK">
+                    <Layer>
                         <Texture>
                             <Anchors>
                                 <Anchor point="TOPRIGHT"/>
@@ -146,7 +139,7 @@
                         <Anchor point="TOPRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size y="5"/>
@@ -154,7 +147,7 @@
                         <Anchor point="BOTTOMRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size x="5"/>
@@ -162,7 +155,7 @@
                         <Anchor point="TOPRIGHT" y="-5"/>
                         <Anchor point="BOTTOM" y="5"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size x="5"/>
@@ -170,7 +163,7 @@
                         <Anchor point="TOPLEFT" y="-5"/>
                         <Anchor point="BOTTOM" y="5"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Anchors>
@@ -181,41 +174,39 @@
                     <Color r="0" g="0" b="0.1" a="0.5"/>
                 </Texture>
             </Layer>
-
-
         </Layers>
     </Frame>
 
     <Frame name="ViragDevToolOptionsFrame" virtual="true">
         <Anchors>
             <Anchor point="TOPRIGHT" x="-5" y="-5"/>
-            <Anchor point="LEFTBOTTOM" y="5" x="5"/>
+            <Anchor point="BOTTOMLEFT" y="5" x="5"/>
         </Anchors>
         <Frames>
             <Frame name="$parentCPSection" inherits="ViragDevToolOptionsSectionTemplate">
+                <Anchors>
+                    <Anchor point="TOP"/>
+                </Anchors>
                 <Scripts>
                     <OnLoad>
                         ViragDevTool:CreateColorPickerFrame(self.row)
                     </OnLoad>
                 </Scripts>
-                <Anchors>
-                    <Anchor point="TOP"/>
-                </Anchors>
             </Frame>
             <Frame name="$parentCPSection1" inherits="ViragDevToolOptionsSectionTemplate">
+                <Anchors>
+                    <Anchor point="TOP" relativeTo="$parentCPSection" relativePoint="BOTTOM" y="-5"/>
+                </Anchors>
                 <Scripts>
                     <OnLoad>
                         --ViragDevTool:CreateColorPickerFrame(self.row)
                     </OnLoad>
                 </Scripts>
-                <Anchors>
-                    <Anchor point="TOP" relativeTo="$parentCPSection" relativePoint="BOTTOM" y="-5"/>
-                </Anchors>
             </Frame>
         </Frames>
 
         <Layers>
-            <Layer level="ARTWORK">
+            <Layer>
                 <Texture>
                     <Anchors>
                         <Anchor point="TOPRIGHT"/>

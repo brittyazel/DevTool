@@ -1,7 +1,7 @@
-<Ui>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://github.com/Gethe/wow-ui-source/blob/live/FrameXML/UI.xsd">
     <!--FONTS -->
-    <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyV="CENTER" justifyH="LEFT" />
-    <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyV="CENTER" justifyH="LEFT" virtual="true"/>
+    <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyH="LEFT" />
+    <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyH="LEFT" virtual="true"/>
 
     <Texture name="ViragDevToolStrokeTexture" virtual="true">
         <Color r="0.1" g="0.1" b="0.1" a="1"/>
@@ -14,14 +14,15 @@
     <!--FRAME -->
     <Frame name="ViragDevToolFrameTemplate" virtual="true">
         <Layers>
-            <Layer level="ARTWORK">
+            <Layer>
                 <Texture>
+                    <Size y="35"/>
                     <Size y="35"/>
                     <Anchors>
                         <Anchor point="TOPRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size y="35"/>
@@ -29,7 +30,7 @@
                         <Anchor point="BOTTOMRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size x="5"/>
@@ -37,7 +38,7 @@
                         <Anchor point="TOPRIGHT" y="-35"/>
                         <Anchor point="BOTTOM" y="35"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
                 <Texture>
                     <Size x="5"/>
@@ -45,7 +46,7 @@
                         <Anchor point="TOPLEFT" y="-35"/>
                         <Anchor point="BOTTOM" y="35"/>
                     </Anchors>
-                    <Color r="0.5" g="0" b="0" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
             </Layer>
             <Layer level="BACKGROUND">
@@ -55,7 +56,7 @@
                         <Anchor point="BOTTOMLEFT"/>
                     </Anchors>
                     <!-- <Color r="0.5" g="0.7" b="0.9" a="0.8"/>-->
-                    <Color r="0" g="0" b="0.1" a="0.5"/>
+                    <Color r="0.1" g="0.1" b="0.1" a="0.7"/>
                 </Texture>
 
 
@@ -73,7 +74,7 @@
                     <Anchor point="TOP" x="0" y="15"/>
                 </Anchors>
                 <Scripts>
-                        <OnLoad function="HybridScrollFrameScrollUp_OnLoad"/>
+                    <OnLoad function="HybridScrollFrameScrollUp_OnLoad"/>
                     <OnClick function="HybridScrollFrameScrollButton_OnClick"/>
                 </Scripts>
             </Button>
@@ -117,7 +118,7 @@
             </Slider>
         </Frames>
         <Layers>
-            <Layer level="ARTWORK">
+            <Layer>
                 <Texture name="$parentHighlight">
 
                     <Anchors>
@@ -143,7 +144,7 @@
                         <Anchor point="TOPRIGHT"/>
                         <Anchor point="LEFT"/>
                     </Anchors>
-                    <Color r="0.55" g="0" b="0.1" a="0.5"/>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
                 </Texture>
             </Layer>
         </Layers>
@@ -168,10 +169,8 @@
 
     <EditBox name="ViragDevToolEditBoxTemplate" virtual="true">
         <Size y="25"/>
-
-        <FontString inherits="ChatFontNormal"/>
         <Layers>
-            <Layer level="ARTWORK">
+            <Layer>
                 <Texture>
                     <Anchors>
                         <Anchor point="TOPRIGHT"/>
@@ -182,6 +181,7 @@
                 </Texture>
             </Layer>
         </Layers>
+        <FontString inherits="ChatFontNormal"/>
     </EditBox>
 
 
@@ -218,9 +218,6 @@
             <Anchor point="RIGHT"/>
             <Anchor point="LEFT"/>
         </Anchors>
-        <HighlightTexture alphaMode="ADD">
-            <Color r="1" g="1" b="1" a="0.2"/>
-        </HighlightTexture>
         <Layers>
             <Layer level="OVERLAY">
                 <Texture name="$parentHighlight">
@@ -234,6 +231,9 @@
                 </Texture>
             </Layer>
         </Layers>
+        <HighlightTexture alphaMode="ADD">
+            <Color r="1" g="1" b="1" a="0.2"/>
+        </HighlightTexture>
     </Button>
 
     <!--ROW FOR SIDEBAR HybridScrollFrameTemplate -->
@@ -298,22 +298,19 @@
 
 
     <!--*********************************************************************************************************
-                                                      MAIN UI  enableMouse="true"
-
+                                                         MAIN UI
      *********************************************************************************************************-->
 
-    <Frame name="ViragDevToolFrame" inherits="ViragDevToolFrameTemplate" parent="UIParent" movable="true"
-           resizable="true">
-        <Size x="635" y="200"/>
+    <Frame name="ViragDevToolMainFrame" inherits="ViragDevToolFrameTemplate" hidden="true" movable="true"
+           resizable="true" virtual="true">
+        <Size x="635" y="500"/>
         <Anchors>
             <Anchor point="CENTER"/>
         </Anchors>
         <Scripts>
             <OnLoad>
-
-                ViragDevTool:OnLoad(self)
                 self:SetUserPlaced(true)
-                self:SetMinResize(635, 200);
+                self:SetMinResize(635, 400);
                 self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight());
                 self:RegisterForDrag("LeftButton");
             </OnLoad>
@@ -385,7 +382,7 @@
                     <OnClick>
                         -- clear args
                         ViragDevTool:SetArgForFunctionCallFromString("")
-                        ViragDevTool:print("Old args cleaned: " .. self:GetParent().editbox:GetText())
+                        ViragDevTool:Print("Old args cleaned: " .. self:GetParent().editbox:GetText())
                         self:GetParent().editbox:SetText("")
                     </OnClick>
                 </Scripts>
@@ -400,7 +397,7 @@
                 <Scripts>
                     <OnEnterPressed>
                         ViragDevTool:SetArgForFunctionCallFromString(self:GetText())
-                        ViragDevTool:print("New arguments: " .. self:GetText())
+                        ViragDevTool:Print("New arguments: " .. self:GetText())
                         self:ClearFocus();
                     </OnEnterPressed>
                     <OnEscapePressed>
@@ -444,7 +441,7 @@
                 </Anchors>
                 <Scripts>
                     <OnClick>
-                        ViragDevTool_AddData(_G, "_G")
+                        ViragDevTool:AddData(_G, "_G")
                     </OnClick>
                 </Scripts>
             </Button>
@@ -498,14 +495,14 @@
             </Button>
             <Button name="$parentSettingsButton" virtual="true">
                 <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeTo="$parentCloseWndButton" relativePoint="LEFT" x="5"/>
+                </Anchors>
                 <Scripts>
                     <OnClick>
                         ViragDevTool:ToggleOptions()
                     </OnClick>
                 </Scripts>
-                <Anchors>
-                    <Anchor point="RIGHT" relativeTo="$parentCloseWndButton" relativePoint="LEFT" x="5"/>
-                </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
                         <Texture parentKey="I" file="Interface\common\help-i">
@@ -517,9 +514,9 @@
                     </Layer>
                 </Layers>
                 <HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight">
-                    <Size x="20" y="20"/>
+                    <Size x="25" y="25"/>
                     <Anchors>
-                        <Anchor point="CENTER" x="-1" y="1"/>
+                        <Anchor point="CENTER" x="0" y="-1"/>
                     </Anchors>
                 </HighlightTexture>
             </Button>
@@ -567,26 +564,26 @@
 
                 <NormalTexture>
                     <Anchors>
-                        <Anchor point="TOPRIGHT" x="-6"/>
-                        <Anchor point="BOTTOMLEFT" x="6" y="5"/>
+                        <Anchor point="TOPRIGHT" x="-6" y="-1"/>
+                        <Anchor point="BOTTOMLEFT" x="6" y="4"/>
                     </Anchors>
-                    <Color r="0" g="0.5" b="0" a="0.7"/>
+                    <Color r="0.9" g="0.9" b="0.9" a="0.3"/>
                 </NormalTexture>
 
-                <HighlightTexture alphaMode="ADD">
+                <HighlightTexture>
                     <Anchors>
-                        <Anchor point="TOPRIGHT" x="-4"/>
-                        <Anchor point="BOTTOMLEFT" x="4" y="0"/>
+                        <Anchor point="TOPRIGHT" x="-5" y="0"/>
+                        <Anchor point="BOTTOMLEFT" x="5" y="3"/>
                     </Anchors>
-                    <Color r="0" g="0.3" b="0" a="0.8"/>
+                    <Color r="1" g="0.9" b="0.9" a="0.5"/>
 
                 </HighlightTexture>
-                <PushedTexture alphaMode="ADD">
+                <PushedTexture>
                     <Anchors>
-                        <Anchor point="TOPRIGHT" x="-4"/>
-                        <Anchor point="BOTTOMLEFT" x="4" y="0"/>
+                        <Anchor point="TOPRIGHT" x="-5" y="0"/>
+                        <Anchor point="BOTTOMLEFT" x="5" y="3"/>
                     </Anchors>
-                    <Color r="0" g="0.3" b="0" a="0.8"/>
+                    <Color r="1" g="0.9" b="0.9" a="0.5"/>
 
                 </PushedTexture>
             </Button>

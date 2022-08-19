@@ -17,7 +17,7 @@ alt="Video Demo" width="400" height="200" border="10" /></a>
 
 ## How To Use
 
-Main (and the only) function you can use is **ViragDevTool_AddData(data, "some string name")**:
+Main (and the only) function you can use is **AddData(data, "some string name")**:
 
 ```lua
 --- Adds data to ViragDevTool UI list to monitor
@@ -25,7 +25,7 @@ Main (and the only) function you can use is **ViragDevTool_AddData(data, "some s
 -- Default behavior is reference and not object copy
 -- @param dataName (string or nil) - name tag to show in UI for you variable. 
 -- Main purpose is to give readable names to objects you want to track.
-function ViragDevTool_AddData(data, dataName)
+function ViragDevTool:AddData(data, dataName)
  ...
 end
 ```
@@ -37,14 +37,14 @@ Lets suppose you have `MyModFN` function in yours addon
 function MyModFN()
     local var = {}
     ... some code here
-    ViragDevTool_AddData(var, "My local var in MyModFN")
+    ViragDevTool:AddData(var, "My local var in MyModFN")
 end
 ```
 This will add var as new row in ViragDevTool UI `HybridScrollFrameTemplate` list
 
 For example 
 ```lua
-ViragDevTool_AddData(_G, "_G")
+ViragDevTool:AddData(_G, "_G")
 ```
 Output: 
 
@@ -53,12 +53,12 @@ Output:
 | Id(Row in list)   | Type          | Data Name  | Data Value  |
 | ----------------- | ------------- | ---------- | -----------------------|
 
-#### Here is how i use ViragDevTool_AddData:
+#### Here is how i use ViragDevTool:AddData:
 ```lua
 --define print fn so we can easily turn it off 
 function MyOtherAddon_Print(strName, tData) 
-    if ViragDevTool_AddData and MyOtherAddon.kbDEBUG then 
-        ViragDevTool_AddData(tData, strName) 
+    if ViragDevTool.AddData and MyOtherAddon.kbDEBUG then 
+        ViragDevTool:AddData(tData, strName) 
     end
 end
 
