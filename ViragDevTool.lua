@@ -660,7 +660,8 @@ end
 
 function ViragDevTool:UpdateMainTableUI(force)
     -- Start of performance checks
-    if not ViragDevToolFrame.scrollFrame:IsVisible() then return end
+    --if not ViragDevToolFrame.scrollFrame:IsVisible() then return end
+   if not ViragDevToolFrame then return end --DiscordGregory
     if not force then
         self:UpdateMainTableUIOptimized()
         return
@@ -836,8 +837,7 @@ function ViragDevTool:TryCallAPIFn(fnName, value)
     -- returns Button, Frame or something like this
 
     -- VALIDATION
-    if type(value) ~= "table" then return
-    end
+    if type(value) ~= "table" then return end
 
     -- VALIDATION FIX if __index is function we dont want to execute it
     -- Example in ACP.L
