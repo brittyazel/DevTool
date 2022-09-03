@@ -1,5 +1,7 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://github.com/Gethe/wow-ui-source/blob/live/FrameXML/UI.xsd">
-    <!--FONTS -->
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI_shared.xsd">
+
+<!--FONTS -->
     <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyH="LEFT" />
     <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyH="LEFT" virtual="true"/>
 
@@ -310,9 +312,15 @@
         <Scripts>
             <OnLoad>
                 self:SetUserPlaced(true)
-                self:SetMinResize(635, 400);
-                self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight());
-                self:RegisterForDrag("LeftButton");
+
+                if self.SetResizeBounds then -- WoW 10.0
+                    self:SetResizeBounds(635, 400, UIParent:GetWidth(), UIParent:GetHeight())
+                else
+                    self:SetMinResize(635, 400)
+                    self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight())
+                end
+
+                self:RegisterForDrag("LeftButton")
             </OnLoad>
 
 
