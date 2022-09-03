@@ -312,8 +312,15 @@
         <Scripts>
             <OnLoad>
                 self:SetUserPlaced(true)
-                self:SetResizeBounds(635, 400, UIParent:GetWidth(), UIParent:GetHeight());
-                self:RegisterForDrag("LeftButton");
+
+                if self.SetResizeBounds then -- WoW 10.0
+                    self:SetResizeBounds(635, 400, UIParent:GetWidth(), UIParent:GetHeight())
+                else
+                    self:SetMinResize(635, 400)
+                    self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight())
+                end
+
+                self:RegisterForDrag("LeftButton")
             </OnLoad>
 
 

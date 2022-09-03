@@ -610,6 +610,14 @@ function ViragDevTool:ResizeMainFrame(dragFrame)
 
     local minX, minY, maxX, maxY = parentFrame:GetResizeBounds()
 
+    if parentFrame.SetResizeBounds then -- WoW 10.0
+        minX, minY, maxX, maxY = parentFrame:GetResizeBounds()
+    else
+        maxX, maxY = parentFrame:GetMaxResize()
+        minX, minY = parentFrame:GetMinResize()
+
+    end
+
 
     parentFrame:SetSize(self:CalculatePosition(x - left, minX, maxX),
             self:CalculatePosition(top - y, minY, maxY))
