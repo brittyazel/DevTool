@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 100000
 ## Title: ViragDevTool
 ## Author: Varren@Azuregos-RU
 ## Version: 0.23

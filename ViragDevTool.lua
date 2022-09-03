@@ -608,8 +608,7 @@ function ViragDevTool:ResizeMainFrame(dragFrame)
     x = x / s
     y = y / s
 
-    local maxX, maxY = parentFrame:GetMaxResize()
-    local minX, minY = parentFrame:GetMinResize()
+    local minX, minY, maxX, maxY = parentFrame:GetResizeBounds()
 
 
     parentFrame:SetSize(self:CalculatePosition(x - left, minX, maxX),
