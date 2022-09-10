@@ -1,4 +1,8 @@
-## Interface: 90005
+## Interface: 100000
+## Interface: 90207
+## Interface-Classic: 11403
+## Interface-BCC: 20504
+## Interface-Wrath: 30400
 ## Title: ViragDevTool
 ## Author: Varren@Azuregos-RU
 ## Version: 0.23
