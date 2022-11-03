@@ -398,20 +398,11 @@ end
 -----------------------------------------------------------------------------------------------
 ViragDevTool.list = ViragDevToolLinkedList:new()
 
----
--- Main (and the only) function you can use in ViragDevTool API
--- Will add data to the list so you can explore its values in UI list
--- @usage
--- Lets suppose you have MyModFN function in yours addon
--- function MyModFN()
--- local var = {}
--- ViragDevTool:AddData(var, "My local var in MyModFN")
--- end
--- This will add var as new var in our list
+--- The main (and the only) function you can use in ViragDevTool API
+-- Adds data to the list so you can explore its values in UI list
 -- @param data (any type)- is object you would like to track.
 -- Default behavior is shallow copy
 -- @param dataName (string or nil) - name tag to show in UI for you variable.
--- Main purpose is to give readable names to objects you want to track.
 function ViragDevTool:AddData(data, dataName)
     if dataName == nil then
         dataName = tostring(data)
