@@ -841,25 +841,29 @@ function ViragDevTool:TryCallAPIFn(fnName, value)
     -- returns Button, Frame or something like this
 
     -- VALIDATION
-    if type(value) ~= "table" then return
+    if type(value) ~= "table" then
+        return
     end
 
-    -- VALIDATION FIX if __index is function we dont want to execute it
+    -- VALIDATION FIX if __index is function we don't want to execute it
     -- Example in ACP.L
     local mt = getmetatable(value)
-    if mt and type(mt) ~= "boolean" and type(mt.__index) == "function" then return
+    if mt and type(mt) =="table" and type(mt.__index) == "function" then
+        return
     end
 
     -- VALIDATION is forbidden from wow api
     if value.IsForbidden then
         local ok, forbidden = pcall(value.IsForbidden, value)
-        if not ok or (ok and forbidden) then return
+        if not ok or (ok and forbidden) then
+            return
         end
     end
 
     local fn = value[fnName]
     -- VALIDATION has WoW API
-    if not fn or type(fn) ~= "function" then return
+    if not fn or type(fn) ~= "function" then
+        return
     end
 
     -- MAIN PART:
