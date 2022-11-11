@@ -83,6 +83,12 @@ function ViragDevTool:SetMonitorEventScript()
         local args = { ... }
         local event = args[1]
 
+        --In 9.0 Blizzard removed the payload from COMBAT_LOG_EVENT_UNFILTERED
+        --Intercept this event and manually query the info
+        if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+            args = { event, CombatLogGetCurrentEventInfo() }
+        end
+
         local showAllEvents = ViragDevTool:GetMonitoredEvent("ALL")
         if ViragDevTool:GetMonitoredEvent(event) or (showAllEvents and showAllEvents.active) then
             if #args == 1 then args = args[1] end
