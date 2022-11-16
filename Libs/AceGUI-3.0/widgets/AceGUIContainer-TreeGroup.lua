@@ -2,21 +2,17 @@
 TreeGroup Container
 Container that uses a tree control to switch between groups.
 -------------------------------------------------------------------------------]]
-local Type, Version = "TreeGroup", 46
+local Type, Version = "TreeGroup", 47
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
 -- Lua APIs
 local next, pairs, ipairs, assert, type = next, pairs, ipairs, assert, type
-local math_min, math_max, floor = math.min, math.max, floor
+local math_min, math_max, floor = math.min, math.max, math.floor
 local select, tremove, unpack, tconcat = select, table.remove, unpack, table.concat
 
 -- WoW APIs
 local CreateFrame, UIParent = CreateFrame, UIParent
-
--- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
--- List them here for Mikk's FindGlobals script
--- GLOBALS: FONT_COLOR_CODE_CLOSE
 
 -- Recycling functions
 local new, del
@@ -568,7 +564,7 @@ local methods = {
 			self:SetTreeWidth(maxtreewidth, status.treesizable)
 		end
 		if treeframe.SetResizeBounds then
-			-- treeframe:SetResizeBounds(100, 1, maxtreewidth, 1600) -- broken in 10.0.0.45335
+			treeframe:SetResizeBounds(100, 1, maxtreewidth, 1600)
 		else
 			treeframe:SetMaxResize(maxtreewidth, 1600)
 		end
@@ -651,7 +647,7 @@ local function Constructor()
 	treeframe:SetBackdropBorderColor(0.4, 0.4, 0.4)
 	treeframe:SetResizable(true)
 	if treeframe.SetResizeBounds then -- WoW 10.0
-		-- treeframe:SetResizeBounds(100, 1, 400, 1600) -- broken in 10.0.0.45335
+		treeframe:SetResizeBounds(100, 1, 400, 1600)
 	else
 		treeframe:SetMinResize(100, 1)
 		treeframe:SetMaxResize(400, 1600)

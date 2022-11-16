@@ -57,11 +57,8 @@
                         <Anchor point="TOPRIGHT"/>
                         <Anchor point="BOTTOMLEFT"/>
                     </Anchors>
-                    <!-- <Color r="0.5" g="0.7" b="0.9" a="0.8"/>-->
                     <Color r="0.1" g="0.1" b="0.1" a="0.7"/>
                 </Texture>
-
-
             </Layer>
         </Layers>
     </Frame>
@@ -139,7 +136,6 @@
     <Button name="ViragDevToolBaseButtonTemplate" virtual="true">
         <Layers>
             <Layer level="BACKGROUND">
-
                 <Texture>
                     <Size y="25"/>
                     <Anchors>
@@ -156,7 +152,6 @@
         <HighlightTexture name="$parentHighlight" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="ADD">
             <TexCoords left="0.00195313" right="0.57421875" top="0.75390625" bottom="0.84570313"/>
         </HighlightTexture>
-
     </Button>
 
     <CheckButton name="ViragDevToolButtonTemplate" inherits="ViragDevToolBaseButtonTemplate" virtual="true">
@@ -198,7 +193,6 @@
         <Scripts>
             <OnLoad>
                 local fontString = self:GetFontString()
-
                 fontString:SetPoint("RIGHT", self, "RIGHT", -5, 0)
                 fontString:SetWordWrap(false)
                 self:EnableMouse()
