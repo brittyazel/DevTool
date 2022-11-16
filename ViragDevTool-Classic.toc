@@ -1,7 +1,7 @@
 ## Interface: 11403
 ## Title: ViragDevTool
 ## Author: Varren@Azuregos-RU
-## Version: 0.23
+## Version: 0.3
 ## SavedVariables: ViragDevToolDatabase
 
 
