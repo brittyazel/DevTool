@@ -1,7 +1,6 @@
 ## Interface: 30400
 ## Title: ViragDevTool
 ## Author: Varren@Azuregos-RU
-## Version: 0.3
 ## SavedVariables: ViragDevToolDatabase
 
 

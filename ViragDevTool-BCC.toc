@@ -1,7 +1,6 @@
 ## Interface: 20504
 ## Title: ViragDevTool
 ## Author: Varren@Azuregos-RU
-## Version: 0.3
 ## SavedVariables: ViragDevToolDatabase
 
 
