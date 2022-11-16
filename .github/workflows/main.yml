@@ -1,44 +1,38 @@
+# description of this workflow, can be anything you want
+name: Package and release
+
+# we need to let GitHub know _when_ we want to release, typically only when we create a new tag.
+# this will target only tags, and not all pushes to the master branch.
+# this part can be heavily customized to your liking, like targeting only tags that match a certain word,
+# other branches or even pullrequests.
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - "main"
+    tags:
+      - '**'
 
-name: Generate Release With Zip Asset
-
+# a workflow is built up as jobs, and within these jobs are steps
 jobs:
-  build:
-    name: Upload Release Asset
+
+  # "release" is a job, you can name it anything you want
+  release:
+
+    # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
     runs-on: ubuntu-latest
+    
+
+    # specify the environment variables used by the packager, matching the secrets from the project on GitHub
+    env:
+      GITHUB_OAUTH: ${{ secrets.REPO_SETUP_TOKEN }}
+
+    # "steps" holds a list of all the steps needed to package and release our AddOn
     steps:
-      - name: Checkout code
+
+      # we first have to clone the AddOn project, this is a required step
+      - name: Clone project
         uses: actions/checkout@v2
-      - name: Get current time
-        uses: srfrnk/current-time@master
-        id: current-time
         with:
-          format: YYYY.MM.DD.HH.mm
-      - name: Zip project
-        run: |
-          rsync -a . ViragDevTool
-          zip -r ViragDevTool.${{ steps.current-time.outputs.formattedTime }}.zip ViragDevTool
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.current-time.outputs.formattedTime }}
-          release_name: v${{ steps.current-time.outputs.formattedTime }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: ./ViragDevTool.${{ steps.current-time.outputs.formattedTime }}.zip
-          asset_name: ViragDevTool.${{ steps.current-time.outputs.formattedTime }}.zip
-          asset_content_type: application/zip
+          fetch-depth: 0  # gets git history for changelogs
+
+      # once cloned, we just run the GitHub Action for the packager project
+      - name: Package and release
+        uses: BigWigsMods/packager@v2
