@@ -5,7 +5,7 @@ local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScroll
 HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
 
 ---@class ViragDevTool @define The main addon object for the ViragDevTool addon
-ViragDevTool = LibStub("AceAddon-3.0"):NewAddon("ViragDevTool", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0")
+ViragDevTool = LibStub("AceAddon-3.0"):NewAddon("ViragDevTool", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0")
 -- just remove global reference so it is easy to read with my ide
 local ViragDevTool = ViragDevTool
 
@@ -59,11 +59,12 @@ function ViragDevTool:OnEnable()
 
 
     self:OnAddonSettingsLoaded()
-    self:UpdateUI()
+    self:UpdateMainTableUI()
+    self:UpdateSideBarUI()
 
     --register update scrollFrame
     ViragDevToolFrame.scrollFrame.update = function()
-        self:ForceUpdateMainTableUI()
+        self:UpdateMainTableUI()
     end
 
     ViragDevToolFrame.sideFrame.sideScrollFrame.update = function()
@@ -150,7 +151,7 @@ function ViragDevTool:CreateChatCommands()
             return ViragDevTool:FindIn(parent, msg2, ViragDevTool.starts)
         end,
         --"/vdt mouseover" --m stands for mouse focus
-        MOUSEOVER = function(msg2, msg3)
+        MOUSEOVER = function()
             local resultTable = GetMouseFocus()
             return resultTable, resultTable:GetName()
         end,
@@ -446,7 +447,10 @@ end
 
 function ViragDevTool:FromStrToObject(str)
 
-    if str == "_G" then return _G end
+    if str == "_G" then
+        return _G
+    end
+
     local vars = self.split(str, ".") or {}
 
     local var = _G
@@ -499,7 +503,7 @@ function ViragDevTool:ExpandCell(info)
 
     info.expanded = true
 
-    ViragDevTool:UpdateMainTableUI()
+    self:UpdateMainTableUI()
 end
 
 function ViragDevTool:NewMetatableNode(mt, padding, info)
@@ -548,7 +552,7 @@ function ViragDevTool:SortFnForCells(nodeList)
     return cmpFn
 end
 
-function ViragDevTool:ColapseCell(info)
+function ViragDevTool:CollapseCell(info)
     self.list:RemoveChildNodes(info)
     info.expanded = nil
     self:UpdateMainTableUI()
@@ -557,16 +561,15 @@ end
 -----------------------------------------------------------------------------------------------
 -- UI
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:UpdateUI()
-    self:UpdateMainTableUI()
-    self:UpdateSideBarUI()
-end
-
 function ViragDevTool:ToggleUI()
     self:Toggle(ViragDevToolFrame)
     self.db.profile.isWndOpen = ViragDevToolFrame:IsVisible()
     if self.db.profile.isWndOpen then
-        self:UpdateUI()
+        self:UpdateMainTableUI()
+        self:UpdateSideBarUI()
+    else
+        --just in case a timer slipped through
+        self:CancelAllTimers()
     end
 end
 
@@ -599,6 +602,8 @@ function ViragDevTool:ResizeMainFrame(dragFrame)
     x = x / s
     y = y / s
 
+    local minX, minY, maxX, maxY
+
     if parentFrame.SetResizeBounds then -- WoW 10.0
         minX, minY, maxX, maxY = parentFrame:GetResizeBounds()
     else
@@ -613,7 +618,26 @@ function ViragDevTool:ResizeMainFrame(dragFrame)
 end
 
 
+function ViragDevTool:ResizeUpdateTick(frame)
+    self:ResizeMainFrame(frame)
+    self:DragResizeColumn(frame:GetParent().columnResizer, true)
+    self:UpdateMainTableUI()
+    self:UpdateSideBarUI()
+end
+
+function ViragDevTool:ColumnResizeUpdateTick(frame)
+    self:DragResizeColumn(frame, true)
+    self:UpdateMainTableUI()
+    self:UpdateSideBarUI()
+end
+
+
 function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
+
+    if not dragFrame:GetLeft() then
+        print("true")
+    end
+
     local parentFrame = dragFrame:GetParent()
 
     -- 150 and 50 are just const values. safe to change
@@ -622,7 +646,6 @@ function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
 
     local pos = dragFrame:GetLeft() - parentFrame:GetLeft()
     pos = self:CalculatePosition(pos, minX, maxX)
-
 
     if not ignoreMousePosition then
         local x, y = GetCursorPosition()
@@ -649,19 +672,10 @@ end
 -----------------------------------------------------------------------------------------------
 -- Main table UI
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:ForceUpdateMainTableUI()
-    self:UpdateMainTableUI(true)
-end
-
-
-function ViragDevTool:UpdateMainTableUI(force)
-    -- Start of performance checks
-    if not ViragDevToolFrame.scrollFrame:IsVisible() then return end
-    if not force then
-        self:UpdateMainTableUIOptimized()
+function ViragDevTool:UpdateMainTableUI()
+    if not ViragDevToolFrame.scrollFrame:IsVisible() then
         return
     end
-    -- End of performance checks
 
     local scrollFrame = ViragDevToolFrame.scrollFrame
     self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolEntryTemplate")
@@ -670,7 +684,7 @@ function ViragDevTool:UpdateMainTableUI(force)
     local buttons = scrollFrame.buttons;
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
     local totalRowsCount = self.list.size
-    local lineplusoffset;
+    local lineplusoffset
 
     local nodeInfo = self.list:GetInfoAtPosition(offset)
 
@@ -705,30 +719,6 @@ function ViragDevTool:UpdateScrollFrameRowSize(scrollFrame)
     end
 
     scrollFrame.buttonHeight = cellHeight
-
-
-end
-
-function ViragDevTool:UpdateMainTableUIOptimized()
-
-    if (self.waitFrame == nil) then
-        self.waitFrame = CreateFrame("Frame", "ViragDevToolWaitFrame", UIParent);
-        self.waitFrame.lastUpdateTime = 0
-        self.waitFrame:SetScript("onUpdate", function(self, elapse)
-
-            if self.updateNeeded then
-                self.lastUpdateTime = self.lastUpdateTime + elapse
-                if self.lastUpdateTime > 0.1 then
-                    --preform update
-                    ViragDevTool:ForceUpdateMainTableUI()
-                    self.updateNeeded = false
-                    self.lastUpdateTime = 0
-                end
-            end
-        end);
-    end
-
-    self.waitFrame.updateNeeded = true
 end
 
 function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
@@ -951,10 +941,16 @@ function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
 
     elseif selectedTab == "logs" then
         local text = self:LogFunctionCallText(currItem)
+        if currItem.active then
+            view:SetText(text)
+        else
+            view:SetText(text.." (stopped)")
+        end
 
         -- logs update
         view:SetScript("OnMouseUp", function()
             ViragDevTool:ToggleFnLogger(currItem)
+            ViragDevTool:UpdateSideBarUI()
         end)
 
     elseif selectedTab == "events" then
@@ -985,7 +981,7 @@ function ViragDevTool:SetMainTableButtonScript(button, info)
     if valueType == "table" then
         leftClickFn = function()
             if info.expanded then
-                self:ColapseCell(info)
+                self:CollapseCell(info)
             else
                 self:ExpandCell(info)
             end
@@ -1067,7 +1063,7 @@ end
 function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
     local nodes = {}
 
-    self:ColapseCell(info) -- if we already called this fn remove old results
+    self:CollapseCell(info) -- if we already called this fn remove old results
 
 
     local list = self.list

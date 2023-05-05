@@ -2,7 +2,7 @@ local ViragDevTool = ViragDevTool
 
 
 -----------------------------------------------------------------------------------------------
--- FUNCTION LOGGIN
+-- FUNCTION LOGGING
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
     --for now you have to tell exact table name can be _G can be something like ViragDevTool.table.table
@@ -37,7 +37,7 @@ end
 function ViragDevTool:ActivateLogFunctionCalls(info)
     if info.active then return end
 
-    local tParent = self:FromStrToObject(info.parentTableName) or {}
+    local tParent = {self:FromStrToObject(info.parentTableName) or {}}
 
     local shrinkFn = function(table)
         if #table == 1 then
@@ -64,7 +64,6 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
 
                 local fnNameWitArgs = self.colors.lightgreen:WrapTextInColorCode(fnName) ..
                         "(" .. self:argstostring(args) .. ")"
-                --.. ViragDevTool.colors.lightblue
 
                 self:AddData({
                     OUT = shrinkFn(result),
@@ -85,7 +84,7 @@ end
 function ViragDevTool:DeactivateLogFunctionCalls(info)
     if not info.active then return end
 
-    local tParent = self:FromStrToObject(info.parentTableName) or {}
+    local tParent = {self:FromStrToObject(info.parentTableName) or {}}
     for fnName, oldFn in pairs(tParent) do
         if type(oldFn) == "function" and
                 (info.fnName == nil or fnName == info.fnName) then

@@ -14,7 +14,7 @@ Libs\embeds.xml
 ViragDevToolDefaults.lua
 
 ViragDevTool.lua
-ViragDevTool.xml
+XML\ViragDevTool.xml
 
 Modules\ViragDevToolModulesCore.lua
 Modules\ViragDevToolEvents.lua

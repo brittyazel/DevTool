@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI_shared.xsd">
 
-<!--FONTS -->
+    <!--FONTS -->
     <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyH="LEFT" />
     <Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyH="LEFT" virtual="true"/>
 
@@ -340,34 +340,20 @@
                         self:RegisterForDrag("LeftButton");
                     </OnLoad>
                     <OnDragStart>
-                        local p = self:GetParent()
-                        local x = p:GetLeft()
-                        local y = -1 * (UIParent:GetHeight() - p:GetTop())
-                        p:ClearAllPoints()
-                        p:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x, y)
+                        self:GetParent():ClearAllPoints()
+                        self:GetParent():SetPoint("TOPLEFT", nil, "TOPLEFT",
+                                self:GetParent():GetLeft(), (-1 * (UIParent:GetHeight() - self:GetParent():GetTop())))
                         self:SetButtonState("PUSHED", true);
                         self:GetHighlightTexture():Hide();
 
-                        self.drag = true
-
+                        self.updateTimer = ViragDevTool:ScheduleRepeatingTimer("ResizeUpdateTick", 0.02, self)
                     </OnDragStart>
-                    <OnUpdate>
-                        if self.drag then
-                            ViragDevTool:ResizeMainFrame(self)
-                            ViragDevTool:DragResizeColumn(self:GetParent().columnResizer, true)
-                            ViragDevTool:UpdateMainTableUI()
-                            ViragDevTool:UpdateSideBarUI()
-                        end
-                    </OnUpdate>
                     <OnDragStop>
-                        self.drag = false
-                        local parent = self:GetParent()
+                        ViragDevTool:CancelTimer(self.updateTimer)
+                        --call one final time to let go of the cursor
+                        ViragDevTool:ResizeUpdateTick(self)
                         self:SetButtonState("NORMAL", false);
                         self:GetHighlightTexture():Show();
-                        ViragDevTool:ResizeMainFrame(self)
-                        ViragDevTool:DragResizeColumn(parent.columnResizer, true)
-                        ViragDevTool:UpdateMainTableUI()
-                        ViragDevTool:UpdateSideBarUI()
                     </OnDragStop>
                 </Scripts>
                 <NormalTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up"/>
@@ -545,23 +531,16 @@
                     </OnEnter>
                     <OnDragStart>
                         self:SetButtonState("PUSHED", false);
-                        self.isMoving = true
                         self:StartMoving()
+                        self.updateTimer = ViragDevTool:ScheduleRepeatingTimer("ColumnResizeUpdateTick", 0.02, self)
                     </OnDragStart>
-                    <OnUpdate>
-                        self:GetPoint()
-                        if self.isMoving then
-                            ViragDevTool:DragResizeColumn(self)
-                        end
-                    </OnUpdate>
-
                     <OnDragStop>
+                        ViragDevTool:CancelTimer(self.updateTimer)
+                        --call one final time to let go of the cursor
+                        ViragDevTool:ColumnResizeUpdateTick(self)
                         self:SetButtonState("NORMAL", false);
                         self:StopMovingOrSizing();
-                        ViragDevTool:DragResizeColumn(self)
-                        self.isMoving = false
                     </OnDragStop>
-
                 </Scripts>
 
                 <NormalTexture>
