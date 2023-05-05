@@ -1,7 +1,5 @@
-## Interface: 100005
-## Interface: 90207
+## Interface: 100100
 ## Interface-Classic: 11403
-## Interface-BCC: 20504
 ## Interface-Wrath: 30401
 ## Title: ViragDevTool
 ## Author: Varren@Azuregos-RU
@@ -21,5 +19,5 @@ Modules\ViragDevToolEvents.lua
 Modules\ViragDevToolFunctionLogger.lua
 Modules\ViragDevToolHistory.lua
 
-ViragDevToolOptions.xml
+XML\ViragDevToolOptions.xml
 ViragDevToolOptions.lua

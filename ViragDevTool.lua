@@ -633,11 +633,6 @@ end
 
 
 function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
-
-    if not dragFrame:GetLeft() then
-        print("true")
-    end
-
     local parentFrame = dragFrame:GetParent()
 
     -- 150 and 50 are just const values. safe to change
