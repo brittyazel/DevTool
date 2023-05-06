@@ -1,31 +1,25 @@
-local ViragDevTool = ViragDevTool
+-- DevTool is a World of Warcraft® addon development tool.
+-- Copyright (c) 2021-2023 Britt W. Yazel
+-- Copyright (c) 2016-2021 Peter Varren
+-- This code is licensed under the MIT license (see LICENSE for details)
 
-function ViragDevTool:ToggleOptions()
-    --   InterfaceOptionsFrame_OpenToCategory(ViragDevTool.ADDON_NAME);
-    self:LoadInterfaceOptions()
-    self:Toggle(ViragDevToolFrame.optionsFrame)
-end
-
+local _, addonTable = ... --make use of the default addon namespace
+local ViragDevTool = addonTable.ViragDevTool
 
 function ViragDevTool:LoadInterfaceOptions()
-    if not ViragDevToolFrame.optionsFrame then
-        local frame = CreateFrame("Frame", "ViragDevToolOptionsMainFrame", ViragDevToolFrame, "ViragDevToolOptionsFrameRowTemplate")
-        frame:SetPoint("BOTTOM", ViragDevToolFrame, "TOP")
+    if not self.MainWindow.optionsFrame then
+        local frame = CreateFrame("Frame", "ViragDevToolOptionsMainFrame", self.MainWindow, "ViragDevToolOptionsFrameRowTemplate")
+        frame:SetPoint("BOTTOM", self.MainWindow, "TOP")
         frame:SetHeight(35)
         frame:SetPoint("LEFT")
         frame:SetPoint("RIGHT")
         frame:Hide()
 
         self:CreateColorPickerFrame(frame)
-        ViragDevToolFrame.optionsFrame = frame
-        --ViragDevToolFrame.optionsFrame.name = self.ADDON_NAME;
-        --InterfaceOptions_AddCategory(frame);
-        --InterfaceAddOnsList_Update();
-        --InterfaceOptionsFrame_OpenToCategory(ViragDevTool.ADDON_NAME);
+        self.MainWindow.optionsFrame = frame
     end
 
 end
-
 
 function ViragDevTool:CreateColorPickerFrame(parent)
     local point = "TOPLEFT"
@@ -43,16 +37,16 @@ function ViragDevTool:CreateColorPickerFrame(parent)
 
     local buttons = {}
     for i, color in pairs({ "table", "function", "string", "number", "default" }) do
-        local f = CreateFrame("Button", "VDTColorPickerFrameItem" .. i, parent, "VDTColorPickerFrameItemTemplate")
-        f:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset)
-        local button = f.picker
+        local frame = CreateFrame("Button", "VDTColorPickerFrameItem" .. i, parent, "VDTColorPickerFrameItemTemplate")
+        frame:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset)
+        local button = frame.picker
         buttons[i] = button
         button:SetText(color)
 
         button:SetScript("OnMouseUp", function(this, mouseButton)
             if mouseButton == "RightButton" then
-                self.db.profile.colorVals[color] = ViragDevTool_defaults.profile.colorVals[color]
-                self.colors[color]:SetRGBA(unpack(ViragDevTool_defaults.profile.colorVals[color]))
+                self.db.profile.colorVals[color] = self.DatabaseDefaults.profile.colorVals[color]
+                self.colors[color]:SetRGBA(unpack(self.DatabaseDefaults.profile.colorVals[color]))
                 update(this, color)
             elseif mouseButton == "LeftButton" then
                 self:ShowColorPicker(color, function()
@@ -68,7 +62,7 @@ function ViragDevTool:CreateColorPickerFrame(parent)
         update(button, color)
 
         point = "LEFT"
-        relativeTo = f
+        relativeTo = frame
         relativePoint = "RIGHT"
         yOffset = 0
         xOffset = 5

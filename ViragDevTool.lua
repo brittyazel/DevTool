@@ -1,18 +1,16 @@
--- just remove global reference so it is easy to read with my ide
-local pairs, tostring, type, print, string, getmetatable, table, pcall, unpack, tonumber =
-pairs, tostring, type, print, string, getmetatable, table, pcall, unpack, tonumber
-local HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update =
-HybridScrollFrame_CreateButtons, HybridScrollFrame_GetOffset, HybridScrollFrame_Update
+-- DevTool is a World of Warcraft® addon development tool.
+-- Copyright (c) 2021-2023 Britt W. Yazel
+-- Copyright (c) 2016-2021 Peter Varren
+-- This code is licensed under the MIT license (see LICENSE for details)
 
----@class ViragDevTool @define The main addon object for the ViragDevTool addon
-ViragDevTool = LibStub("AceAddon-3.0"):NewAddon("ViragDevTool", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0")
--- just remove global reference so it is easy to read with my ide
-local ViragDevTool = ViragDevTool
+local addonName, addonTable = ... --make use of the default addon namespace
 
---static constant used for metatable name
-ViragDevTool.METATABLE_NAME = "$metatable"
-ViragDevTool.METATABLE_NAME2 = "$metatable.__index"
-ViragDevTool.ADDON_NAME = "ViragDevTool"
+---@class ViragDevTool : AceAddon-3.0 @define The main addon object for the ViragDevTool addon
+addonTable.ViragDevTool = LibStub("AceAddon-3.0"):NewAddon("ViragDevTool", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0")
+local ViragDevTool = addonTable.ViragDevTool
+
+--add global reference to the addon object
+_G["ViragDevTool"] = addonTable.ViragDevTool
 
 --store the colors outside the database in a class level table
 ViragDevTool.colors = {}
@@ -27,7 +25,6 @@ ViragDevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
 ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 
 
-
 -------------------------------------------------------------------------
 --------------------Start of Functions-----------------------------------
 -------------------------------------------------------------------------
@@ -37,7 +34,7 @@ ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 --- or setting up slash commands.
 function ViragDevTool:OnInitialize()
 
-    self.db = LibStub("AceDB-3.0"):New("ViragDevToolDatabase", ViragDevTool_defaults)
+    self.db = LibStub("AceDB-3.0"):New("ViragDevToolDatabase", self.DatabaseDefaults)
 
 end
 
@@ -50,7 +47,7 @@ function ViragDevTool:OnEnable()
 
     self:CreateChatCommands()
 
-    ViragDevToolFrame = CreateFrame("Frame","ViragDevToolFrame", UIParent, "ViragDevToolMainFrame")
+    self.MainWindow = CreateFrame("Frame","ViragDevToolFrame", UIParent, "ViragDevToolMainFrame")
 
     --create the colors from the values stored in the database
     self.colors["table"] = CreateColor(unpack(self.db.profile.colorVals["table"]))
@@ -60,16 +57,16 @@ function ViragDevTool:OnEnable()
     self.colors["default"] = CreateColor(unpack(self.db.profile.colorVals["default"]))
 
 
-    self:OnAddonSettingsLoaded()
+    self:LoadSettings()
     self:UpdateMainTableUI()
     self:UpdateSideBarUI()
 
     --register update scrollFrame
-    ViragDevToolFrame.scrollFrame.update = function()
+    self.MainWindow.scrollFrame.update = function()
         self:UpdateMainTableUI()
     end
 
-    ViragDevToolFrame.sideFrame.sideScrollFrame.update = function()
+    self.MainWindow.sideFrame.sideScrollFrame.update = function()
         self:UpdateSideBarUI()
     end
 
@@ -170,9 +167,9 @@ function ViragDevTool:CreateChatCommands()
             ViragDevTool:StartLogFunctionCalls(msg2, msg3)
         end,
         VDT_RESET_WND = function()
-            ViragDevToolFrame:ClearAllPoints()
-            ViragDevToolFrame:SetPoint("CENTER", UIParent)
-            ViragDevToolFrame:SetSize(635, 400)
+            self.MainWindow:ClearAllPoints()
+            self.MainWindow:SetPoint("CENTER", UIParent)
+            self.MainWindow:SetSize(635, 400)
         end
     }
 
@@ -182,15 +179,15 @@ end
 -- LIFECYCLE
 -----------------------------------------------------------------------------------------------
 
-function ViragDevTool:OnAddonSettingsLoaded()
+function ViragDevTool:LoadSettings()
 
     -- validating current settings and updating if version changed
 
     -- setup open o closed main wnd
-    self:SetVisible(ViragDevToolFrame, self.db.profile.isWndOpen)
+    self:SetVisible(self.MainWindow, self.db.profile.isWndOpen)
 
     -- setup open or closed sidebar
-    self:SetVisible(ViragDevToolFrame.sideFrame, self.db.profile.isSideBarOpen)
+    self:SetVisible(self.MainWindow.sideFrame, self.db.profile.isSideBarOpen)
 
     -- setup selected sidebar tab history/events/logs
     self:EnableSideBarTab(self.db.profile.sideBarTabSelected)
@@ -215,7 +212,7 @@ function ViragDevTool:OnAddonSettingsLoaded()
         delim = ", "
     end
 
-    ViragDevToolFrame.editbox:SetText(args)
+    self.MainWindow.editbox:SetText(args)
 
     -- setup events part 2 set scripts on frame to listen registered events
     self:SetMonitorEventScript()
@@ -230,7 +227,7 @@ function ViragDevTool:OnAddonSettingsLoaded()
 
     self:LoadInterfaceOptions()
 
-    ViragDevToolFrame.columnResizer:SetPoint("TOPLEFT", ViragDevToolFrame, "TOPLEFT", self.db.profile.collResizerPosition, -30)
+    self.MainWindow.columnResizer:SetPoint("TOPLEFT", self.MainWindow, "TOPLEFT", self.db.profile.collResizerPosition, -30)
 
 end
 
@@ -284,123 +281,6 @@ function ViragDevTool:round(num, idp)
     return math.floor(num * mult + 0.5) / mult
 end
 
-
------------------------------------------------------------------------------------------------
-
---- Linked List
--- @field first
--- @field last
---
--- Each node has:
--- @field name - string name
--- @field value - any object
--- @field next - nil/next node
--- @field padding - int expanded level( when you click on table it expands  so padding = padding + 1)
--- @field parent - parent node after it expanded
--- @field expanded - true/false/nil
-
-ViragDevTool.LinkedList = {}
-
-function ViragDevTool.LinkedList:new()
-    return setmetatable({}, { __index = self })
-end
-
-function ViragDevTool.LinkedList:GetInfoAtPosition(position)
-    if self:CountNodes() < position or self.first == nil then
-        return nil
-    end
-
-    local currNode = self.first
-    while position > 0 do
-        currNode = currNode.next
-        position = position - 1
-    end
-
-    return currNode
-end
-
-function ViragDevTool.LinkedList:AddNodesAfter(nodeList, parentNode)
-    local tempNext = parentNode.next
-    local currNode = parentNode;
-
-    for _, node in pairs(nodeList) do
-        currNode.next = node
-        currNode = node
-    end
-
-    currNode.next = tempNext
-
-    if tempNext == nil then
-        self.last = currNode
-    end
-end
-
-function ViragDevTool.LinkedList:AddNode(data, dataName)
-    local node = self:NewNode(data, dataName)
-
-    if self.first == nil then
-        self.first = node
-        self.last = node
-    else
-        if self.last ~= nil then
-            self.last.next = node
-        end
-        self.last = node
-    end
-end
-
-function ViragDevTool.LinkedList:NewNode(data, dataName, padding, parent)
-    return {
-        name = dataName,
-        value = data,
-        next = nil,
-        padding = padding == nil and 0 or padding,
-        parent = parent
-    }
-end
-
-function ViragDevTool.LinkedList:RemoveChildNodes(node)
-    local currNode = node
-
-    while true do
-        currNode = currNode.next
-        if currNode == nil then
-            node.next = nil
-            self.last = node
-            break
-        end
-        if currNode.padding <= node.padding then
-            node.next = currNode
-            break
-        end
-    end
-end
-
-function ViragDevTool.LinkedList:CountNodes()
-    local count = 0
-    local currNode = self.first
-
-    while currNode do
-        count = count + 1
-        currNode = currNode.next
-    end
-
-    return count
-end
-
-function ViragDevTool.LinkedList:Clear()
-    local currNode = self.first
-
-    while currNode do
-        local nextNode = currNode.next
-        currNode.next = nil
-        currNode = nextNode
-    end
-
-    self.first = nil
-    self.last = nil
-    collectgarbage("collect")
-end
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevTool main
@@ -487,10 +367,10 @@ function ViragDevTool:ExpandCell(info)
         else
             mt = getmetatable(v)
             if mt then
-                nodeList[counter] = self.list:NewNode(mt, self.METATABLE_NAME .. " for " .. tostring(k), padding, info)
+                nodeList[counter] = self.list:NewNode(mt, "$metatable for " .. tostring(k), padding, info)
             else
                 if k == 0 then counter = counter - 1 else
-                    nodeList[counter] = self.list:NewNode(v, self.METATABLE_NAME .. " not found for " .. tostring(k), padding, info)
+                    nodeList[counter] = self.list:NewNode(v, "$metatable not found for " .. tostring(k), padding, info)
                 end
             end
         end
@@ -516,15 +396,15 @@ end
 function ViragDevTool:NewMetatableNode(mt, padding, info)
     if type(mt) =="table" then
         if self:tablelength(mt) == 1 and mt.__index then
-            return self.list:NewNode(mt.__index, self.METATABLE_NAME2, padding, info)
+            return self.list:NewNode(mt.__index, "$metatable.__index", padding, info)
         else
-            return self.list:NewNode(mt, self.METATABLE_NAME, padding, info)
+            return self.list:NewNode(mt, "$metatable", padding, info)
         end
     end
 end
 
 function ViragDevTool:IsMetaTableNode(info)
-    return info.name == self.METATABLE_NAME or info.name == self.METATABLE_NAME2
+    return info.name == "$metatable" or info.name == "$metatable.__index"
 end
 
 function ViragDevTool:SortFnForCells(nodeList)
@@ -569,8 +449,8 @@ end
 -- UI
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:ToggleUI()
-    self:Toggle(ViragDevToolFrame)
-    self.db.profile.isWndOpen = ViragDevToolFrame:IsVisible()
+    self:Toggle(self.MainWindow)
+    self.db.profile.isWndOpen = self.MainWindow:IsVisible()
     if self.db.profile.isWndOpen then
         self:UpdateMainTableUI()
         self:UpdateSideBarUI()
@@ -675,11 +555,11 @@ end
 -- Main table UI
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:UpdateMainTableUI()
-    if not ViragDevToolFrame.scrollFrame:IsVisible() then
+    if not self.MainWindow or not self.MainWindow.scrollFrame:IsVisible() then
         return
     end
 
-    local scrollFrame = ViragDevToolFrame.scrollFrame
+    local scrollFrame = self.MainWindow.scrollFrame
     self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolEntryTemplate")
     self:UpdateScrollFrameRowSize(scrollFrame)
 
@@ -857,13 +737,13 @@ end
 -- Sidebar UI
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:ToggleSidebar()
-    self:Toggle(ViragDevToolFrame.sideFrame)
-    self.db.profile.isSideBarOpen = ViragDevToolFrame.sideFrame:IsVisible()
+    self:Toggle(self.MainWindow.sideFrame)
+    self.db.profile.isSideBarOpen = self.MainWindow.sideFrame:IsVisible()
     self:UpdateSideBarUI()
 end
 
 function ViragDevTool:SubmitEditBoxSidebar()
-    local edditBox = ViragDevToolFrame.sideFrame.editbox
+    local edditBox = self.MainWindow.sideFrame.editbox
     local msg = edditBox:GetText()
     local selectedTab = self.db.profile.sideBarTabSelected
     local cmd = msg
@@ -880,7 +760,7 @@ end
 
 function ViragDevTool:EnableSideBarTab(tabStrName)
     --Update ui
-    local sidebar = ViragDevToolFrame.sideFrame
+    local sidebar = self.MainWindow.sideFrame
     sidebar.history:SetChecked(false)
     sidebar.events:SetChecked(false)
     sidebar.logs:SetChecked(false)
@@ -894,7 +774,7 @@ function ViragDevTool:EnableSideBarTab(tabStrName)
 end
 
 function ViragDevTool:UpdateSideBarUI()
-    local scrollFrame = ViragDevToolFrame.sideFrame.sideScrollFrame
+    local scrollFrame = self.MainWindow.sideFrame.sideScrollFrame
 
     self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolSideBarRowTemplate")
 

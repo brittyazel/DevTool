@@ -1,5 +1,10 @@
+<!-- DevTool is a World of Warcraft® addon development tool.
+     Copyright(c) 2021-2023 Britt W. Yazel
+     Copyright (c) 2016-2021 Peter Varren
+     This code is licensed under the MIT license (see LICENSE for details) -->
+
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
-..\FrameXML\UI_shared.xsd">
+https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI_shared.xsd">
 
     <!--FONTS -->
     <Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyH="LEFT" />
@@ -317,10 +322,8 @@
                 self:RegisterForDrag("LeftButton")
             </OnLoad>
 
-
             <OnDragStart>
                 self:StartMoving()
-                -- self.columnResizer:
             </OnDragStart>
 
             <OnDragStop>
@@ -488,7 +491,7 @@
                 </Anchors>
                 <Scripts>
                     <OnClick>
-                        ViragDevTool:ToggleOptions()
+                        ViragDevTool:Toggle(ViragDevTool.MainWindow.optionsFrame)
                     </OnClick>
                 </Scripts>
                 <Layers>

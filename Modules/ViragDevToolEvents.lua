@@ -1,4 +1,10 @@
-local ViragDevTool = ViragDevTool
+-- DevTool is a World of Warcraft® addon development tool.
+-- Copyright (c) 2021-2023 Britt W. Yazel
+-- Copyright (c) 2016-2021 Peter Varren
+-- This code is licensed under the MIT license (see LICENSE for details)
+
+local _, addonTable = ... --make use of the default addon namespace
+local ViragDevTool = addonTable.ViragDevTool
 
 -----------------------------------------------------------------------------------------------
 -- EVENTS
