@@ -46,6 +46,8 @@ end
 --- Register Events, Hook functions, Create Frames, Get information from
 --- the game that wasn't available in OnInitialize
 function ViragDevTool:OnEnable()
+    self.list = ViragDevTool.LinkedList:new()
+
     self:CreateChatCommands()
 
     ViragDevToolFrame = CreateFrame("Frame","ViragDevToolFrame", UIParent, "ViragDevToolMainFrame")
@@ -282,12 +284,10 @@ function ViragDevTool:round(num, idp)
     return math.floor(num * mult + 0.5) / mult
 end
 
------------------------------------------------------------------------------------------------
--- ViragDevToolLinkedList == ViragDevTool.list
+
 -----------------------------------------------------------------------------------------------
 
 --- Linked List
--- @field size
 -- @field first
 -- @field last
 --
@@ -299,38 +299,33 @@ end
 -- @field parent - parent node after it expanded
 -- @field expanded - true/false/nil
 
-local ViragDevToolLinkedList = {}
+ViragDevTool.LinkedList = {}
 
-function ViragDevToolLinkedList:new(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    self.size = 0
-    return o
+function ViragDevTool.LinkedList:new()
+    return setmetatable({}, { __index = self })
 end
 
-function ViragDevToolLinkedList:GetInfoAtPosition(position)
-    if self.size < position or self.first == nil then
+function ViragDevTool.LinkedList:GetInfoAtPosition(position)
+    if self:CountNodes() < position or self.first == nil then
         return nil
     end
 
-    local node = self.first
+    local currNode = self.first
     while position > 0 do
-        node = node.next
+        currNode = currNode.next
         position = position - 1
     end
 
-    return node
+    return currNode
 end
 
-function ViragDevToolLinkedList:AddNodesAfter(nodeList, parentNode)
+function ViragDevTool.LinkedList:AddNodesAfter(nodeList, parentNode)
     local tempNext = parentNode.next
     local currNode = parentNode;
 
     for _, node in pairs(nodeList) do
         currNode.next = node
         currNode = node
-        self.size = self.size + 1;
     end
 
     currNode.next = tempNext
@@ -340,7 +335,7 @@ function ViragDevToolLinkedList:AddNodesAfter(nodeList, parentNode)
     end
 end
 
-function ViragDevToolLinkedList:AddNode(data, dataName)
+function ViragDevTool.LinkedList:AddNode(data, dataName)
     local node = self:NewNode(data, dataName)
 
     if self.first == nil then
@@ -352,11 +347,9 @@ function ViragDevToolLinkedList:AddNode(data, dataName)
         end
         self.last = node
     end
-
-    self.size = self.size + 1;
 end
 
-function ViragDevToolLinkedList:NewNode(data, dataName, padding, parent)
+function ViragDevTool.LinkedList:NewNode(data, dataName, padding, parent)
     return {
         name = dataName,
         value = data,
@@ -366,38 +359,52 @@ function ViragDevToolLinkedList:NewNode(data, dataName, padding, parent)
     }
 end
 
-function ViragDevToolLinkedList:RemoveChildNodes(node)
+function ViragDevTool.LinkedList:RemoveChildNodes(node)
     local currNode = node
 
     while true do
-
         currNode = currNode.next
-
         if currNode == nil then
             node.next = nil
             self.last = node
             break
         end
-
         if currNode.padding <= node.padding then
             node.next = currNode
             break
         end
-
-        self.size = self.size - 1
     end
 end
 
-function ViragDevToolLinkedList:Clear()
-    self.size = 0
+function ViragDevTool.LinkedList:CountNodes()
+    local count = 0
+    local currNode = self.first
+
+    while currNode do
+        count = count + 1
+        currNode = currNode.next
+    end
+
+    return count
+end
+
+function ViragDevTool.LinkedList:Clear()
+    local currNode = self.first
+
+    while currNode do
+        local nextNode = currNode.next
+        currNode.next = nil
+        currNode = nextNode
+    end
+
     self.first = nil
     self.last = nil
+    collectgarbage("collect")
 end
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevTool main
 -----------------------------------------------------------------------------------------------
-ViragDevTool.list = ViragDevToolLinkedList:new()
 
 --- The main (and the only) function you can use in ViragDevTool API
 -- Adds data to the list so you can explore its values in UI list
@@ -678,7 +685,7 @@ function ViragDevTool:UpdateMainTableUI()
 
     local buttons = scrollFrame.buttons;
     local offset = HybridScrollFrame_GetOffset(scrollFrame)
-    local totalRowsCount = self.list.size
+    local totalRowsCount = self.list:CountNodes()
     local lineplusoffset
 
     local nodeInfo = self.list:GetInfoAtPosition(offset)
