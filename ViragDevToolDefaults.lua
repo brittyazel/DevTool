@@ -40,11 +40,11 @@ ViragDevTool.DatabaseDefaults = {
 		tArgs = {},
 		fontSize = 10, -- font size for default table
 		colorVals = {
-			["table"] = {0.41,0.80,0.94,1},
-			["string"] = {0.67,0.83,0.45,1},
-			["number"] = {1,0.96,0.41,1},
-			["function"] =  {1,0.49,0.04,1},
-			["default"] = {1,1,1,1},
+			["table"] = { 0.41, 0.80, 0.94, 1 },
+			["string"] = { 0.67, 0.83, 0.45, 1 },
+			["number"] = { 1, 0.96, 0.41, 1 },
+			["function"] = { 1, 0.49, 0.04, 1 },
+			["default"] = { 1, 1, 1, 1 },
 		},
 
 		-- events to monitor

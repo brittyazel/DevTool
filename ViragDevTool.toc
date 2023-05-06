@@ -6,18 +6,13 @@
 ## Version: 0.23
 ## SavedVariables: ViragDevToolDatabase
 
-
 Libs\embeds.xml
-
 ViragDevTool.lua
 XML\ViragDevTool.xml
-
 ViragDevToolDefaults.lua
 Utilities\LinkedList.lua
-
 Modules\ViragDevToolEvents.lua
 Modules\ViragDevToolFunctionLogger.lua
 Modules\ViragDevToolHistory.lua
-
 XML\ViragDevToolOptions.xml
 ViragDevToolOptions.lua
