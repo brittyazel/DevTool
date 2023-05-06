@@ -2,17 +2,30 @@
 ## Interface-Classic: 11403
 ## Interface-Wrath: 30401
 ## Title: ViragDevTool
-## Author: Varren@Azuregos-RU
-## Version: 0.23
+## Notes: A multi-purpose tool to assist with addon development
+## IconTexture: Interface\Icons\inv_misc_gear_08
+## Author: Britt W. Yazel
+## Version: @project-version@
+## DefaultState: enabled
 ## SavedVariables: ViragDevToolDatabase
+## SavedVariablesPerCharacter:
+## X-Credits-Maintainer: Britt W. Yazel
+## X-Email: bwyazel@gmail.com
+## X-License: MIT
+## X-Curse-Project-ID:
+## X-Wago-ID:
 
 Libs\embeds.xml
+
 ViragDevTool.lua
 XML\ViragDevTool.xml
+
 ViragDevToolDefaults.lua
 Utilities\LinkedList.lua
+
 Modules\ViragDevToolEvents.lua
 Modules\ViragDevToolFunctionLogger.lua
 Modules\ViragDevToolHistory.lua
+
 XML\ViragDevToolOptions.xml
 ViragDevToolOptions.lua
