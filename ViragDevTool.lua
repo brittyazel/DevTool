@@ -283,13 +283,11 @@ function ViragDevTool:round(num, idp)
 	return math.floor(num * mult + 0.5) / mult
 end
 
-function ViragDevTool:tContains(table, item)
-	local index = 1;
-	while table[index] do
-		if ( item == table[index] ) then
-			return 1;
+function ViragDevTool.FindIndex(table, item)
+	for k, v in pairs(table) do
+		if v == item then
+			return k
 		end
-		index = index + 1;
 	end
 	return nil;
 end
@@ -310,6 +308,7 @@ function ViragDevTool:AddData(data, dataName)
 	end
 
 	table.insert(self.list, self:NewElement(data, tostring(dataName)))
+
 	self:UpdateMainTableUI()
 end
 
@@ -317,9 +316,8 @@ function ViragDevTool:NewElement(data, dataName, padding, parent)
 	return {
 		name = dataName,
 		value = data,
-		next = nil,
 		padding = padding == nil and 0 or padding,
-		parent = parent
+		parent = parent or self.list
 	}
 end
 
@@ -380,7 +378,6 @@ function ViragDevTool:ClearData()
 end
 
 function ViragDevTool:ExpandCell(info)
-
 	local nodeList = {}
 	local padding = info.padding + 1
 	local mt
@@ -404,9 +401,9 @@ function ViragDevTool:ExpandCell(info)
 		table.insert(nodeList, self:NewMetatableElement(mt, padding, info))
 	end
 
-	table.sort(nodeList, self:SortFnForCells(nodeList))
+	table.sort(nodeList, ViragDevTool.SortFnForCells(#nodeList))
 
-	local parentIndex = self:tContains(self.list, info)
+	local parentIndex = self.FindIndex(self.list, info)
 	for i, element in ipairs(nodeList) do
 		table.insert(self.list, parentIndex + i, element)
 	end
@@ -430,27 +427,20 @@ function ViragDevTool:IsMetaTableNode(info)
 	return info.name == "$metatable" or info.name == "$metatable.__index"
 end
 
-function ViragDevTool:SortFnForCells(nodeList)
+function ViragDevTool.SortFnForCells(tableLength)
+	local cmpFn
 
-	local cmpFn = function(a, b)
-		if a.name == "__index" then
-			return true
-		elseif b.name == "__index" then
-			return false
-		else
-			return a.name < b.name
-		end
-	end
-
-	if #nodeList > 20000 then
-		--  just optimisation for _G
+	--fast filter
+	if tableLength > 20000 then
+		--optimizing for _G
 		cmpFn = function(a, b)
 			return a.name < b.name
 		end
-	end
-	--lets try some better sorting if we have small number of records
-	--numbers will be sorted not like 1,10,2 but like 1,2,10
-	if #nodeList < 300 then
+	elseif tableLength < 300 then
+
+		--thorough filter
+		--lets try some better sorting if we have small number of records
+		--numbers will be sorted not like 1,10,2 but like 1,2,10
 		cmpFn = function(a, b)
 			if a.name == "__index" then
 				return true
@@ -462,6 +452,17 @@ function ViragDevTool:SortFnForCells(nodeList)
 				else
 					return a.name < b.name
 				end
+			end
+		end
+	else
+		--default filter
+		cmpFn = function(a, b)
+			if a.name == "__index" then
+				return true
+			elseif b.name == "__index" then
+				return false
+			else
+				return a.name < b.name
 			end
 		end
 	end
@@ -476,13 +477,19 @@ function ViragDevTool:CollapseCell(info)
 end
 
 function ViragDevTool:RemoveChildElements(info)
-	local parentIndex = self:tContains(self.list, info)
-	while true do
-		local nextElement = self.list[parentIndex + 1]
-		if nextElement and nextElement.padding > info.padding then
-			table.remove(self.list, parentIndex + 1)
+	local parentIndex = self.FindIndex(self.list, info)
+	local endIndex
+	for i = parentIndex + 1, #self.list do
+		if self.list[i].padding > info.padding then
+			endIndex = i
 		else
 			break
+		end
+	end
+
+	if endIndex then
+		for i = endIndex, parentIndex + 1, -1 do
+			table.remove(self.list, i)
 		end
 	end
 end
@@ -518,10 +525,10 @@ function ViragDevTool:SetVisible(view, isVisible)
 	end
 end
 
--- i ddo manual resizing and not the defalt
+-- i ddo manual resizing and not the default
 -- self:GetParent():StartSizing("BOTTOMRIGHT");
 -- self:GetParent():StopMovingOrSizing();
--- BEACUSE i don't like default behaviur.
+-- Because i don't like default behaviour.
 function ViragDevTool:ResizeMainFrame(dragFrame)
 	local parentFrame = dragFrame:GetParent()
 
@@ -609,17 +616,9 @@ function ViragDevTool:UpdateMainTableUI()
 		return
 	end
 
-	-- only run this if the height actually changed or we have nothing cached
-	if not self.cache.mainScrollBarHeight or self.MainWindow.scrollFrame:GetHeight() > self.cache.mainScrollBarHeight then
-		self.cache.mainScrollBarHeight = self.MainWindow.scrollFrame:GetHeight()
-		self:ScrollBar_AddChildren(self.MainWindow.scrollFrame, "ViragDevToolEntryTemplate")
-	end
+	self:ScrollBar_AddChildren(self.MainWindow.scrollFrame, "ViragDevToolEntryTemplate")
+	self:UpdateScrollFrameRowSize(self.MainWindow.scrollFrame)
 
-	-- only run this if the font actually changed or we have nothing cached
-	if not self.cache.fontSize or self.cache.fontSize ~= self.db.profile.fontSize then
-		self.cache.fontSize = self.db.profile.fontSize or 10
-		self:UpdateScrollFrameRowSize(self.MainWindow.scrollFrame)
-	end
 
 	local offset = HybridScrollFrame_GetOffset(self.MainWindow.scrollFrame)
 	local totalRowsCount = #self.list
@@ -638,7 +637,7 @@ function ViragDevTool:UpdateMainTableUI()
 	end
 
 	HybridScrollFrame_Update(self.MainWindow.scrollFrame, totalRowsCount *
-			self.MainWindow.scrollFrame.buttons[1]:GetHeight(), self.MainWindow.scrollFrame:GetHeight());
+			self.MainWindow.scrollFrame.buttons[1]:GetHeight() + 10, self.MainWindow.scrollFrame:GetHeight());
 
 	self.MainWindow.scrollFrame.scrollChild:SetWidth(self.MainWindow.scrollFrame:GetWidth())
 end
@@ -660,8 +659,11 @@ function ViragDevTool:UpdateScrollFrameRowSize(scrollFrame)
 end
 
 function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
-	HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
-	scrollFrame.scrollBar:SetValue(scrollFrame.scrollBar:GetValue());
+	if scrollFrame.ScrollBarHeight == nil or scrollFrame:GetHeight() > scrollFrame.ScrollBarHeight then
+		scrollFrame.ScrollBarHeight = scrollFrame:GetHeight()
+		HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
+		scrollFrame.scrollBar:SetValue(scrollFrame.scrollBar:GetValue());
+	end
 end
 
 function ViragDevTool:UIUpdateMainTableButton(node, info, id)
@@ -823,12 +825,8 @@ function ViragDevTool:EnableSideBarTab(tabStrName)
 end
 
 function ViragDevTool:UpdateSideBarUI()
-	-- only run this if the height actually changed or we have nothing cached
-	if not self.cache.sideScrollBarHeight or self.MainWindow.sideFrame.sideScrollFrame:GetHeight() >
-			self.cache.sideScrollBarHeight then
-		self.cache.sideScrollBarHeight = self.MainWindow.sideFrame.sideScrollFrame:GetHeight()
-		self:ScrollBar_AddChildren(self.MainWindow.sideFrame.sideScrollFrame, "ViragDevToolSideBarRowTemplate")
-	end
+
+	self:ScrollBar_AddChildren(self.MainWindow.sideFrame.sideScrollFrame, "ViragDevToolSideBarRowTemplate")
 
 	local offset = HybridScrollFrame_GetOffset(self.MainWindow.sideFrame.sideScrollFrame)
 	local data = self.db.profile[self.db.profile.sideBarTabSelected]
@@ -1009,7 +1007,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 		return self.colors.error:WrapTextInColorCode("ERROR")
 	end
 
-	--constract collored full function call name
+	--construct colored full function call name
 	local fnNameWithArgs = info.name .. self.colors.lightblue:WrapTextInColorCode("(" .. self:argstostring(args) .. ")")
 
 	fnNameWithArgs = parent and self.colors.gray:WrapTextInColorCode(parent.name .. ":" .. fnNameWithArgs) or fnNameWithArgs
@@ -1039,7 +1037,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 			date("%X") .. " function call results:", padding))
 
 	-- adds call result to our UI list
-	local parentIndex = self:tContains(self.list, info)
+	local parentIndex = self.FindIndex(self.list, info)
 	for i, element in ipairs(nodes) do
 		table.insert(self.list, parentIndex + i, element)
 	end

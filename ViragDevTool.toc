@@ -21,7 +21,6 @@ ViragDevTool.lua
 XML\ViragDevTool.xml
 
 ViragDevToolDefaults.lua
-Utilities\LinkedList.lua
 
 Modules\ViragDevToolEvents.lua
 Modules\ViragDevToolFunctionLogger.lua
