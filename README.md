@@ -73,9 +73,9 @@ There are 3 tabs in sidebar and text field has different behavior in each tab.
 
 ```lua
 tParent[fnName] = function(...)
-	ViragDevTool:Add({ ... }) -- will add args to the list
+	ViragDevTool:AddData({ ... }) -- will add args to the list
 	local result = { savedOldFn(...) }
-	ViragDevTool:Add(result) -- will add return value to the list
+	ViragDevTool:AddData(result) -- will add return value to the list
 	return unpack(result)
 end
 ```

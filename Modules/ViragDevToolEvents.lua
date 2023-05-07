@@ -108,7 +108,7 @@ function ViragDevTool:SetMonitorEventScript()
 			if #args == 1 then
 				args = args[1]
 			end
-			ViragDevTool:Add(args, date("%X") .. " " .. event)
+			ViragDevTool:AddData(args, date("%X") .. " " .. event)
 		end
 	end);
 end

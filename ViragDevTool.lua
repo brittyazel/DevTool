@@ -44,7 +44,7 @@ end
 --- Register Events, Hook functions, Create Frames, Get information from
 --- the game that wasn't available in OnInitialize
 function ViragDevTool:OnEnable()
-	self.list = self.LinkedList:new()
+	self.list = {}
 
 	self:CreateChatCommands()
 
@@ -283,27 +283,44 @@ function ViragDevTool:round(num, idp)
 	return math.floor(num * mult + 0.5) / mult
 end
 
+function ViragDevTool:tContains(table, item)
+	local index = 1;
+	while table[index] do
+		if ( item == table[index] ) then
+			return 1;
+		end
+		index = index + 1;
+	end
+	return nil;
+end
+
 
 -----------------------------------------------------------------------------------------------
 -- ViragDevTool main
 -----------------------------------------------------------------------------------------------
 
 --- The main (and the only) function you can use in ViragDevTool API
--- Adds data to the list so you can explore its values in UI list
--- @param data (any type)- is object you would like to track.
--- Default behavior is shallow copy
--- @param dataName (string or nil) - name tag to show in UI for you variable.
+--- Adds data to the list so you can explore its values in UI list
+--- @param data (any type)- is object you would like to track.
+--- Default behavior is shallow copy
+--- @param dataName (string or nil) - name tag to show in UI for you variable.
 function ViragDevTool:AddData(data, dataName)
 	if dataName == nil then
 		dataName = tostring(data)
 	end
 
-	self.list:AddNode(data, tostring(dataName))
+	table.insert(self.list, self:NewElement(data, tostring(dataName)))
 	self:UpdateMainTableUI()
 end
 
-function ViragDevTool:Add(data, dataName)
-	self:AddData(data, dataName)
+function ViragDevTool:NewElement(data, dataName, padding, parent)
+	return {
+		name = dataName,
+		value = data,
+		next = nil,
+		padding = padding == nil and 0 or padding,
+		parent = parent
+	}
 end
 
 function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
@@ -334,7 +351,7 @@ function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
 			ViragDevTool:AddToHistory(msg)
 		end
 
-		self:Add(resultTable, msg)
+		self:AddData(resultTable, msg)
 	end
 end
 
@@ -357,7 +374,8 @@ function ViragDevTool:FromStrToObject(str)
 end
 
 function ViragDevTool:ClearData()
-	self.list:Clear()
+	table.wipe(self.list)
+	collectgarbage("collect")
 	self:UpdateMainTableUI()
 end
 
@@ -365,48 +383,45 @@ function ViragDevTool:ExpandCell(info)
 
 	local nodeList = {}
 	local padding = info.padding + 1
-	local counter = 1
 	local mt
 	for k, v in pairs(info.value) do
 		if type(v) ~= "userdata" then
-			nodeList[counter] = self.list:NewNode(v, tostring(k), padding, info)
+			table.insert(nodeList, self:NewElement(v, tostring(k), padding, info))
 		else
 			mt = getmetatable(v)
 			if mt then
-				nodeList[counter] = self.list:NewNode(mt, "$metatable for " .. tostring(k), padding, info)
+				table.insert(nodeList, self:NewElement(mt, "$metatable for " .. tostring(k), padding, info))
 			else
-				if k == 0 then
-					counter = counter - 1
-				else
-					nodeList[counter] = self.list:NewNode(v, "$metatable not found for " .. tostring(k), padding, info)
+				if k ~= 0 then
+					table.insert(nodeList, self:NewElement(v, "$metatable not found for " .. tostring(k), padding, info))
 				end
 			end
 		end
-
-		counter = counter + 1
 	end
 
 	mt = getmetatable(info.value)
 	if mt then
-		nodeList[counter] = self:NewMetatableNode(mt, padding, info)
-	else
+		table.insert(nodeList, self:NewMetatableElement(mt, padding, info))
 	end
 
 	table.sort(nodeList, self:SortFnForCells(nodeList))
 
-	self.list:AddNodesAfter(nodeList, info)
+	local parentIndex = self:tContains(self.list, info)
+	for i, element in ipairs(nodeList) do
+		table.insert(self.list, parentIndex + i, element)
+	end
 
 	info.expanded = true
 
 	self:UpdateMainTableUI()
 end
 
-function ViragDevTool:NewMetatableNode(mt, padding, info)
+function ViragDevTool:NewMetatableElement(mt, padding, info)
 	if type(mt) == "table" then
 		if #mt == 1 and mt.__index then
-			return self.list:NewNode(mt.__index, "$metatable.__index", padding, info)
+			return self:NewElement(mt.__index, "$metatable.__index", padding, info)
 		else
-			return self.list:NewNode(mt, "$metatable", padding, info)
+			return self:NewElement(mt, "$metatable", padding, info)
 		end
 	end
 end
@@ -455,9 +470,21 @@ function ViragDevTool:SortFnForCells(nodeList)
 end
 
 function ViragDevTool:CollapseCell(info)
-	self.list:RemoveChildNodes(info)
+	self:RemoveChildElements(info)
 	info.expanded = nil
 	self:UpdateMainTableUI()
+end
+
+function ViragDevTool:RemoveChildElements(info)
+	local parentIndex = self:tContains(self.list, info)
+	while true do
+		local nextElement = self.list[parentIndex + 1]
+		if nextElement and nextElement.padding > info.padding then
+			table.remove(self.list, parentIndex + 1)
+		else
+			break
+		end
+	end
 end
 
 -----------------------------------------------------------------------------------------------
@@ -595,16 +622,15 @@ function ViragDevTool:UpdateMainTableUI()
 	end
 
 	local offset = HybridScrollFrame_GetOffset(self.MainWindow.scrollFrame)
-	local totalRowsCount = self.list.length
+	local totalRowsCount = #self.list
 
-	local nodeInfo = self.list:GetInfoAtPosition(offset)
-
+	local counter = 1
 	for k, button in pairs(self.MainWindow.scrollFrame.buttons) do
 		local linePlusOffset = k + offset;
 		if linePlusOffset <= totalRowsCount and (k - 1) * self.MainWindow.scrollFrame.buttons[1]:GetHeight() <
 				self.MainWindow.scrollFrame:GetHeight() then
-			self:UIUpdateMainTableButton(button, nodeInfo, linePlusOffset)
-			nodeInfo = nodeInfo.next
+			self:UIUpdateMainTableButton(button, self.list[offset+counter], linePlusOffset)
+			counter = counter + 1
 			button:Show();
 		else
 			button:Hide();
@@ -974,8 +1000,6 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 
 	self:CollapseCell(info) -- if we already called this fn remove old results
 
-
-	local list = self.list
 	local padding = info.padding + 1
 
 	local stateStr = function(state)
@@ -1003,7 +1027,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 
 		if found or i == 1 then
 			-- if found some return or if return is nil
-			nodes[i] = list:NewNode(results[i], string.format("  return: %d", i), padding)
+			table.insert(nodes, self:NewElement(results[i], string.format("  return: %d", i), padding))
 
 			returnFormatedStr = string.format(" %s (%s)%s", tostring(results[i]),
 					self.colors.lightblue:WrapTextInColorCode(type(results[i])), returnFormatedStr)
@@ -1011,12 +1035,15 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 	end
 
 	-- create fist node of result info no need for now. will use debug
-	table.insert(nodes, 1, list:NewNode(string.format("%s - %s", stateStr(ok), fnNameWithArgs), -- node value
+	table.insert(nodes, 1, self:NewElement(string.format("%s - %s", stateStr(ok), fnNameWithArgs), -- node value
 			date("%X") .. " function call results:", padding))
 
-
 	-- adds call result to our UI list
-	list:AddNodesAfter(nodes, info)
+	local parentIndex = self:tContains(self.list, info)
+	for i, element in ipairs(nodes) do
+		table.insert(self.list, parentIndex + i, element)
+	end
+
 	self:UpdateMainTableUI()
 
 	--print info to chat
@@ -1048,5 +1075,5 @@ function ViragDevTool:SetArgForFunctionCallFromString(argStr)
 	end
 
 	self.db.profile.tArgs = args
-	self:Add(args, "New Args for function calls")
+	self:AddData(args, "New Args for function calls")
 end
