@@ -21,18 +21,20 @@ local ViragDevTool = addonTable.ViragDevTool
 ViragDevTool.LinkedList = {}
 
 function ViragDevTool.LinkedList:new()
-	return setmetatable({}, { __index = self })
+	return setmetatable({ length = 0 }, { __index = self })
 end
 
 function ViragDevTool.LinkedList:GetInfoAtPosition(position)
-	if self:CountNodes() < position or self.first == nil then
+	if self.length < position or self.first == nil then
 		return nil
 	end
 
 	local currNode = self.first
-	while position > 0 do
+	for _ = 1, position do
 		currNode = currNode.next
-		position = position - 1
+		if not currNode then
+			return nil
+		end
 	end
 
 	return currNode
@@ -45,6 +47,7 @@ function ViragDevTool.LinkedList:AddNodesAfter(nodeList, parentNode)
 	for _, node in pairs(nodeList) do
 		currNode.next = node
 		currNode = node
+		self.length = self.length + 1
 	end
 
 	currNode.next = tempNext
@@ -66,6 +69,8 @@ function ViragDevTool.LinkedList:AddNode(data, dataName)
 		end
 		self.last = node
 	end
+
+	self.length = self.length + 1
 end
 
 function ViragDevTool.LinkedList:NewNode(data, dataName, padding, parent)
@@ -93,18 +98,8 @@ function ViragDevTool.LinkedList:RemoveChildNodes(node)
 			break
 		end
 	end
-end
 
-function ViragDevTool.LinkedList:CountNodes()
-	local count = 0
-	local currNode = self.first
-
-	while currNode do
-		count = count + 1
-		currNode = currNode.next
-	end
-
-	return count
+	self.length = self.length - 1
 end
 
 function ViragDevTool.LinkedList:Clear()
@@ -116,6 +111,7 @@ function ViragDevTool.LinkedList:Clear()
 		currNode = nextNode
 	end
 
+	self.length = 0
 	self.first = nil
 	self.last = nil
 	collectgarbage("collect")

@@ -35,6 +35,7 @@ ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 function ViragDevTool:OnInitialize()
 
 	self.db = LibStub("AceDB-3.0"):New("ViragDevToolDatabase", self.DatabaseDefaults)
+	self.cache = {}
 
 end
 
@@ -76,7 +77,6 @@ function ViragDevTool:OnEnable()
 			self:ExecuteCMD(msg, true)
 		end
 	end)
-
 
 end
 
@@ -258,14 +258,6 @@ function ViragDevTool.ends(String, End)
 	return End == '' or string.sub(String, -string.len(End)) == End
 end
 
-function ViragDevTool:tablelength(T)
-	local count = 0
-	for _ in pairs(T) do
-		count = count + 1
-	end
-	return count
-end
-
 function ViragDevTool:argstostring(args)
 	local strArgs = ""
 	local found = false
@@ -411,7 +403,7 @@ end
 
 function ViragDevTool:NewMetatableNode(mt, padding, info)
 	if type(mt) == "table" then
-		if self:tablelength(mt) == 1 and mt.__index then
+		if #mt == 1 and mt.__index then
 			return self.list:NewNode(mt.__index, "$metatable.__index", padding, info)
 		else
 			return self.list:NewNode(mt, "$metatable", padding, info)
@@ -590,58 +582,60 @@ function ViragDevTool:UpdateMainTableUI()
 		return
 	end
 
-	local scrollFrame = self.MainWindow.scrollFrame
-	self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolEntryTemplate")
-	self:UpdateScrollFrameRowSize(scrollFrame)
+	-- only run this if the height actually changed or we have nothing cached
+	if not self.cache.mainScrollBarHeight or self.MainWindow.scrollFrame:GetHeight() > self.cache.mainScrollBarHeight then
+		self.cache.mainScrollBarHeight = self.MainWindow.scrollFrame:GetHeight()
+		self:ScrollBar_AddChildren(self.MainWindow.scrollFrame, "ViragDevToolEntryTemplate")
+	end
 
-	local buttons = scrollFrame.buttons;
-	local offset = HybridScrollFrame_GetOffset(scrollFrame)
-	local totalRowsCount = self.list:CountNodes()
-	local lineplusoffset
+	-- only run this if the font actually changed or we have nothing cached
+	if not self.cache.fontSize or self.cache.fontSize ~= self.db.profile.fontSize then
+		self.cache.fontSize = self.db.profile.fontSize or 10
+		self:UpdateScrollFrameRowSize(self.MainWindow.scrollFrame)
+	end
+
+	local offset = HybridScrollFrame_GetOffset(self.MainWindow.scrollFrame)
+	local totalRowsCount = self.list.length
 
 	local nodeInfo = self.list:GetInfoAtPosition(offset)
 
-	for k, view in pairs(buttons) do
-		lineplusoffset = k + offset;
-		if lineplusoffset <= totalRowsCount and (k - 1) * buttons[1]:GetHeight() < scrollFrame:GetHeight() then
-			self:UIUpdateMainTableButton(view, nodeInfo, lineplusoffset)
+	for k, button in pairs(self.MainWindow.scrollFrame.buttons) do
+		local linePlusOffset = k + offset;
+		if linePlusOffset <= totalRowsCount and (k - 1) * self.MainWindow.scrollFrame.buttons[1]:GetHeight() <
+				self.MainWindow.scrollFrame:GetHeight() then
+			self:UIUpdateMainTableButton(button, nodeInfo, linePlusOffset)
 			nodeInfo = nodeInfo.next
-			view:Show();
+			button:Show();
 		else
-			view:Hide();
+			button:Hide();
 		end
 	end
 
-	HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
+	HybridScrollFrame_Update(self.MainWindow.scrollFrame, totalRowsCount *
+			self.MainWindow.scrollFrame.buttons[1]:GetHeight(), self.MainWindow.scrollFrame:GetHeight());
 
-	scrollFrame.scrollChild:SetWidth(scrollFrame:GetWidth())
+	self.MainWindow.scrollFrame.scrollChild:SetWidth(self.MainWindow.scrollFrame:GetWidth())
 end
 
 function ViragDevTool:UpdateScrollFrameRowSize(scrollFrame)
-	local currentFont = self.db.profile.fontSize or 10
+	local currFontSize = self.db.profile.fontSize or 10
 
-	local buttons = scrollFrame.buttons;
-	local cellHeight = currentFont + currentFont * 0.2
+	local cellHeight = currFontSize + currFontSize * 0.2
 	cellHeight = cellHeight % 2 == 0 and cellHeight or cellHeight + 1
-	for _, button in pairs(buttons) do
+	for _, button in pairs(scrollFrame.buttons) do
 		button:SetHeight(cellHeight)
 		local font = button.nameButton:GetFontString():GetFont()
-		button.nameButton:GetFontString():SetFont(font, currentFont)
-		button.rowNumberButton:GetFontString():SetFont(font, currentFont)
-		button.valueButton:GetFontString():SetFont(font, currentFont)
+		button.nameButton:GetFontString():SetFont(font, currFontSize)
+		button.rowNumberButton:GetFontString():SetFont(font, currFontSize)
+		button.valueButton:GetFontString():SetFont(font, currFontSize)
 	end
 
 	scrollFrame.buttonHeight = cellHeight
 end
 
 function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
-	if scrollFrame.ScrollBarHeight == nil or scrollFrame:GetHeight() > scrollFrame.ScrollBarHeight then
-		scrollFrame.ScrollBarHeight = scrollFrame:GetHeight()
-		local scrollBarValue = scrollFrame.scrollBar:GetValue()
-		HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
-		scrollFrame.scrollBar:SetValue(scrollBarValue);
-
-	end
+	HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
+	scrollFrame.scrollBar:SetValue(scrollFrame.scrollBar:GetValue());
 end
 
 function ViragDevTool:UIUpdateMainTableButton(node, info, id)
@@ -673,7 +667,7 @@ function ViragDevTool:ToUIString(value, name, withoutLineBrakes)
 
 	if valueType == "table" then
 		result = self:GetObjectInfoFromWoWAPI(name, value) or tostring(value)
-		result = "(" .. self:tablelength(value) .. ") " .. result
+		result = "(" .. #value .. ") " .. result
 	else
 		result = tostring(value)
 	end
@@ -803,34 +797,38 @@ function ViragDevTool:EnableSideBarTab(tabStrName)
 end
 
 function ViragDevTool:UpdateSideBarUI()
-	local scrollFrame = self.MainWindow.sideFrame.sideScrollFrame
+	-- only run this if the height actually changed or we have nothing cached
+	if not self.cache.sideScrollBarHeight or self.MainWindow.sideFrame.sideScrollFrame:GetHeight() >
+			self.cache.sideScrollBarHeight then
+		self.cache.sideScrollBarHeight = self.MainWindow.sideFrame.sideScrollFrame:GetHeight()
+		self:ScrollBar_AddChildren(self.MainWindow.sideFrame.sideScrollFrame, "ViragDevToolSideBarRowTemplate")
+	end
 
-	self:ScrollBar_AddChildren(scrollFrame, "ViragDevToolSideBarRowTemplate")
-
-	local buttons = scrollFrame.buttons;
-
-	local offset = HybridScrollFrame_GetOffset(scrollFrame)
+	local offset = HybridScrollFrame_GetOffset(self.MainWindow.sideFrame.sideScrollFrame)
 	local data = self.db.profile[self.db.profile.sideBarTabSelected]
-	local totalRowsCount = self:tablelength(data)
+	local totalRowsCount = #data
 
-	for k, frame in pairs(buttons) do
-		local lineplusoffset = k + offset;
+	for k, button in pairs(self.MainWindow.sideFrame.sideScrollFrame.buttons) do
+		local linePlusOffset = k + offset;
 
-		if lineplusoffset <= totalRowsCount and k * buttons[1]:GetHeight() < scrollFrame:GetHeight() then
-			self:UpdateSideBarRow(frame.mainButton, data, lineplusoffset)
+		if linePlusOffset <= totalRowsCount and k * self.MainWindow.sideFrame.sideScrollFrame.buttons[1]:GetHeight() <
+				self.MainWindow.sideFrame.sideScrollFrame:GetHeight() then
+			self:UpdateSideBarRow(button.mainButton, data, linePlusOffset)
 
 			--setup remove button for every row
-			frame.actionButton:SetScript("OnMouseUp", function()
-				table.remove(data, lineplusoffset)
+			button.actionButton:SetScript("OnMouseUp", function()
+				table.remove(data, linePlusOffset)
 				self:UpdateSideBarUI()
 			end)
-			frame:Show();
+			button:Show();
 		else
-			frame:Hide();
+			button:Hide();
 		end
 	end
 
-	HybridScrollFrame_Update(scrollFrame, totalRowsCount * buttons[1]:GetHeight(), scrollFrame:GetHeight());
+	HybridScrollFrame_Update(self.MainWindow.sideFrame.sideScrollFrame,
+			totalRowsCount * self.MainWindow.sideFrame.sideScrollFrame.buttons[1]:GetHeight(),
+			self.MainWindow.sideFrame.sideScrollFrame:GetHeight());
 end
 
 function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
