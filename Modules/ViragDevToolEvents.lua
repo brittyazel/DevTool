@@ -7,10 +7,10 @@ local _, addonTable = ... --make use of the default addon namespace
 local ViragDevTool = addonTable.ViragDevTool
 
 -----------------------------------------------------------------------------------------------
--- EVENTS
+--- EVENTS
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:GetListenerFrame()
-	if (self.listenerFrame == nil) then
+	if not self.listenerFrame then
 		self.listenerFrame = CreateFrame("Frame", "ViragDevToolListenerFrame", UIParent);
 	end
 	return self.listenerFrame
@@ -114,8 +114,7 @@ function ViragDevTool:SetMonitorEventScript()
 end
 
 function ViragDevTool:GetMonitoredEvent(event)
-
-	if self.db.profile.events == nil then
+	if not self.db.profile.events then
 		return
 	end
 

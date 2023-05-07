@@ -11,17 +11,15 @@ local ViragDevTool = addonTable.ViragDevTool
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
 	--for now you have to tell exact table name can be _G can be something like ViragDevTool.table.table
-	if strParentPath == nil then
+	if not strParentPath then
 		return
 	end
 
 	local savedInfo = self:GetLogFunctionCalls(strParentPath, strFnToLog)
 
-	if savedInfo == nil then
-
-
+	if not savedInfo then
 		local tParent = ViragDevTool.FromStrToObject(strParentPath)
-		if tParent == nil then
+		if not tParent then
 			self:Print(self.colors.red:WrapTextInColorCode("Error: ") ..
 					"Cannot add function monitoring: " ..
 					self.colors.lightblue:WrapTextInColorCode("_G." .. tostring(strParentPath) .. " == nil"))
@@ -58,10 +56,10 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
 
 	for fnName, oldFn in pairs(tParent) do
 		if type(oldFn) == "function" and
-				(info.fnName == nil or fnName == info.fnName) then
+				(not info.fnName or fnName == info.fnName) then
 			local savedOldFn = self:GetOldFn(tParent, fnName, oldFn)
 
-			if savedOldFn == nil then
+			if not savedOldFn then
 				self:SaveOldFn(tParent, fnName, oldFn)
 				savedOldFn = self:GetOldFn(tParent, fnName, oldFn)
 			end
@@ -97,7 +95,7 @@ function ViragDevTool:DeactivateLogFunctionCalls(info)
 	local tParent = { ViragDevTool.FromStrToObject(info.parentTableName) or {} }
 	for fnName, oldFn in pairs(tParent) do
 		if type(oldFn) == "function" and
-				(info.fnName == nil or fnName == info.fnName) then
+				(not info.fnName or fnName == info.fnName) then
 			tParent[fnName] = self:GetOldFn(tParent, fnName, oldFn)
 		end
 	end
@@ -125,22 +123,22 @@ function ViragDevTool:GetOldFn(tParent, fnName)
 end
 
 function ViragDevTool:SaveOldFn(tParent, fnName, oldFn)
-	if self.tempOldFns == nil then
+	if not self.tempOldFns then
 		self.tempOldFns = {}
 	end
 
 	-- tParent is actual parent an not string name
-	if self.tempOldFns[tParent] == nil then
+	if not self.tempOldFns[tParent] then
 		self.tempOldFns[tParent] = {}
 	end
 
 	-- clear
-	if oldFn == nil then
+	if not oldFn then
 		self.tempOldFns[tParent][fnName] = nil
 	end
 
 	--else save only if it doesn't exists
-	if self.tempOldFns[tParent][fnName] == nil then
+	if not self.tempOldFns[tParent][fnName] then
 		self.tempOldFns[tParent][fnName] = oldFn
 	end
 end
@@ -155,7 +153,7 @@ function ViragDevTool:GetLogFunctionCalls(strParentTableName, strFnName)
 end
 
 function ViragDevTool:LogFunctionCallText(info)
-	if info == nil then
+	if not info then
 		return ""
 	end
 

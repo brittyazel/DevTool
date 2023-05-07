@@ -3,7 +3,7 @@
 -- Copyright (c) 2016-2021 Peter Varren
 -- This code is licensed under the MIT license (see LICENSE for details)
 
-local addonName, addonTable = ... --make use of the default addon namespace
+local _, addonTable = ... --make use of the default addon namespace
 
 ---@class ViragDevTool : AceAddon-3.0 @define The main addon object for the ViragDevTool addon
 addonTable.ViragDevTool = LibStub("AceAddon-3.0"):NewAddon("ViragDevTool", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0")
@@ -67,11 +67,11 @@ function ViragDevTool:OnEnable()
 		self:UpdateSideBarUI()
 	end
 
-	self:RegisterChatCommand("vdt", function(msg)
-		if msg == "" or msg == nil then
+	self:RegisterChatCommand("vdt", function(message)
+		if not message or message == "" then
 			self:ToggleUI()
 		else
-			self:ExecuteCMD(msg, true)
+			self:ExecuteCMD(message, true)
 		end
 	end)
 
@@ -88,7 +88,7 @@ end
 -------------------------------------------------
 
 function ViragDevTool:CreateChatCommands()
-	-- you can use /vdt find somestr parentname(can be in format _G.Frame.Button)
+	-- you can use "/vdt find <some string> <parent name>" (can be in format _G.Frame.Button)
 	-- for example "/vdt find Virag" will find every variable in _G that has *Virag* pattern
 	-- "/vdt find Data ViragDevTool" will find every variable that has *Data* in their name in _G.ViragDevTool object if it exists
 	-- same for "startswith"
@@ -123,7 +123,7 @@ function ViragDevTool:CreateChatCommands()
 				result = string.gsub(result, "eventstop", a3("eventstop"))
 				result = string.gsub(result, "logfn", a3("logfn"))
 				result = string.gsub(result, "mouseover", a3("mouseover"))
-				result = string.gsub(result, "vdt_reset_wnd", a3("vdt_reset_wnd"))
+				result = string.gsub(result, "reposition", a3("reposition"))
 				return result
 			end
 
@@ -136,20 +136,20 @@ function ViragDevTool:CreateChatCommands()
 			print(cFix("/vdt eventadd eventName unit (optional)") .. " - " .. cFix("ex: /vdt eventadd UNIT_AURA player"))
 			print(cFix("/vdt eventstop eventName") .. " - " .. cFix("Stops event monitoring if active"))
 			print(cFix("/vdt logfn tableName functionName (optional)") .. " - " .. cFix("Log every function call. _G.tableName.functionName"))
-			print(cFix("/vdt vdt_reset_wnd") .. " - " .. cFix("Reset main frame position if you lost it for some reason"))
+			print(cFix("/vdt reposition") .. " - " .. cFix("Reset main frame position if you lost it for some reason"))
 
 			return ""
 
 		end,
 		-- "/vdt find Data ViragDevTool" or "/vdt find Data"
-		FIND = function(msg2, msg3)
-			local parent = msg3 and ViragDevTool.FromStrToObject(msg3) or _G
-			return ViragDevTool.FindIn(parent, msg2, string.match)
+		FIND = function(message2, message3)
+			local parent = message3 and ViragDevTool.FromStrToObject(message3) or _G
+			return ViragDevTool.FindIn(parent, message2, string.match)
 		end,
 		--"/vdt startswith Data ViragDevTool" or "/vdt startswith Data"
-		STARTSWITH = function(msg2, msg3)
-			local parent = msg3 and ViragDevTool.FromStrToObject(msg3) or _G
-			return ViragDevTool.FindIn(parent, msg2, ViragDevTool.starts)
+		STARTSWITH = function(message2, message3)
+			local parent = message3 and ViragDevTool.FromStrToObject(message3) or _G
+			return ViragDevTool.FindIn(parent, message2, ViragDevTool.starts)
 		end,
 		--"/vdt mouseover" --m stands for mouse focus
 		MOUSEOVER = function()
@@ -157,24 +157,24 @@ function ViragDevTool:CreateChatCommands()
 			return resultTable, resultTable:GetName()
 		end,
 		--"/vdt eventadd ADDON_LOADED"
-		EVENTADD = function(msg2, msg3)
-			ViragDevTool:StartMonitorEvent(msg2, msg3)
+		EVENTADD = function(message2, message3)
+			ViragDevTool:StartMonitorEvent(message2, message3)
 		end,
 		--"/vdt eventremove ADDON_LOADED"
-		EVENTSTOP = function(msg2, msg3)
-			ViragDevTool:StopMonitorEvent(msg2, msg3)
+		EVENTSTOP = function(message2, message3)
+			ViragDevTool:StopMonitorEvent(message2, message3)
 		end,
 		--"/vdt log tableName fnName" tableName in global namespace and fnName in table
-		LOGFN = function(msg2, msg3)
-			ViragDevTool:StartLogFunctionCalls(msg2, msg3)
+		LOGFN = function(message2, message3)
+			ViragDevTool:StartLogFunctionCalls(message2, message3)
 		end,
-		VDT_RESET_WND = function()
+		--"/vdt reposition"
+		REPOSITION = function()
 			self.MainWindow:ClearAllPoints()
 			self.MainWindow:SetPoint("CENTER", UIParent)
 			self.MainWindow:SetSize(635, 400)
 		end
 	}
-
 end
 
 -----------------------------------------------------------------------------------------------
@@ -225,92 +225,9 @@ function ViragDevTool:LoadSettings()
 
 	self:LoadInterfaceOptions()
 
-	self.MainWindow.columnResizer:SetPoint("TOPLEFT", self.MainWindow, "TOPLEFT", self.db.profile.collResizerPosition, -30)
+	self.MainWindow.columnResizer:SetPoint("TOPRIGHT", self.MainWindow, "TOPRIGHT",
+			self.db.profile.collResizerPosition * -1, -30) -- 30 is offset from above (top buttons)
 end
-
-
------------------------------------------------------------------------------------------------
---- UTILS
------------------------------------------------------------------------------------------------
-function ViragDevTool.split(str, sep)
-	local separator, fields
-	separator, fields = sep or ".", {}
-	local pattern = string.format("([^%s]+)", separator)
-	string.gsub(str, pattern, function(c)
-		fields[#fields + 1] = c
-	end)
-	return fields
-end
-
-function ViragDevTool.starts(String, Start)
-	return string.sub(String, 1, string.len(Start)) == Start
-end
-
-function ViragDevTool.ends(String, End)
-	return End == '' or string.sub(String, -string.len(End)) == End
-end
-
-function ViragDevTool.ArgsToString(args)
-	local strArgs = ""
-	local found = false
-	local delimiter = ""
-	for i = 10, 1, -1 do
-		if args[i] ~= nil then
-			found = true
-		end
-
-		if found then
-			strArgs = tostring(args[i]) .. delimiter .. strArgs
-			delimiter = ", "
-		end
-	end
-	return strArgs
-end
-
-function ViragDevTool.round(num, idp)
-	if num == nil then
-		return nil
-	end
-	local mult = 10 ^ (idp or 0)
-	return math.floor(num * mult + 0.5) / mult
-end
-
-function ViragDevTool.FindIndex(table, item)
-	for k, v in pairs(table) do
-		if v == item then
-			return k
-		end
-	end
-	return nil;
-end
-
-function ViragDevTool.CalculatePosition(pos, min, max)
-	if pos < min then
-		pos = min
-	end
-	if pos > max then
-		pos = max
-	end
-	return pos
-end
-
-function ViragDevTool.FromStrToObject(str)
-	if str == "_G" then
-		return _G
-	end
-
-	local vars = ViragDevTool.split(str, ".") or {}
-
-	local var = _G
-	for _, name in pairs(vars) do
-		if var then
-			var = var[name]
-		end
-	end
-
-	return var
-end
-
 
 -----------------------------------------------------------------------------------------------
 --- ViragDevTool main
@@ -318,11 +235,11 @@ end
 
 --- The main (and the only) function you can use in ViragDevTool API
 --- Adds data to the list so you can explore its values in UI list
---- @param data (any type)- is object you would like to track.
+--- @param data <any type> - is object you would like to track.
 --- Default behavior is shallow copy
---- @param dataName (string or nil) - name tag to show in UI for you variable.
+--- @param dataName <string or nil> - name tag to show in UI for you variable.
 function ViragDevTool:AddData(data, dataName)
-	if dataName == nil then
+	if not dataName then
 		dataName = tostring(data)
 	end
 
@@ -331,44 +248,44 @@ function ViragDevTool:AddData(data, dataName)
 	self:UpdateMainTableUI()
 end
 
-function ViragDevTool:NewElement(data, dataName, padding, parent)
+function ViragDevTool:NewElement(data, dataName, indentation, parent)
 	return {
 		name = dataName,
 		value = data,
-		padding = padding == nil and 0 or padding,
+		indentation = indentation == nil and 0 or indentation,
 		parent = parent or self.list
 	}
 end
 
-function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
-	if msg == "" then
-		msg = "_G"
+function ViragDevTool:ExecuteCMD(message, bAddToHistory)
+	if message == "" then
+		message = "_G"
 	end
 	local resultTable
 
-	local msgs = ViragDevTool.split(msg, " ")
-	local cmd = self.CMD[string.upper(msgs[1])]
+	local messages = ViragDevTool.split(message, " ")
+	local command = self.CMD[string.upper(messages[1])]
 
-	if cmd then
+	if command then
 		local title
-		resultTable, title = cmd(msgs[2], msgs[3])
+		resultTable, title = command(messages[2], messages[3])
 
 		if title then
-			msg = title
+			message = title
 		end
 	else
-		resultTable = ViragDevTool.FromStrToObject(msg)
+		resultTable = ViragDevTool.FromStrToObject(message)
 		if not resultTable then
-			self:Print("_G." .. msg .. " == nil, so can't add")
+			self:Print("Cannot find " .. "_G." .. message)
 		end
 	end
 
 	if resultTable then
 		if bAddToHistory then
-			ViragDevTool:AddToHistory(msg)
+			ViragDevTool:AddToHistory(message)
 		end
 
-		self:AddData(resultTable, msg)
+		self:AddData(resultTable, message)
 	end
 end
 
@@ -379,33 +296,33 @@ function ViragDevTool:ClearData()
 end
 
 function ViragDevTool:ExpandCell(info)
-	local nodeList = {}
-	local padding = info.padding + 1
-	local mt
+	local elementList = {}
+	local indentation = info.indentation + 1
+	local metatable
 	for k, v in pairs(info.value) do
 		if type(v) ~= "userdata" then
-			table.insert(nodeList, self:NewElement(v, tostring(k), padding, info))
+			table.insert(elementList, self:NewElement(v, tostring(k), indentation, info))
 		else
-			mt = getmetatable(v)
-			if mt then
-				table.insert(nodeList, self:NewElement(mt, "$metatable for " .. tostring(k), padding, info))
+			metatable = getmetatable(v)
+			if metatable then
+				table.insert(elementList, self:NewElement(metatable, "$metatable for " .. tostring(k), indentation, info))
 			else
 				if k ~= 0 then
-					table.insert(nodeList, self:NewElement(v, "$metatable not found for " .. tostring(k), padding, info))
+					table.insert(elementList, self:NewElement(v, "$metatable not found for " .. tostring(k), indentation, info))
 				end
 			end
 		end
 	end
 
-	mt = getmetatable(info.value)
-	if mt then
-		table.insert(nodeList, self:NewMetatableElement(mt, padding, info))
+	metatable = getmetatable(info.value)
+	if metatable then
+		table.insert(elementList, self:NewMetatableElement(metatable, indentation, info))
 	end
 
-	table.sort(nodeList, ViragDevTool.SortFnForCells(#nodeList))
+	table.sort(elementList, ViragDevTool.SortFnForCells(#elementList))
 
 	local parentIndex = ViragDevTool.FindIndex(self.list, info)
-	for i, element in ipairs(nodeList) do
+	for i, element in ipairs(elementList) do
 		table.insert(self.list, parentIndex + i, element)
 	end
 
@@ -414,68 +331,21 @@ function ViragDevTool:ExpandCell(info)
 	self:UpdateMainTableUI()
 end
 
-function ViragDevTool:NewMetatableElement(mt, padding, info)
-	if type(mt) == "table" then
-		if #mt == 1 and mt.__index then
-			return self:NewElement(mt.__index, "$metatable.__index", padding, info)
+function ViragDevTool:NewMetatableElement(metatable, indentation, info)
+	if type(metatable) == "table" then
+		if #metatable == 1 and metatable.__index then
+			return self:NewElement(metatable.__index, "$metatable.__index", indentation, info)
 		else
-			return self:NewElement(mt, "$metatable", padding, info)
+			return self:NewElement(metatable, "$metatable", indentation, info)
 		end
 	end
-end
-
-function ViragDevTool:IsMetaTableNode(info)
-	return info.name == "$metatable" or info.name == "$metatable.__index"
-end
-
-function ViragDevTool.SortFnForCells(tableLength)
-	local cmpFn
-
-	--fast filter
-	if tableLength > 20000 then
-		--optimizing for _G
-		cmpFn = function(a, b)
-			return a.name < b.name
-		end
-	elseif tableLength < 300 then
-
-		--thorough filter
-		--lets try some better sorting if we have small number of records
-		--numbers will be sorted not like 1,10,2 but like 1,2,10
-		cmpFn = function(a, b)
-			if a.name == "__index" then
-				return true
-			elseif b.name == "__index" then
-				return false
-			else
-				if tonumber(a.name) ~= nil and tonumber(b.name) ~= nil then
-					return tonumber(a.name) < tonumber(b.name)
-				else
-					return a.name < b.name
-				end
-			end
-		end
-	else
-		--default filter
-		cmpFn = function(a, b)
-			if a.name == "__index" then
-				return true
-			elseif b.name == "__index" then
-				return false
-			else
-				return a.name < b.name
-			end
-		end
-	end
-
-	return cmpFn
 end
 
 function ViragDevTool:CollapseCell(info)
 	local parentIndex = ViragDevTool.FindIndex(self.list, info)
 	local endIndex
 	for i = parentIndex + 1, #self.list do
-		if self.list[i].padding > info.padding then
+		if self.list[i].indentation > info.indentation then
 			endIndex = i
 		else
 			break
@@ -524,77 +394,60 @@ function ViragDevTool:SetVisible(view, isVisible)
 	end
 end
 
--- i ddo manual resizing and not the default
+function ViragDevTool:ResizeUpdateTick()
+	self:ResizeMainFrame()
+	self:DragResizeColumn()
+	self:UpdateMainTableUI()
+	self:UpdateSideBarUI()
+end
+
+function ViragDevTool:ColumnResizeUpdateTick()
+	self:DragResizeColumn()
+	self:UpdateMainTableUI()
+	self:UpdateSideBarUI()
+end
+
+-- I do manual resizing and not the default
 -- self:GetParent():StartSizing("BOTTOMRIGHT");
 -- self:GetParent():StopMovingOrSizing();
--- Because i don't like default behaviour.
-function ViragDevTool:ResizeMainFrame(dragFrame)
-	local parentFrame = dragFrame:GetParent()
-
-	local left = dragFrame:GetParent():GetLeft()
-	local top = dragFrame:GetParent():GetTop()
+-- Because I don't like default behaviour. --Varren
+function ViragDevTool:ResizeMainFrame()
+	local left = self.MainWindow:GetLeft()
+	local top = self.MainWindow:GetTop()
 
 	local x, y = GetCursorPosition()
-	local s = parentFrame:GetEffectiveScale()
+	local s = self.MainWindow:GetEffectiveScale()
 	x = x / s
 	y = y / s
 
 	local minX, minY, maxX, maxY
 
-	if parentFrame.SetResizeBounds then
+	if self.MainWindow.SetResizeBounds then
 		-- WoW 10.0
-		minX, minY, maxX, maxY = parentFrame:GetResizeBounds()
+		minX, minY, maxX, maxY = self.MainWindow:GetResizeBounds()
 	else
-		maxX, maxY = parentFrame:GetMaxResize()
-		minX, minY = parentFrame:GetMinResize()
+		maxX, maxY = self.MainWindow:GetMaxResize()
+		minX, minY = self.MainWindow:GetMinResize()
 
 	end
 
-	parentFrame:SetSize(ViragDevTool.CalculatePosition(x - left, minX, maxX),
+	self.MainWindow:SetSize(ViragDevTool.CalculatePosition(x - left, minX, maxX),
 			ViragDevTool.CalculatePosition(top - y, minY, maxY))
 end
 
-function ViragDevTool:ResizeUpdateTick(frame)
-	self:ResizeMainFrame(frame)
-	self:DragResizeColumn(frame:GetParent().columnResizer, true)
-	self:UpdateMainTableUI()
-	self:UpdateSideBarUI()
-end
-
-function ViragDevTool:ColumnResizeUpdateTick(frame)
-	self:DragResizeColumn(frame, true)
-	self:UpdateMainTableUI()
-	self:UpdateSideBarUI()
-end
-
-function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
-	local parentFrame = dragFrame:GetParent()
-
+function ViragDevTool:DragResizeColumn()
 	-- 150 and 50 are just const values. safe to change
-	local minX = 150
-	local maxX = parentFrame:GetWidth() - 50
+	local minFromRight = 100
+	local maxFromRight = self.MainWindow:GetWidth() - 150
 
-	local pos = dragFrame:GetLeft() - parentFrame:GetLeft()
-	pos = ViragDevTool.CalculatePosition(pos, minX, maxX)
+	local posFromRight = self.MainWindow:GetRight() - self.MainWindow.columnResizer:GetRight()
+	posFromRight = ViragDevTool.CalculatePosition(posFromRight, minFromRight, maxFromRight)
 
-	if not ignoreMousePosition then
-		local x, y = GetCursorPosition()
-		local s = parentFrame:GetEffectiveScale()
-		x = x / s
-		y = y / s
-		if x <= (minX + parentFrame:GetLeft()) then
-			pos = minX
-		end
-		if x >= (maxX + parentFrame:GetLeft()) then
-			pos = maxX
-		end
-	end
+	self.MainWindow.columnResizer:ClearAllPoints()
+	self.MainWindow.columnResizer:SetPoint("TOPRIGHT", self.MainWindow, "TOPRIGHT", posFromRight * -1, -30) -- 30 is offset from above (top buttons)
 
-	dragFrame:ClearAllPoints()
-	dragFrame:SetPoint("TOPLEFT", parentFrame, "TOPLEFT", pos, -30) -- 30 is offset from above (top buttons)
-
-	-- save pos so we can restore it on reloda ui or logout
-	self.db.profile.collResizerPosition = pos
+	-- save pos so we can restore it on reload ui or logout
+	self.db.profile.collResizerPosition = posFromRight
 end
 
 -----------------------------------------------------------------------------------------------
@@ -648,129 +501,34 @@ function ViragDevTool:UpdateScrollFrameRowSize(scrollFrame)
 end
 
 function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
-	if scrollFrame.ScrollBarHeight == nil or scrollFrame:GetHeight() > scrollFrame.ScrollBarHeight then
+	if not scrollFrame.ScrollBarHeight or scrollFrame:GetHeight() > scrollFrame.ScrollBarHeight then
 		scrollFrame.ScrollBarHeight = scrollFrame:GetHeight()
 		HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
 		scrollFrame.scrollBar:SetValue(scrollFrame.scrollBar:GetValue());
 	end
 end
 
-function ViragDevTool:UIUpdateMainTableButton(node, info, id)
+function ViragDevTool:UIUpdateMainTableButton(element, info, id)
 	local color = self.colors[type(info.value)]
 	if not color then
 		color = self.colors.default
 	end
-	if type(info.value) == "table" and self:IsMetaTableNode(info) then
+	if type(info.value) == "table" and ViragDevTool.IsMetaTableNode(info) then
 		color = self.colors.default
 	end
 
-	node.nameButton:SetPoint("LEFT", node.rowNumberButton, "RIGHT", 10 * info.padding - 10, 0)
+	element.nameButton:SetPoint("LEFT", element.rowNumberButton, "RIGHT", 10 * info.indentation - 10, 0)
 
-	node.valueButton:SetText(ViragDevTool.ToUIString(info.value, info.name, true))
-	node.nameButton:SetText(tostring(info.name))
-	node.rowNumberButton:SetText(tostring(id))
+	element.valueButton:SetText(ViragDevTool.ToUIString(info.value, info.name, true))
+	element.nameButton:SetText(tostring(info.name))
+	element.rowNumberButton:SetText(tostring(id))
 
-	node.nameButton:GetFontString():SetTextColor(color:GetRGBA())
-	node.valueButton:GetFontString():SetTextColor(color:GetRGBA())
-	node.rowNumberButton:GetFontString():SetTextColor(color:GetRGBA())
+	element.nameButton:GetFontString():SetTextColor(color:GetRGBA())
+	element.valueButton:GetFontString():SetTextColor(color:GetRGBA())
+	element.rowNumberButton:GetFontString():SetTextColor(color:GetRGBA())
 
-	self:SetMainTableButtonScript(node.nameButton, info)
-	self:SetMainTableButtonScript(node.valueButton, info)
-end
-
-function ViragDevTool.ToUIString(value, name, withoutLineBrakes)
-	local result
-	local valueType = type(value)
-
-	if valueType == "table" then
-		result = ViragDevTool.GetObjectInfoFromWoWAPI(name, value) or tostring(value)
-		result = "(" .. #value .. ") " .. result
-	else
-		result = tostring(value)
-	end
-
-	if withoutLineBrakes then
-		result = string.gsub(string.gsub(tostring(result), "|n", ""), "\n", "")
-	end
-
-	return result
-end
-
-function ViragDevTool.GetObjectInfoFromWoWAPI(helperText, value)
-	local resultStr
-	local ok, objectType = ViragDevTool.TryCallAPIFn("GetObjectType", value)
-
-	-- try to get frame name
-	if ok then
-		local concat = function(str, before, after)
-			before = before or ""
-			after = after or ""
-			if str then
-				return resultStr .. " " .. before .. str .. after
-			end
-			return resultStr
-		end
-
-		local _, name = ViragDevTool.TryCallAPIFn("GetName", value)
-		local _, texture = ViragDevTool.TryCallAPIFn("GetTexture", value)
-		local _, text = ViragDevTool.TryCallAPIFn("GetText", value)
-
-		local hasSize, left, bottom, width, height = ViragDevTool.TryCallAPIFn("GetBoundsRect", value)
-
-		resultStr = objectType or ""
-		if hasSize then
-			resultStr = concat("[" ..
-					tostring(ViragDevTool.round(left)) .. ", " ..
-					tostring(ViragDevTool.round(bottom)) .. ", " ..
-					tostring(ViragDevTool.round(width)) .. ", " ..
-					tostring(ViragDevTool.round(height)) .. "]")
-		end
-
-		if helperText ~= name then
-			resultStr = concat(name, ViragDevTool.colors.gray:WrapTextInColorCode("<"), ViragDevTool.colors.gray:WrapTextInColorCode(">"))
-		end
-
-		resultStr = concat(texture)
-		resultStr = concat(text, "'", "'")
-		resultStr = concat(tostring(value))
-	end
-
-	return resultStr
-end
-
-function ViragDevTool.TryCallAPIFn(fnName, value)
-	-- this function is helper fn to get table type from wow api.
-	-- if there is GetObjectType then we will return it.
-	-- returns Button, Frame or something like this
-
-	-- VALIDATION
-	if type(value) ~= "table" then
-		return
-	end
-
-	-- VALIDATION FIX if __index is function we don't want to execute it
-	-- Example in ACP.L
-	local mt = getmetatable(value)
-	if mt and type(mt) == "table" and type(mt.__index) == "function" then
-		return
-	end
-
-	-- VALIDATION is forbidden from wow api
-	if value.IsForbidden then
-		local ok, forbidden = pcall(value.IsForbidden, value)
-		if not ok or (ok and forbidden) then
-			return
-		end
-	end
-
-	local fn = value[fnName]
-	-- VALIDATION has WoW API
-	if not fn or type(fn) ~= "function" then
-		return
-	end
-
-	-- MAIN PART:
-	return pcall(fn, value)
+	self:SetMainTableButtonScript(element.nameButton, info)
+	self:SetMainTableButtonScript(element.valueButton, info)
 end
 
 -----------------------------------------------------------------------------------------------
@@ -784,17 +542,17 @@ end
 
 function ViragDevTool:SubmitEditBoxSidebar()
 	local edditBox = self.MainWindow.sideFrame.editbox
-	local msg = edditBox:GetText()
+	local message = edditBox:GetText()
 	local selectedTab = self.db.profile.sideBarTabSelected
-	local cmd = msg
+	local command = message
 
 	if selectedTab == "logs" then
-		cmd = "logfn " .. msg
+		command = "logfn " .. message
 	elseif selectedTab == "events" then
-		cmd = "eventadd " .. msg
+		command = "eventadd " .. message
 	end
 
-	self:ExecuteCMD(cmd, true)
+	self:ExecuteCMD(command, true)
 	self:UpdateSideBarUI()
 end
 
@@ -844,10 +602,10 @@ function ViragDevTool:UpdateSideBarUI()
 			self.MainWindow.sideFrame.sideScrollFrame:GetHeight());
 end
 
-function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
+function ViragDevTool:UpdateSideBarRow(view, data, linePlusOffset)
 	local selectedTab = self.db.profile.sideBarTabSelected
 
-	local currItem = data[lineplusoffset]
+	local currItem = data[linePlusOffset]
 
 	if selectedTab == "history" then
 		-- history update
@@ -856,7 +614,7 @@ function ViragDevTool:UpdateSideBarRow(view, data, lineplusoffset)
 		view:SetScript("OnMouseUp", function()
 			ViragDevTool:ExecuteCMD(name)
 			--move to top
-			table.remove(data, lineplusoffset)
+			table.remove(data, linePlusOffset)
 			table.insert(data, 1, currItem)
 			ViragDevTool:UpdateSideBarUI()
 		end)
@@ -895,7 +653,6 @@ end
 -- Main table row button clicks setup
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:SetMainTableButtonScript(button, info)
-	--todo add left click = copy to chat
 	local valueType = type(info.value)
 	local leftClickFn = function()
 	end
@@ -941,53 +698,29 @@ function ViragDevTool:TryCallFunction(info)
 	end
 
 	-- lets try safe call first
-	local ok, results = self:TryCallFunctionWithArgs(fn, args)
+	local ok, results = ViragDevTool.TryCallFunctionWithArgs(fn, args)
 
 	if not ok then
 		-- if safe call failed we probably could try to find self and call self:fn()
-		parent = self:GetParentTable(info)
+		parent = ViragDevTool.GetParentTable(info)
 
 		if parent then
 			args = { parent.value, unpack(args) } --shallow copy and add parent table
-			ok, results = self:TryCallFunctionWithArgs(fn, args)
+			ok, results = ViragDevTool.TryCallFunctionWithArgs(fn, args)
 		end
 	end
 
 	self:ProcessCallFunctionData(ok, info, parent, args, results)
 end
 
-function ViragDevTool:GetParentTable(info)
-	local parent = info.parent
-	if parent and parent.value == _G then
-		-- this fn is in global namespace so no parent
-		parent = nil
-	end
-
-	if parent then
-		if self:IsMetaTableNode(parent) then
-			-- metatable has real object 1 level higher
-			parent = parent.parent
-		end
-	end
-
-	return parent
-end
-
-function ViragDevTool:TryCallFunctionWithArgs(fn, args)
-	local results = { pcall(fn, unpack(args, 1, 10)) }
-	local ok = results[1]
-	table.remove(results, 1)
-	return ok, results
-end
-
 -- this function is kinda hard to read but it just adds new items to list and prints log in chat.
 -- will add 1 row for call result(ok or error) and 1 row for each return value
 function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
-	local nodes = {}
+	local elements = {}
 
 	self:CollapseCell(info) -- if we already called this fn remove old results
 
-	local padding = info.padding + 1
+	local indentation = info.indentation + 1
 
 	local stateStr = function(state)
 		if state then
@@ -1001,7 +734,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 
 	fnNameWithArgs = parent and self.colors.gray:WrapTextInColorCode(parent.name .. ":" .. fnNameWithArgs) or fnNameWithArgs
 
-	local returnFormatedStr = ""
+	local returnFormattedStr = ""
 
 	-- iterate backwards because we want to include every meaningful nil result
 	-- and with default iteration like pairs() we will just skip them so
@@ -1014,27 +747,27 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 
 		if found or i == 1 then
 			-- if found some return or if return is nil
-			table.insert(nodes, self:NewElement(results[i], string.format("  return: %d", i), padding))
+			table.insert(elements, self:NewElement(results[i], string.format("  return: %d", i), indentation))
 
-			returnFormatedStr = string.format(" %s (%s)%s", tostring(results[i]),
-					self.colors.lightblue:WrapTextInColorCode(type(results[i])), returnFormatedStr)
+			returnFormattedStr = string.format(" %s (%s)%s", tostring(results[i]),
+					self.colors.lightblue:WrapTextInColorCode(type(results[i])), returnFormattedStr)
 		end
 	end
 
-	-- create fist node of result info no need for now. will use debug
-	table.insert(nodes, 1, self:NewElement(string.format("%s - %s", stateStr(ok), fnNameWithArgs), -- node value
-			date("%X") .. " function call results:", padding))
+	-- create first element of result info no need for now. will use debug
+	table.insert(elements, 1, self:NewElement(string.format("%s - %s", stateStr(ok), fnNameWithArgs), -- element value
+			date("%X") .. " function call results:", indentation))
 
 	-- adds call result to our UI list
 	local parentIndex = ViragDevTool.FindIndex(self.list, info)
-	for i, element in ipairs(nodes) do
+	for i, element in ipairs(elements) do
 		table.insert(self.list, parentIndex + i, element)
 	end
 
 	self:UpdateMainTableUI()
 
 	--print info to chat
-	self:Print(stateStr(ok) .. " " .. fnNameWithArgs .. self.colors.gray:WrapTextInColorCode(" returns:") .. returnFormatedStr)
+	self:Print(stateStr(ok) .. " " .. fnNameWithArgs .. self.colors.gray:WrapTextInColorCode(" returns:") .. returnFormattedStr)
 end
 
 -----------------------------------------------------------------------------------------------

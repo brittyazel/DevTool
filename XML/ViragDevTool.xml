@@ -334,12 +334,12 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 						self:SetButtonState("PUSHED", true);
 						self:GetHighlightTexture():Hide();
 
-						self.updateTimer = ViragDevTool:ScheduleRepeatingTimer("ResizeUpdateTick", 0.01, self)
+						self.updateTimer = ViragDevTool:ScheduleRepeatingTimer("ResizeUpdateTick", 0.01)
 					</OnDragStart>
 					<OnDragStop>
 						ViragDevTool:CancelTimer(self.updateTimer)
 						--call one final time to let go of the cursor
-						ViragDevTool:ResizeUpdateTick(self)
+						ViragDevTool:ResizeUpdateTick()
 						self:SetButtonState("NORMAL", false);
 						self:GetHighlightTexture():Show();
 					</OnDragStop>
@@ -523,12 +523,12 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 					<OnDragStart>
 						self:SetButtonState("PUSHED", false);
 						self:StartMoving()
-						self.updateTimer = ViragDevTool:ScheduleRepeatingTimer("ColumnResizeUpdateTick", 0.01, self)
+						self.updateTimer = ViragDevTool:ScheduleRepeatingTimer("ColumnResizeUpdateTick", 0.01)
 					</OnDragStart>
 					<OnDragStop>
 						ViragDevTool:CancelTimer(self.updateTimer)
 						--call one final time to let go of the cursor
-						ViragDevTool:ColumnResizeUpdateTick(self)
+						ViragDevTool:ColumnResizeUpdateTick()
 						self:SetButtonState("NORMAL", false);
 						self:StopMovingOrSizing();
 					</OnDragStop>

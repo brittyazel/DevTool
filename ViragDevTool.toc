@@ -20,6 +20,7 @@ Libs\embeds.xml
 ViragDevTool.lua
 XML\ViragDevTool.xml
 
+Utilities\Utils.lua
 ViragDevToolDefaults.lua
 
 Modules\ViragDevToolEvents.lua

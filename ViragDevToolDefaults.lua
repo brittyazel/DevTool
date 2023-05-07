@@ -20,7 +20,7 @@ ViragDevTool.DatabaseDefaults = {
 
 		-- stores history of recent calls to /vdt
 		MAX_HISTORY_SIZE = 50,
-		collResizerPosition = 450,
+		collResizerPosition = 150,
 		history = {
 			-- examples
 			"find LFR",

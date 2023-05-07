@@ -7,7 +7,7 @@ local _, addonTable = ... --make use of the default addon namespace
 local ViragDevTool = addonTable.ViragDevTool
 
 -----------------------------------------------------------------------------------------------
--- HISTORY
+--- HISTORY
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:AddToHistory(strValue)
 	if self.db.profile.history then
@@ -37,16 +37,4 @@ function ViragDevTool:AddToHistory(strValue)
 
 		self:UpdateSideBarUI()
 	end
-end
-
-function ViragDevTool.FindIn(parent, strName, fn)
-	local resultTable = {}
-
-	for k, v in pairs(parent or {}) do
-		if fn(k, strName) then
-			resultTable[k] = v
-		end
-	end
-
-	return resultTable
 end
