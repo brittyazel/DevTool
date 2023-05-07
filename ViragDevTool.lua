@@ -319,7 +319,15 @@ function ViragDevTool:ExpandCell(info)
 		table.insert(elementList, self:NewMetatableElement(metatable, indentation, info))
 	end
 
-	table.sort(elementList, ViragDevTool.SortFnForCells(#elementList))
+	--this is a somewhat hacky safety check to make sure we don't overwhelm the UI with too many elements
+	--checks to see if the current list + the new elements is more than 5% larger than the total number of elements in _G
+	--do this check before the sort to not waste cycles unnecessarily
+	if #elementList + #self.list >= ViragDevTool.CountElements(_G) * 1.05 then
+		self:Print("ExpandCell: Too many elements in table. Aborting")
+		return
+	end
+
+	table.sort(elementList, ViragDevTool.SelectSortFunction(#elementList))
 
 	local parentIndex = ViragDevTool.FindIndex(self.list, info)
 	for i, element in ipairs(elementList) do

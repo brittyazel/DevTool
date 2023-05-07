@@ -92,6 +92,14 @@ function ViragDevTool.FindIndex(table, item)
 	return nil;
 end
 
+function ViragDevTool.CountElements(t)
+	local count = 0
+	for _, _ in pairs(t) do
+		count = count + 1
+	end
+	return count
+end
+
 function ViragDevTool.FromStrToObject(str)
 	if str == "_G" then
 		return _G
@@ -112,7 +120,7 @@ end
 
 --- Miscellaneous
 
-function ViragDevTool.SortFnForCells(tableLength)
+function ViragDevTool.SelectSortFunction(tableLength)
 	local compareFn
 
 	--fast filter
