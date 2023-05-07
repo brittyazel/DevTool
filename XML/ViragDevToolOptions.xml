@@ -8,7 +8,6 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 
 	<Frame name="VDTColorPickerFrameItemTemplate" virtual="true">
 		<Size x="100" y="25"/>
-
 		<Frames>
 			<Button text="table" name="$parentButton" inherits="ViragDevToolButtonTemplate" parentKey="picker">
 				<Anchors>
