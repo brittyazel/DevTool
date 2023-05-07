@@ -28,14 +28,14 @@ function ViragDevTool:StartMonitorEvent(event, unit)
 		table.insert(self.db.profile.events, tEvent)
 	end
 
-	local f = self:GetListenerFrame()
+	local frame = self:GetListenerFrame()
 
 	if event == "ALL" then
-		f:RegisterAllEvents()
+		frame:RegisterAllEvents()
 	elseif type(unit) == "string" then
-		f:RegisterUnitEvent(event, unit)
+		frame:RegisterUnitEvent(event, unit)
 	else
-		f:RegisterEvent(event)
+		frame:RegisterEvent(event)
 	end
 
 	tEvent.active = true
@@ -56,17 +56,17 @@ function ViragDevTool:StopMonitorEvent(event, unit)
 	local tEvent = self:GetMonitoredEvent(event, unit)
 
 	if tEvent and tEvent.active then
-		local f = self:GetListenerFrame()
+		local frame = self:GetListenerFrame()
 		tEvent.active = false
 		if event == "ALL" then
-			f:UnregisterAllEvents()
+			frame:UnregisterAllEvents()
 			for _, thisEvent in pairs(self.db.profile.events) do
 				if thisEvent.active then
 					self:StartMonitorEvent(thisEvent.event, thisEvent.unit)
 				end
 			end
 		else
-			f:UnregisterEvent(event)
+			frame:UnregisterEvent(event)
 		end
 
 		local eventName = event
@@ -103,12 +103,12 @@ function ViragDevTool:SetMonitorEventScript()
 			args = { event, CombatLogGetCurrentEventInfo() }
 		end
 
-		local showAllEvents = ViragDevTool:GetMonitoredEvent("ALL")
-		if ViragDevTool:GetMonitoredEvent(event) or (showAllEvents and showAllEvents.active) then
+		local showAllEvents = self:GetMonitoredEvent("ALL")
+		if self:GetMonitoredEvent(event) or (showAllEvents and showAllEvents.active) then
 			if #args == 1 then
 				args = args[1]
 			end
-			ViragDevTool:AddData(args, date("%X") .. " " .. event)
+			self:AddData(args, date("%X") .. " " .. event)
 		end
 	end);
 end

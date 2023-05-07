@@ -20,7 +20,7 @@ function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
 	if savedInfo == nil then
 
 
-		local tParent = self:FromStrToObject(strParentPath)
+		local tParent = ViragDevTool.FromStrToObject(strParentPath)
 		if tParent == nil then
 			self:Print(self.colors.red:WrapTextInColorCode("Error: ") ..
 					"Cannot add function monitoring: " ..
@@ -45,7 +45,7 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
 		return
 	end
 
-	local tParent = { self:FromStrToObject(info.parentTableName) or {} }
+	local tParent = { ViragDevTool.FromStrToObject(info.parentTableName) or {} }
 
 	local shrinkFn = function(table)
 		if #table == 1 then
@@ -71,7 +71,7 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
 				local args = { ... }
 
 				local fnNameWitArgs = self.colors.lightgreen:WrapTextInColorCode(fnName) ..
-						"(" .. self:argstostring(args) .. ")"
+						"(" .. ViragDevTool.ArgsToString(args) .. ")"
 
 				self:AddData({
 					OUT = shrinkFn(result),
@@ -94,7 +94,7 @@ function ViragDevTool:DeactivateLogFunctionCalls(info)
 		return
 	end
 
-	local tParent = { self:FromStrToObject(info.parentTableName) or {} }
+	local tParent = { ViragDevTool.FromStrToObject(info.parentTableName) or {} }
 	for fnName, oldFn in pairs(tParent) do
 		if type(oldFn) == "function" and
 				(info.fnName == nil or fnName == info.fnName) then

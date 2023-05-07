@@ -39,7 +39,7 @@ function ViragDevTool:AddToHistory(strValue)
 	end
 end
 
-function ViragDevTool:FindIn(parent, strName, fn)
+function ViragDevTool.FindIn(parent, strName, fn)
 	local resultTable = {}
 
 	for k, v in pairs(parent or {}) do

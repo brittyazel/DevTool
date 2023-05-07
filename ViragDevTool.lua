@@ -33,10 +33,7 @@ ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 --- do init tasks here, like loading the Saved Variables
 --- or setting up slash commands.
 function ViragDevTool:OnInitialize()
-
 	self.db = LibStub("AceDB-3.0"):New("ViragDevToolDatabase", self.DatabaseDefaults)
-	self.cache = {}
-
 end
 
 --- **OnEnable** which gets called during the PLAYER_LOGIN event, when most of the data provided by the game is already present.
@@ -146,13 +143,13 @@ function ViragDevTool:CreateChatCommands()
 		end,
 		-- "/vdt find Data ViragDevTool" or "/vdt find Data"
 		FIND = function(msg2, msg3)
-			local parent = msg3 and ViragDevTool:FromStrToObject(msg3) or _G
-			return ViragDevTool:FindIn(parent, msg2, string.match)
+			local parent = msg3 and ViragDevTool.FromStrToObject(msg3) or _G
+			return ViragDevTool.FindIn(parent, msg2, string.match)
 		end,
 		--"/vdt startswith Data ViragDevTool" or "/vdt startswith Data"
 		STARTSWITH = function(msg2, msg3)
-			local parent = msg3 and ViragDevTool:FromStrToObject(msg3) or _G
-			return ViragDevTool:FindIn(parent, msg2, ViragDevTool.starts)
+			local parent = msg3 and ViragDevTool.FromStrToObject(msg3) or _G
+			return ViragDevTool.FindIn(parent, msg2, ViragDevTool.starts)
 		end,
 		--"/vdt mouseover" --m stands for mouse focus
 		MOUSEOVER = function()
@@ -181,14 +178,11 @@ function ViragDevTool:CreateChatCommands()
 end
 
 -----------------------------------------------------------------------------------------------
--- LIFECYCLE
+--- LIFECYCLE
 -----------------------------------------------------------------------------------------------
 
 function ViragDevTool:LoadSettings()
-
-	-- validating current settings and updating if version changed
-
-	-- setup open o closed main wnd
+	-- setup open or closed main window
 	self:SetVisible(self.MainWindow, self.db.profile.isWndOpen)
 
 	-- setup open or closed sidebar
@@ -222,7 +216,6 @@ function ViragDevTool:LoadSettings()
 	-- setup events part 2 set scripts on frame to listen registered events
 	self:SetMonitorEventScript()
 
-
 	--we store colors not in saved settings for now
 	if self.db.profile.colorVals then
 		for k, v in pairs(self.db.profile.colorVals) do
@@ -233,18 +226,17 @@ function ViragDevTool:LoadSettings()
 	self:LoadInterfaceOptions()
 
 	self.MainWindow.columnResizer:SetPoint("TOPLEFT", self.MainWindow, "TOPLEFT", self.db.profile.collResizerPosition, -30)
-
 end
 
 
 -----------------------------------------------------------------------------------------------
--- UTILS
+--- UTILS
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:split(sep)
+function ViragDevTool.split(str, sep)
 	local separator, fields
 	separator, fields = sep or ".", {}
 	local pattern = string.format("([^%s]+)", separator)
-	self:gsub(pattern, function(c)
+	string.gsub(str, pattern, function(c)
 		fields[#fields + 1] = c
 	end)
 	return fields
@@ -258,7 +250,7 @@ function ViragDevTool.ends(String, End)
 	return End == '' or string.sub(String, -string.len(End)) == End
 end
 
-function ViragDevTool:argstostring(args)
+function ViragDevTool.ArgsToString(args)
 	local strArgs = ""
 	local found = false
 	local delimiter = ""
@@ -275,7 +267,7 @@ function ViragDevTool:argstostring(args)
 	return strArgs
 end
 
-function ViragDevTool:round(num, idp)
+function ViragDevTool.round(num, idp)
 	if num == nil then
 		return nil
 	end
@@ -292,9 +284,36 @@ function ViragDevTool.FindIndex(table, item)
 	return nil;
 end
 
+function ViragDevTool.CalculatePosition(pos, min, max)
+	if pos < min then
+		pos = min
+	end
+	if pos > max then
+		pos = max
+	end
+	return pos
+end
+
+function ViragDevTool.FromStrToObject(str)
+	if str == "_G" then
+		return _G
+	end
+
+	local vars = ViragDevTool.split(str, ".") or {}
+
+	local var = _G
+	for _, name in pairs(vars) do
+		if var then
+			var = var[name]
+		end
+	end
+
+	return var
+end
+
 
 -----------------------------------------------------------------------------------------------
--- ViragDevTool main
+--- ViragDevTool main
 -----------------------------------------------------------------------------------------------
 
 --- The main (and the only) function you can use in ViragDevTool API
@@ -327,7 +346,7 @@ function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
 	end
 	local resultTable
 
-	local msgs = self.split(msg, " ")
+	local msgs = ViragDevTool.split(msg, " ")
 	local cmd = self.CMD[string.upper(msgs[1])]
 
 	if cmd then
@@ -338,7 +357,7 @@ function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
 			msg = title
 		end
 	else
-		resultTable = self:FromStrToObject(msg)
+		resultTable = ViragDevTool.FromStrToObject(msg)
 		if not resultTable then
 			self:Print("_G." .. msg .. " == nil, so can't add")
 		end
@@ -351,24 +370,6 @@ function ViragDevTool:ExecuteCMD(msg, bAddToHistory)
 
 		self:AddData(resultTable, msg)
 	end
-end
-
-function ViragDevTool:FromStrToObject(str)
-
-	if str == "_G" then
-		return _G
-	end
-
-	local vars = self.split(str, ".") or {}
-
-	local var = _G
-	for _, name in pairs(vars) do
-		if var then
-			var = var[name]
-		end
-	end
-
-	return var
 end
 
 function ViragDevTool:ClearData()
@@ -403,7 +404,7 @@ function ViragDevTool:ExpandCell(info)
 
 	table.sort(nodeList, ViragDevTool.SortFnForCells(#nodeList))
 
-	local parentIndex = self.FindIndex(self.list, info)
+	local parentIndex = ViragDevTool.FindIndex(self.list, info)
 	for i, element in ipairs(nodeList) do
 		table.insert(self.list, parentIndex + i, element)
 	end
@@ -471,13 +472,7 @@ function ViragDevTool.SortFnForCells(tableLength)
 end
 
 function ViragDevTool:CollapseCell(info)
-	self:RemoveChildElements(info)
-	info.expanded = nil
-	self:UpdateMainTableUI()
-end
-
-function ViragDevTool:RemoveChildElements(info)
-	local parentIndex = self.FindIndex(self.list, info)
+	local parentIndex = ViragDevTool.FindIndex(self.list, info)
 	local endIndex
 	for i = parentIndex + 1, #self.list do
 		if self.list[i].padding > info.padding then
@@ -487,11 +482,15 @@ function ViragDevTool:RemoveChildElements(info)
 		end
 	end
 
+	--loop backwards as it is WAY faster to remove from the end first
 	if endIndex then
 		for i = endIndex, parentIndex + 1, -1 do
 			table.remove(self.list, i)
 		end
 	end
+
+	info.expanded = nil
+	self:UpdateMainTableUI()
 end
 
 -----------------------------------------------------------------------------------------------
@@ -551,8 +550,8 @@ function ViragDevTool:ResizeMainFrame(dragFrame)
 
 	end
 
-	parentFrame:SetSize(self:CalculatePosition(x - left, minX, maxX),
-			self:CalculatePosition(top - y, minY, maxY))
+	parentFrame:SetSize(ViragDevTool.CalculatePosition(x - left, minX, maxX),
+			ViragDevTool.CalculatePosition(top - y, minY, maxY))
 end
 
 function ViragDevTool:ResizeUpdateTick(frame)
@@ -576,7 +575,7 @@ function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
 	local maxX = parentFrame:GetWidth() - 50
 
 	local pos = dragFrame:GetLeft() - parentFrame:GetLeft()
-	pos = self:CalculatePosition(pos, minX, maxX)
+	pos = ViragDevTool.CalculatePosition(pos, minX, maxX)
 
 	if not ignoreMousePosition then
 		local x, y = GetCursorPosition()
@@ -596,16 +595,6 @@ function ViragDevTool:DragResizeColumn(dragFrame, ignoreMousePosition)
 
 	-- save pos so we can restore it on reloda ui or logout
 	self.db.profile.collResizerPosition = pos
-end
-
-function ViragDevTool:CalculatePosition(pos, min, max)
-	if pos < min then
-		pos = min
-	end
-	if pos > max then
-		pos = max
-	end
-	return pos
 end
 
 -----------------------------------------------------------------------------------------------
@@ -677,7 +666,7 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
 
 	node.nameButton:SetPoint("LEFT", node.rowNumberButton, "RIGHT", 10 * info.padding - 10, 0)
 
-	node.valueButton:SetText(self:ToUIString(info.value, info.name, true))
+	node.valueButton:SetText(ViragDevTool.ToUIString(info.value, info.name, true))
 	node.nameButton:SetText(tostring(info.name))
 	node.rowNumberButton:SetText(tostring(id))
 
@@ -689,12 +678,12 @@ function ViragDevTool:UIUpdateMainTableButton(node, info, id)
 	self:SetMainTableButtonScript(node.valueButton, info)
 end
 
-function ViragDevTool:ToUIString(value, name, withoutLineBrakes)
+function ViragDevTool.ToUIString(value, name, withoutLineBrakes)
 	local result
 	local valueType = type(value)
 
 	if valueType == "table" then
-		result = self:GetObjectInfoFromWoWAPI(name, value) or tostring(value)
+		result = ViragDevTool.GetObjectInfoFromWoWAPI(name, value) or tostring(value)
 		result = "(" .. #value .. ") " .. result
 	else
 		result = tostring(value)
@@ -707,9 +696,9 @@ function ViragDevTool:ToUIString(value, name, withoutLineBrakes)
 	return result
 end
 
-function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
+function ViragDevTool.GetObjectInfoFromWoWAPI(helperText, value)
 	local resultStr
-	local ok, objectType = self:TryCallAPIFn("GetObjectType", value)
+	local ok, objectType = ViragDevTool.TryCallAPIFn("GetObjectType", value)
 
 	-- try to get frame name
 	if ok then
@@ -722,23 +711,23 @@ function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
 			return resultStr
 		end
 
-		local _, name = self:TryCallAPIFn("GetName", value)
-		local _, texture = self:TryCallAPIFn("GetTexture", value)
-		local _, text = self:TryCallAPIFn("GetText", value)
+		local _, name = ViragDevTool.TryCallAPIFn("GetName", value)
+		local _, texture = ViragDevTool.TryCallAPIFn("GetTexture", value)
+		local _, text = ViragDevTool.TryCallAPIFn("GetText", value)
 
-		local hasSize, left, bottom, width, height = self:TryCallAPIFn("GetBoundsRect", value)
+		local hasSize, left, bottom, width, height = ViragDevTool.TryCallAPIFn("GetBoundsRect", value)
 
 		resultStr = objectType or ""
 		if hasSize then
 			resultStr = concat("[" ..
-					tostring(self:round(left)) .. ", " ..
-					tostring(self:round(bottom)) .. ", " ..
-					tostring(self:round(width)) .. ", " ..
-					tostring(self:round(height)) .. "]")
+					tostring(ViragDevTool.round(left)) .. ", " ..
+					tostring(ViragDevTool.round(bottom)) .. ", " ..
+					tostring(ViragDevTool.round(width)) .. ", " ..
+					tostring(ViragDevTool.round(height)) .. "]")
 		end
 
 		if helperText ~= name then
-			resultStr = concat(name, self.colors.gray:WrapTextInColorCode("<"), self.colors.gray:WrapTextInColorCode(">"))
+			resultStr = concat(name, ViragDevTool.colors.gray:WrapTextInColorCode("<"), ViragDevTool.colors.gray:WrapTextInColorCode(">"))
 		end
 
 		resultStr = concat(texture)
@@ -749,7 +738,7 @@ function ViragDevTool:GetObjectInfoFromWoWAPI(helperText, value)
 	return resultStr
 end
 
-function ViragDevTool:TryCallAPIFn(fnName, value)
+function ViragDevTool.TryCallAPIFn(fnName, value)
 	-- this function is helper fn to get table type from wow api.
 	-- if there is GetObjectType then we will return it.
 	-- returns Button, Frame or something like this
@@ -942,9 +931,9 @@ function ViragDevTool:TryCallFunction(info)
 	local fn = info.value
 	local args = { unpack(self.db.profile.tArgs) }
 	for k, v in pairs(args) do
-		if type(v) == "string" and self.starts(v, "t=") then
+		if type(v) == "string" and ViragDevTool.starts(v, "t=") then
 
-			local obj = self:FromStrToObject(string.sub(v, 3))
+			local obj = ViragDevTool.FromStrToObject(string.sub(v, 3))
 			if obj then
 				args[k] = obj
 			end
@@ -1008,7 +997,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 	end
 
 	--construct colored full function call name
-	local fnNameWithArgs = info.name .. self.colors.lightblue:WrapTextInColorCode("(" .. self:argstostring(args) .. ")")
+	local fnNameWithArgs = info.name .. self.colors.lightblue:WrapTextInColorCode("(" .. ViragDevTool.ArgsToString(args) .. ")")
 
 	fnNameWithArgs = parent and self.colors.gray:WrapTextInColorCode(parent.name .. ":" .. fnNameWithArgs) or fnNameWithArgs
 
@@ -1037,7 +1026,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 			date("%X") .. " function call results:", padding))
 
 	-- adds call result to our UI list
-	local parentIndex = self.FindIndex(self.list, info)
+	local parentIndex = ViragDevTool.FindIndex(self.list, info)
 	for i, element in ipairs(nodes) do
 		table.insert(self.list, parentIndex + i, element)
 	end
@@ -1052,10 +1041,10 @@ end
 -- BOTTOM PANEL Fn Arguments button  and arguments input edit box
 -----------------------------------------------------------------------------------------------
 function ViragDevTool:SetArgForFunctionCallFromString(argStr)
-	local args = self.split(argStr, ",") or {}
+	local args = ViragDevTool.split(argStr, ",") or {}
 
 	local trim = function(s)
-		return (s:gsub("^%s*(.-)%s*$", "%1"))
+		return (string.gsub(s, "^%s*(.-)%s*$", "%1"))
 	end
 
 	for k, arg in pairs(args) do
