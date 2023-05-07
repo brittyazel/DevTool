@@ -169,7 +169,7 @@ function ViragDevTool.ToUIString(value, name, withoutLineBrakes)
 
 	if valueType == "table" then
 		result = ViragDevTool.GetObjectInfoFromWoWAPI(name, value) or tostring(value)
-		result = "(" .. #value .. ") " .. result
+		result = "(" .. ViragDevTool.CountElements(value) .. ") " .. result
 	else
 		result = tostring(value)
 	end

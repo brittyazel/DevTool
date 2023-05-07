@@ -549,15 +549,13 @@ function ViragDevTool:ToggleSidebar()
 end
 
 function ViragDevTool:SubmitEditBoxSidebar()
-	local edditBox = self.MainWindow.sideFrame.editbox
-	local message = edditBox:GetText()
 	local selectedTab = self.db.profile.sideBarTabSelected
-	local command = message
+	local command = self.MainWindow.sideFrame.editbox:GetText()
 
 	if selectedTab == "logs" then
-		command = "logfn " .. message
+		command = "logfn " .. command
 	elseif selectedTab == "events" then
-		command = "eventadd " .. message
+		command = "eventadd " .. command
 	end
 
 	self:ExecuteCMD(command, true)
