@@ -308,10 +308,10 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				self:RegisterForDrag("LeftButton")
 			</OnLoad>
 			<OnDragStart>
+				ViragDevTool:DragResizeColumn() --call this otherwise the column will detach for some reason
 				self:StartMoving()
 			</OnDragStart>
 			<OnDragStop>
-				self.isMoving = false
 				self:StopMovingOrSizing();
 			</OnDragStop>
 		</Scripts>
@@ -513,7 +513,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				<Size x="15" y="15"/>
 				<Scripts>
 					<OnLoad>
-						-- self:SetFrameStrata("HIGH")
+						self:SetFrameStrata("HIGH")
 						self:RegisterForDrag("LeftButton");
 					</OnLoad>
 					<OnEnter>
