@@ -2,7 +2,7 @@
 ## Interface-Classic: 11403
 ## Interface-Wrath: 30401
 ## Title: DevTool
-## Notes: A multi-purpose tool to assist with addon development
+## Notes: A multipurpose tool to assist with addon development
 ## IconTexture: Interface\Icons\inv_misc_gear_08
 ## Author: Britt W. Yazel
 ## Version: @project-version@
