@@ -4,19 +4,19 @@
 -- This code is licensed under the MIT license (see LICENSE for details)
 
 local _, addonTable = ... --make use of the default addon namespace
-local ViragDevTool = addonTable.ViragDevTool
+local DevTool = addonTable.DevTool
 
 -----------------------------------------------------------------------------------------------
 --- EVENTS
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:GetListenerFrame()
+function DevTool:GetListenerFrame()
 	if not self.listenerFrame then
-		self.listenerFrame = CreateFrame("Frame", "ViragDevToolListenerFrame", UIParent);
+		self.listenerFrame = CreateFrame("Frame", "DevToolListenerFrame", UIParent);
 	end
 	return self.listenerFrame
 end
 
-function ViragDevTool:StartMonitorEvent(event, unit)
+function DevTool:StartMonitorEvent(event, unit)
 	if not event then
 		return
 	end
@@ -49,7 +49,7 @@ function ViragDevTool:StartMonitorEvent(event, unit)
 			self.colors.lightblue:WrapTextInColorCode(eventName))
 end
 
-function ViragDevTool:StopMonitorEvent(event, unit)
+function DevTool:StopMonitorEvent(event, unit)
 	if not event then
 		return
 	end
@@ -80,7 +80,7 @@ function ViragDevTool:StopMonitorEvent(event, unit)
 	end
 end
 
-function ViragDevTool:ToggleMonitorEvent(tEvent)
+function DevTool:ToggleMonitorEvent(tEvent)
 	if tEvent then
 		if tEvent.active then
 			self:StopMonitorEvent(tEvent.event, tEvent.unit)
@@ -90,7 +90,7 @@ function ViragDevTool:ToggleMonitorEvent(tEvent)
 	end
 end
 
-function ViragDevTool:SetMonitorEventScript()
+function DevTool:SetMonitorEventScript()
 	local f = self:GetListenerFrame()
 
 	f:SetScript("OnEvent", function(_, ...)
@@ -113,7 +113,7 @@ function ViragDevTool:SetMonitorEventScript()
 	end);
 end
 
-function ViragDevTool:GetMonitoredEvent(event)
+function DevTool:GetMonitoredEvent(event)
 	if not self.db.profile.events then
 		return
 	end

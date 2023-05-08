@@ -4,12 +4,12 @@
 -- This code is licensed under the MIT license (see LICENSE for details)
 
 local _, addonTable = ... --make use of the default addon namespace
-local ViragDevTool = addonTable.ViragDevTool
+local DevTool = addonTable.DevTool
 
 -----------------------------------------------------------------------------------------------
 --- HISTORY
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:AddToHistory(strValue)
+function DevTool:AddToHistory(strValue)
 	if self.db.profile.history then
 		local hist = self.db.profile.history
 

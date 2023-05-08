@@ -7,9 +7,9 @@
 https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI_shared.xsd">
 
 	<!--FONTS -->
-	<Font name="ViragDevToolDefaultFont" inherits="SystemFont_Small" justifyH="LEFT"/>
-	<Font name="ViragDevToolMediumFont" inherits="SystemFont_Med1" justifyH="LEFT" virtual="true"/>
-	<Texture name="ViragDevToolStrokeTexture" virtual="true">
+	<Font name="DevToolDefaultFont" inherits="SystemFont_Small" justifyH="LEFT"/>
+	<Font name="DevToolMediumFont" inherits="SystemFont_Med1" justifyH="LEFT" virtual="true"/>
+	<Texture name="DevToolStrokeTexture" virtual="true">
 		<Color r="0.1" g="0.1" b="0.1" a="1"/>
 	</Texture>
 
@@ -18,7 +18,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 	 *********************************************************************************************************-->
 
 	<!--FRAME -->
-	<Frame name="ViragDevToolFrameTemplate" virtual="true">
+	<Frame name="DevToolFrameTemplate" virtual="true">
 		<Layers>
 			<Layer>
 				<Texture>
@@ -68,7 +68,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 	</Frame>
 
 
-	<Slider name="ViragDevToolMinimalHybridScrollBarTemplate" parentKey="scrollBar" virtual="true">
+	<Slider name="DevToolMinimalHybridScrollBarTemplate" parentKey="scrollBar" virtual="true">
 		<Size x="22" y="0"/>
 		<Frames>
 			<Button name="$parentScrollUpButton" inherits="UIPanelScrollUpButtonTemplate">
@@ -101,7 +101,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 	</Slider>
 
 	<!--SCROLL FRAME -->
-	<ScrollFrame name="ViragDevToolScrollFrameTemplate" inherits="HybridScrollFrameTemplate" virtual="true">
+	<ScrollFrame name="DevToolScrollFrameTemplate" inherits="HybridScrollFrameTemplate" virtual="true">
 		<Anchors>
 			<Anchor point="RIGHT" x="-27"/>
 			<Anchor point="LEFT" x="5"/>
@@ -112,7 +112,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 			</OnLoad>
 		</Scripts>
 		<Frames>
-			<Slider name="$parentScrollBar" inherits="ViragDevToolMinimalHybridScrollBarTemplate">
+			<Slider name="$parentScrollBar" inherits="DevToolMinimalHybridScrollBarTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" y="-18"/>
 					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" y="16"/>
@@ -133,7 +133,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 	</ScrollFrame>
 
 	<!--BUTTON -->
-	<Button name="ViragDevToolBaseButtonTemplate" virtual="true">
+	<Button name="DevToolBaseButtonTemplate" virtual="true">
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture>
@@ -154,7 +154,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 		</HighlightTexture>
 	</Button>
 
-	<CheckButton name="ViragDevToolButtonTemplate" inherits="ViragDevToolBaseButtonTemplate" virtual="true">
+	<CheckButton name="DevToolButtonTemplate" inherits="DevToolBaseButtonTemplate" virtual="true">
 		<Size x="100" y="25"/>
 		<NormalFont style="GameFontHighlight"/>
 		<CheckedTexture name="$parentChecked" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="ADD">
@@ -163,7 +163,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 	</CheckButton>
 
 	<!--EDITBOX -->
-	<EditBox name="ViragDevToolEditBoxTemplate" virtual="true">
+	<EditBox name="DevToolEditBoxTemplate" virtual="true">
 		<Size y="25"/>
 		<Layers>
 			<Layer>
@@ -181,7 +181,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 	</EditBox>
 
 	<!--COLUMN FOR MAIN HybridScrollFrameTemplate -->
-	<Button text="Test" name="ViragDevToolColumnTemplate" virtual="true">
+	<Button text="Test" name="DevToolColumnTemplate" virtual="true">
 		<Size x="42"/>
 		<Anchors>
 			<Anchor point="TOP"/>
@@ -201,11 +201,11 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				self:GetParent():UnlockHighlight()
 			</OnLeave>
 		</Scripts>
-		<NormalFont style="ViragDevToolDefaultFont"/>
+		<NormalFont style="DevToolDefaultFont"/>
 	</Button>
 
 	<!--ROW BASE HybridScrollFrameTemplate -->
-	<Button name="ViragDevToolRowTemplate" virtual="true">
+	<Button name="DevToolRowTemplate" virtual="true">
 		<Anchors>
 			<Anchor point="RIGHT"/>
 			<Anchor point="LEFT"/>
@@ -229,7 +229,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 	</Button>
 
 	<!--ROW FOR SIDEBAR HybridScrollFrameTemplate -->
-	<Button name="ViragDevToolSideBarRowTemplate" inherits="ViragDevToolRowTemplate" virtual="true">
+	<Button name="DevToolSideBarRowTemplate" inherits="DevToolRowTemplate" virtual="true">
 		<Size y="18"/>
 		<Frames>
 			<!--COLUMN 1 delete item icon -->
@@ -244,37 +244,37 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				<HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
 			</Button>
 			<!--COLUMN 2 item text -->
-			<Button text="Test" name="$parentMainButton" inherits="ViragDevToolColumnTemplate" parentKey="mainButton">
+			<Button text="Test" name="$parentMainButton" inherits="DevToolColumnTemplate" parentKey="mainButton">
 				<Anchors>
 					<Anchor point="RIGHT"/>
 					<Anchor point="LEFT" relativeTo="$parentActionButton" relativePoint="RIGHT"/>
 				</Anchors>
-				<NormalFont style="ViragDevToolMediumFont"/>
+				<NormalFont style="DevToolMediumFont"/>
 			</Button>
 		</Frames>
 	</Button>
 
 	<!--ROW FOR MAIN HybridScrollFrameTemplate -->
-	<Button name="ViragDevToolEntryTemplate" inherits="ViragDevToolRowTemplate" virtual="true">
+	<Button name="DevToolEntryTemplate" inherits="DevToolRowTemplate" virtual="true">
 		<Size y="7"/>
 		<Frames>
 			<!--COLUMN 1-->
-			<Button text="123456" name="$parentCountColumn" inherits="ViragDevToolColumnTemplate"
+			<Button text="123456" name="$parentCountColumn" inherits="DevToolColumnTemplate"
 					parentKey="rowNumberButton">
 				<Anchors>
 					<Anchor point="LEFT" x="5"/>
 				</Anchors>
 			</Button>
 			<!--COLUMN 2-->
-			<Button text="Test Text" name="$parentNameColumn" inherits="ViragDevToolColumnTemplate"
+			<Button text="Test Text" name="$parentNameColumn" inherits="DevToolColumnTemplate"
 					parentKey="nameButton">
 				<Anchors>
 					<Anchor point="LEFT" relativeTo="$parentCountColumn" relativePoint="RIGHT"/>
-					<Anchor point="RIGHT" relativeTo="ViragDevToolFrameColumnResizeButton" relativePoint="LEFT" x="10"/>
+					<Anchor point="RIGHT" relativeTo="DevToolFrameColumnResizeButton" relativePoint="LEFT" x="10"/>
 				</Anchors>
 			</Button>
 			<!--COLUMN 3-->
-			<Button text="Test Text" name="$parentValueColumn" inherits="ViragDevToolColumnTemplate"
+			<Button text="Test Text" name="$parentValueColumn" inherits="DevToolColumnTemplate"
 					parentKey="valueButton">
 				<Anchors>
 					<Anchor point="RIGHT"/>
@@ -289,7 +289,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 														 MAIN UI
 	 *********************************************************************************************************-->
 
-	<Frame name="ViragDevToolMainFrame" inherits="ViragDevToolFrameTemplate" hidden="true" movable="true"
+	<Frame name="DevToolMainFrame" inherits="DevToolFrameTemplate" hidden="true" movable="true"
 		   resizable="true" virtual="true">
 		<Size x="635" y="500"/>
 		<Anchors>
@@ -308,7 +308,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				self:RegisterForDrag("LeftButton")
 			</OnLoad>
 			<OnDragStart>
-				ViragDevTool:DragResizeColumn() --call this otherwise the column will detach for some reason
+				DevTool:DragResizeColumn() --call this otherwise the column will detach for some reason
 				self:StartMoving()
 			</OnDragStart>
 			<OnDragStop>
@@ -334,12 +334,12 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 						self:SetButtonState("PUSHED", true);
 						self:GetHighlightTexture():Hide();
 
-						self.updateTimer = ViragDevTool:ScheduleRepeatingTimer("ResizeUpdateTick", 0.01)
+						self.updateTimer = DevTool:ScheduleRepeatingTimer("ResizeUpdateTick", 0.01)
 					</OnDragStart>
 					<OnDragStop>
-						ViragDevTool:CancelTimer(self.updateTimer)
+						DevTool:CancelTimer(self.updateTimer)
 						--call one final time to let go of the cursor
-						ViragDevTool:ResizeUpdateTick()
+						DevTool:ResizeUpdateTick()
 						self:SetButtonState("NORMAL", false);
 						self:GetHighlightTexture():Show();
 					</OnDragStop>
@@ -350,7 +350,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 			</Button>
 
 			<!--LABEL FOR FUNCTION ARGUMENTS-->
-			<Button text="Arguments:" inherits="ViragDevToolButtonTemplate" name="$parentFNCallLabelButton"
+			<Button text="Arguments:" inherits="DevToolButtonTemplate" name="$parentFNCallLabelButton"
 					parentKey="clearFnArgsButton">
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" y="5" x="5"/>
@@ -358,15 +358,15 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				<Scripts>
 					<OnClick>
 						-- clear args
-						ViragDevTool:SetArgForFunctionCallFromString("")
-						ViragDevTool:Print("Old args cleaned: " .. self:GetParent().editbox:GetText())
+						DevTool:SetArgForFunctionCallFromString("")
+						DevTool:Print("Old args cleaned: " .. self:GetParent().editbox:GetText())
 						self:GetParent().editbox:SetText("")
 					</OnClick>
 				</Scripts>
 			</Button>
 
 			<!--FUNCTION ARGUMENTS EDITBOX-->
-			<EditBox name="$parentTextArea" inherits="ViragDevToolEditBoxTemplate" autoFocus="false"
+			<EditBox name="$parentTextArea" inherits="DevToolEditBoxTemplate" autoFocus="false"
 					 parentKey="editbox">
 				<Anchors>
 					<Anchor point="RIGHT" relativeTo="$parentResizeButton" relativePoint="LEFT" x="-14"/>
@@ -374,8 +374,8 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				</Anchors>
 				<Scripts>
 					<OnEnterPressed>
-						ViragDevTool:SetArgForFunctionCallFromString(self:GetText())
-						ViragDevTool:Print("New arguments: " .. self:GetText())
+						DevTool:SetArgForFunctionCallFromString(self:GetText())
+						DevTool:Print("New arguments: " .. self:GetText())
 						self:ClearFocus();
 					</OnEnterPressed>
 					<OnEscapePressed>
@@ -394,7 +394,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						ViragDevTool:ToggleSidebar()
+						DevTool:ToggleSidebar()
 					</OnClick>
 				</Scripts>
 				<NormalTexture file="Interface\Buttons\UI-Panel-SmallerButton-Up"/>
@@ -403,31 +403,31 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 			</Button>
 
 			<!--CLEAR BUTTON -->
-			<Button text="Clear" name="$parentClearButton" inherits="ViragDevToolButtonTemplate">
+			<Button text="Clear" name="$parentClearButton" inherits="DevToolButtonTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativeTo="$parentToggleSideBarButton" relativePoint="RIGHT" x="5"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						ViragDevTool:ClearData()
+						DevTool:ClearData()
 					</OnClick>
 				</Scripts>
 			</Button>
 
 			<!--_G BUTTON -->
-			<Button text="_G" name="$parentAddGlobalButton" inherits="ViragDevToolButtonTemplate">
+			<Button text="_G" name="$parentAddGlobalButton" inherits="DevToolButtonTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT" x="5"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						ViragDevTool:AddData(_G, "_G")
+						DevTool:AddData(_G, "_G")
 					</OnClick>
 				</Scripts>
 			</Button>
 
 			<!--SHOW FRAME STACK BUTTON -->
-			<Button text="/fstack" name="$parentFrameStack" inherits="ViragDevToolButtonTemplate">
+			<Button text="/fstack" name="$parentFrameStack" inherits="DevToolButtonTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT" x="5"/>
 				</Anchors>
@@ -443,13 +443,13 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 			</Button>
 
 			<!--HELP BUTTON -->
-			<Button text="Help" name="$parentHelpButton" inherits="ViragDevToolButtonTemplate">
+			<Button text="Help" name="$parentHelpButton" inherits="DevToolButtonTemplate">
 				<Anchors>
 					<Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT" x="5"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						ViragDevTool:ExecuteCMD("help")
+						DevTool:ExecuteCMD("help")
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -462,7 +462,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						ViragDevTool:ToggleUI()
+						DevTool:ToggleUI()
 					</OnClick>
 				</Scripts>
 				<NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
@@ -479,7 +479,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						ViragDevTool:Toggle(ViragDevTool.MainWindow.optionsFrame)
+						DevTool:Toggle(DevTool.MainWindow.optionsFrame)
 					</OnClick>
 				</Scripts>
 				<Layers>
@@ -501,7 +501,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 			</Button>
 
 			<!--MAIN SCROLL FRAME-->
-			<ScrollFrame name="$parentScrollFrame" inherits="ViragDevToolScrollFrameTemplate" parentKey="scrollFrame">
+			<ScrollFrame name="$parentScrollFrame" inherits="DevToolScrollFrameTemplate" parentKey="scrollFrame">
 				<Anchors>
 					<Anchor point="TOP" relativeTo="$parentToggleSideBarButton" relativePoint="BOTTOM" y="-5"/>
 					<Anchor point="BOTTOM" relativeTo="$parentFNCallLabelButton" relativePoint="TOP" y="5"/>
@@ -523,12 +523,12 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 					<OnDragStart>
 						self:SetButtonState("PUSHED", false);
 						self:StartMoving()
-						self.updateTimer = ViragDevTool:ScheduleRepeatingTimer("ColumnResizeUpdateTick", 0.01)
+						self.updateTimer = DevTool:ScheduleRepeatingTimer("ColumnResizeUpdateTick", 0.01)
 					</OnDragStart>
 					<OnDragStop>
-						ViragDevTool:CancelTimer(self.updateTimer)
+						DevTool:CancelTimer(self.updateTimer)
 						--call one final time to let go of the cursor
-						ViragDevTool:ColumnResizeUpdateTick()
+						DevTool:ColumnResizeUpdateTick()
 						self:SetButtonState("NORMAL", false);
 						self:StopMovingOrSizing();
 					</OnDragStop>
@@ -560,7 +560,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 														SIDEBAR
 			*********************************************************************************************************-->
 
-			<Frame name="$parentSideBar" inherits="ViragDevToolFrameTemplate" enableMouse="true" parentKey="sideFrame"
+			<Frame name="$parentSideBar" inherits="DevToolFrameTemplate" enableMouse="true" parentKey="sideFrame"
 				   hidden="true">
 				<Size x="320"/>
 				<Anchors>
@@ -582,46 +582,46 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				<Frames>
 
 					<!--HISTORY TAB BUTTON-->
-					<CheckButton text="/vdt history" name="$parentHistoryButton" inherits="ViragDevToolButtonTemplate"
+					<CheckButton text="/dev history" name="$parentHistoryButton" inherits="DevToolButtonTemplate"
 								 parentKey="history">
 						<Anchors>
 							<Anchor point="TOPLEFT" y="-5" x="5"/>
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								ViragDevTool:EnableSideBarTab("history")
+								DevTool:EnableSideBarTab("history")
 							</OnClick>
 						</Scripts>
 					</CheckButton>
 
 					<!--EVENTS TAB BUTTON-->
-					<CheckButton text="Events" name="$parentEventsButton" inherits="ViragDevToolButtonTemplate"
+					<CheckButton text="Events" name="$parentEventsButton" inherits="DevToolButtonTemplate"
 								 parentKey="events">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$parentHistoryButton" relativePoint="RIGHT" x="5"/>
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								ViragDevTool:EnableSideBarTab("events")
+								DevTool:EnableSideBarTab("events")
 							</OnClick>
 						</Scripts>
 					</CheckButton>
 
 					<!--FUNCTION LOGGER TAB BUTTON-->
-					<CheckButton text="Fn Call Log" name="$parentLogButton" inherits="ViragDevToolButtonTemplate"
+					<CheckButton text="Fn Call Log" name="$parentLogButton" inherits="DevToolButtonTemplate"
 								 parentKey="logs">
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="$parentEventsButton" relativePoint="RIGHT" x="5"/>
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								ViragDevTool:EnableSideBarTab("logs")
+								DevTool:EnableSideBarTab("logs")
 							</OnClick>
 						</Scripts>
 					</CheckButton>
 
 					<!--SIDEBAR EDITBOX-->
-					<EditBox name="$parentTextArea" inherits="ViragDevToolEditBoxTemplate" autoFocus="false"
+					<EditBox name="$parentTextArea" inherits="DevToolEditBoxTemplate" autoFocus="false"
 							 parentKey="editbox">
 						<Anchors>
 							<Anchor point="BOTTOMLEFT" y="5" x="10"/>
@@ -630,7 +630,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 
 						<Scripts>
 							<OnEnterPressed>
-								ViragDevTool:SubmitEditBoxSidebar()
+								DevTool:SubmitEditBoxSidebar()
 								self:SetText("")
 								self:ClearFocus();
 							</OnEnterPressed>
@@ -642,7 +642,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 					</EditBox>
 
 					<!--SIDEBAR SCROLL FRAME-->
-					<ScrollFrame name="$parentScrollFrame" inherits="ViragDevToolScrollFrameTemplate"
+					<ScrollFrame name="$parentScrollFrame" inherits="DevToolScrollFrameTemplate"
 								 parentKey="sideScrollFrame">
 						<Anchors>
 							<Anchor point="TOP" relativeTo="$parentHistoryButton" relativePoint="BOTTOM" y="-5"/>

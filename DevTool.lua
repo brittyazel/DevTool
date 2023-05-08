@@ -5,24 +5,24 @@
 
 local _, addonTable = ... --make use of the default addon namespace
 
----@class ViragDevTool : AceAddon-3.0 @define The main addon object for the ViragDevTool addon
-addonTable.ViragDevTool = LibStub("AceAddon-3.0"):NewAddon("ViragDevTool", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0")
-local ViragDevTool = addonTable.ViragDevTool
+---@class DevTool : AceAddon-3.0 @define The main addon object for the DevTool addon
+addonTable.DevTool = LibStub("AceAddon-3.0"):NewAddon("DevTool", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0")
+local DevTool = addonTable.DevTool
 
 --add global reference to the addon object
-_G["ViragDevTool"] = addonTable.ViragDevTool
+_G["DevTool"] = addonTable.DevTool
 
 --store the colors outside the database in a class level table
-ViragDevTool.colors = {}
-ViragDevTool.colors["gray"] = CreateColorFromHexString("FFBEB9B5")
-ViragDevTool.colors["lightblue"] = CreateColorFromHexString("FF96C0CE")
-ViragDevTool.colors["lightgreen"] = CreateColorFromHexString("FF98FB98")
-ViragDevTool.colors["red"] = CreateColorFromHexString("FFFF0000")
-ViragDevTool.colors["green"] = CreateColorFromHexString("FF00FF00")
-ViragDevTool.colors["darkred"] = CreateColorFromHexString("FFC25B56")
-ViragDevTool.colors["parent"] = CreateColorFromHexString("FFBEB9B5")
-ViragDevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
-ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
+DevTool.colors = {}
+DevTool.colors["gray"] = CreateColorFromHexString("FFBEB9B5")
+DevTool.colors["lightblue"] = CreateColorFromHexString("FF96C0CE")
+DevTool.colors["lightgreen"] = CreateColorFromHexString("FF98FB98")
+DevTool.colors["red"] = CreateColorFromHexString("FFFF0000")
+DevTool.colors["green"] = CreateColorFromHexString("FF00FF00")
+DevTool.colors["darkred"] = CreateColorFromHexString("FFC25B56")
+DevTool.colors["parent"] = CreateColorFromHexString("FFBEB9B5")
+DevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
+DevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 
 
 -------------------------------------------------------------------------
@@ -32,20 +32,20 @@ ViragDevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 --- **OnInitialize**, which is called directly after the addon is fully loaded.
 --- do init tasks here, like loading the Saved Variables
 --- or setting up slash commands.
-function ViragDevTool:OnInitialize()
-	self.db = LibStub("AceDB-3.0"):New("ViragDevToolDatabase", self.DatabaseDefaults)
+function DevTool:OnInitialize()
+	self.db = LibStub("AceDB-3.0"):New("DevToolDatabase", self.DatabaseDefaults)
 end
 
 --- **OnEnable** which gets called during the PLAYER_LOGIN event, when most of the data provided by the game is already present.
 --- Do more initialization here, that really enables the use of your addon.
 --- Register Events, Hook functions, Create Frames, Get information from
 --- the game that wasn't available in OnInitialize
-function ViragDevTool:OnEnable()
+function DevTool:OnEnable()
 	self.list = {}
 
 	self:CreateChatCommands()
 
-	self.MainWindow = CreateFrame("Frame", "ViragDevToolFrame", UIParent, "ViragDevToolMainFrame")
+	self.MainWindow = CreateFrame("Frame", "DevToolFrame", UIParent, "DevToolMainFrame")
 
 	--create the colors from the values stored in the database
 	self.colors["table"] = CreateColor(unpack(self.db.profile.colorVals["table"]))
@@ -67,13 +67,17 @@ function ViragDevTool:OnEnable()
 		self:UpdateSideBarUI()
 	end
 
-	self:RegisterChatCommand("vdt", function(message)
+	local function chatFunction(message)
 		if not message or message == "" then
 			self:ToggleUI()
 		else
 			self:ExecuteCMD(message, true)
 		end
-	end)
+	end
+
+	self:RegisterChatCommand("dev", chatFunction)
+	-- legacy command for muscle memory reasons
+	self:RegisterChatCommand("vdt", chatFunction)
 
 end
 
@@ -81,19 +85,19 @@ end
 --- Unhook, Unregister Events, Hide frames that you created.
 --- You would probably only use an OnDisable if you want to
 --- build a "standby" mode, or be able to toggle modules on/off.
-function ViragDevTool:OnDisable()
+function DevTool:OnDisable()
 
 end
 
 -------------------------------------------------
 
-function ViragDevTool:CreateChatCommands()
-	-- you can use "/vdt find <some string> <parent name>" (can be in format _G.Frame.Button)
-	-- for example "/vdt find Virag" will find every variable in _G that has *Virag* pattern
-	-- "/vdt find Data ViragDevTool" will find every variable that has *Data* in their name in _G.ViragDevTool object if it exists
+function DevTool:CreateChatCommands()
+	-- you can use "/dev find <some string> <parent name>" (can be in format _G.Frame.Button)
+	-- for example "/dev find DevTool" will find every variable in _G that has *DevTool* pattern
+	-- "/dev find Data DevTool" will find every variable that has *Data* in their name in _G.DevTool object if it exists
 	-- same for "startswith"
 	self.CMD = {
-		--"/vdt help"
+		--"/dev help"
 		HELP = function()
 
 			local a = function(txt)
@@ -127,48 +131,48 @@ function ViragDevTool:CreateChatCommands()
 				return result
 			end
 
-			print(cFix("/vdt") .. " - " .. cFix("Toggle UI"))
-			print(cFix("/vdt help") .. " - " .. cFix("Print help"))
-			print(cFix("/vdt name parent (optional)") .. " - " .. cFix("Add _G.name or _G.parent.name to the list (ex: /vdt name A.B => _G.A.B.name"))
-			print(cFix("/vdt find name parent (optional)") .. " - " .. cFix("Add name _G.*name* to the list. Adds any field name that has name part in its name"))
-			print(cFix("/vdt mouseover") .. " - " .. cFix("Add hoovered frame to the list with  GetMouseFocus()"))
-			print(cFix("/vdt startswith name parent (optional)") .. " - " .. cFix("Same as find but will look only for name*"))
-			print(cFix("/vdt eventadd eventName unit (optional)") .. " - " .. cFix("ex: /vdt eventadd UNIT_AURA player"))
-			print(cFix("/vdt eventstop eventName") .. " - " .. cFix("Stops event monitoring if active"))
-			print(cFix("/vdt logfn tableName functionName (optional)") .. " - " .. cFix("Log every function call. _G.tableName.functionName"))
-			print(cFix("/vdt reposition") .. " - " .. cFix("Reset main frame position if you lost it for some reason"))
+			print(cFix("/dev") .. " - " .. cFix("Toggle UI"))
+			print(cFix("/dev help") .. " - " .. cFix("Print help"))
+			print(cFix("/dev name parent (optional)") .. " - " .. cFix("Add _G.name or _G.parent.name to the list (ex: /dev name A.B => _G.A.B.name"))
+			print(cFix("/dev find name parent (optional)") .. " - " .. cFix("Add name _G.*name* to the list. Adds any field name that has name part in its name"))
+			print(cFix("/dev mouseover") .. " - " .. cFix("Add hoovered frame to the list with  GetMouseFocus()"))
+			print(cFix("/dev startswith name parent (optional)") .. " - " .. cFix("Same as find but will look only for name*"))
+			print(cFix("/dev eventadd eventName unit (optional)") .. " - " .. cFix("ex: /dev eventadd UNIT_AURA player"))
+			print(cFix("/dev eventstop eventName") .. " - " .. cFix("Stops event monitoring if active"))
+			print(cFix("/dev logfn tableName functionName (optional)") .. " - " .. cFix("Log every function call. _G.tableName.functionName"))
+			print(cFix("/dev reposition") .. " - " .. cFix("Reset main frame position if you lost it for some reason"))
 
 			return ""
 
 		end,
-		-- "/vdt find Data ViragDevTool" or "/vdt find Data"
+		-- "/dev find Data DevTool" or "/dev find Data"
 		FIND = function(message2, message3)
-			local parent = message3 and ViragDevTool.FromStrToObject(message3) or _G
-			return ViragDevTool.FindIn(parent, message2, string.match)
+			local parent = message3 and DevTool.FromStrToObject(message3) or _G
+			return DevTool.FindIn(parent, message2, string.match)
 		end,
-		--"/vdt startswith Data ViragDevTool" or "/vdt startswith Data"
+		--"/dev startswith Data DevTool" or "/dev startswith Data"
 		STARTSWITH = function(message2, message3)
-			local parent = message3 and ViragDevTool.FromStrToObject(message3) or _G
-			return ViragDevTool.FindIn(parent, message2, ViragDevTool.starts)
+			local parent = message3 and DevTool.FromStrToObject(message3) or _G
+			return DevTool.FindIn(parent, message2, DevTool.starts)
 		end,
-		--"/vdt mouseover" --m stands for mouse focus
+		--"/dev mouseover" --m stands for mouse focus
 		MOUSEOVER = function()
 			local resultTable = GetMouseFocus()
 			return resultTable, resultTable:GetName()
 		end,
-		--"/vdt eventadd ADDON_LOADED"
+		--"/dev eventadd ADDON_LOADED"
 		EVENTADD = function(message2, message3)
-			ViragDevTool:StartMonitorEvent(message2, message3)
+			DevTool:StartMonitorEvent(message2, message3)
 		end,
-		--"/vdt eventremove ADDON_LOADED"
+		--"/dev eventremove ADDON_LOADED"
 		EVENTSTOP = function(message2, message3)
-			ViragDevTool:StopMonitorEvent(message2, message3)
+			DevTool:StopMonitorEvent(message2, message3)
 		end,
-		--"/vdt log tableName fnName" tableName in global namespace and fnName in table
+		--"/dev log tableName fnName" tableName in global namespace and fnName in table
 		LOGFN = function(message2, message3)
-			ViragDevTool:StartLogFunctionCalls(message2, message3)
+			DevTool:StartLogFunctionCalls(message2, message3)
 		end,
-		--"/vdt reposition"
+		--"/dev reposition"
 		REPOSITION = function()
 			self.MainWindow:ClearAllPoints()
 			self.MainWindow:SetPoint("CENTER", UIParent)
@@ -181,7 +185,7 @@ end
 --- LIFECYCLE
 -----------------------------------------------------------------------------------------------
 
-function ViragDevTool:LoadSettings()
+function DevTool:LoadSettings()
 	-- setup open or closed main window
 	self:SetVisible(self.MainWindow, self.db.profile.isWndOpen)
 
@@ -226,19 +230,19 @@ function ViragDevTool:LoadSettings()
 	self:LoadInterfaceOptions()
 
 	self.MainWindow.columnResizer:SetPoint("TOPRIGHT", self.MainWindow, "TOPRIGHT",
-			self.db.profile.collResizerPosition * -1, -30) -- 30 is offset from above (top buttons)
+			self.db.profile.collResizeWidth * -1, -30) -- 30 is offset from above (top buttons)
 end
 
 -----------------------------------------------------------------------------------------------
---- ViragDevTool main
+--- DevTool main
 -----------------------------------------------------------------------------------------------
 
---- The main (and the only) function you can use in ViragDevTool API
+--- The main (and the only) function you can use in DevTool API
 --- Adds data to the list so you can explore its values in UI list
 --- @param data <any type> - is object you would like to track.
 --- Default behavior is shallow copy
 --- @param dataName <string or nil> - name tag to show in UI for you variable.
-function ViragDevTool:AddData(data, dataName)
+function DevTool:AddData(data, dataName)
 	if not dataName then
 		dataName = tostring(data)
 	end
@@ -248,7 +252,7 @@ function ViragDevTool:AddData(data, dataName)
 	self:UpdateMainTableUI()
 end
 
-function ViragDevTool:NewElement(data, dataName, indentation, parent)
+function DevTool:NewElement(data, dataName, indentation, parent)
 	return {
 		name = dataName,
 		value = data,
@@ -257,13 +261,13 @@ function ViragDevTool:NewElement(data, dataName, indentation, parent)
 	}
 end
 
-function ViragDevTool:ExecuteCMD(message, bAddToHistory)
+function DevTool:ExecuteCMD(message, bAddToHistory)
 	if message == "" then
 		message = "_G"
 	end
 	local resultTable
 
-	local messages = ViragDevTool.split(message, " ")
+	local messages = DevTool.split(message, " ")
 	local command = self.CMD[string.upper(messages[1])]
 
 	if command then
@@ -274,7 +278,7 @@ function ViragDevTool:ExecuteCMD(message, bAddToHistory)
 			message = title
 		end
 	else
-		resultTable = ViragDevTool.FromStrToObject(message)
+		resultTable = DevTool.FromStrToObject(message)
 		if not resultTable then
 			self:Print("Cannot find " .. "_G." .. message)
 		end
@@ -282,20 +286,20 @@ function ViragDevTool:ExecuteCMD(message, bAddToHistory)
 
 	if resultTable then
 		if bAddToHistory then
-			ViragDevTool:AddToHistory(message)
+			DevTool:AddToHistory(message)
 		end
 
 		self:AddData(resultTable, message)
 	end
 end
 
-function ViragDevTool:ClearData()
+function DevTool:ClearData()
 	table.wipe(self.list)
 	collectgarbage("collect")
 	self:UpdateMainTableUI()
 end
 
-function ViragDevTool:ExpandCell(info)
+function DevTool:ExpandCell(info)
 	local elementList = {}
 	local indentation = info.indentation + 1
 	local metatable
@@ -322,14 +326,14 @@ function ViragDevTool:ExpandCell(info)
 	--this is a somewhat hacky safety check to make sure we don't overwhelm the UI with too many elements
 	--checks to see if the current list + the new elements is more than 5% larger than the total number of elements in _G
 	--do this check before the sort to not waste cycles unnecessarily
-	if #elementList + #self.list >= ViragDevTool.CountElements(_G) * 1.05 then
+	if #elementList + #self.list >= DevTool.CountElements(_G) * 1.05 then
 		self:Print("ExpandCell: Too many elements in table. Aborting")
 		return
 	end
 
-	table.sort(elementList, ViragDevTool.SelectSortFunction(#elementList))
+	table.sort(elementList, DevTool.SelectSortFunction(#elementList))
 
-	local parentIndex = ViragDevTool.FindIndex(self.list, info)
+	local parentIndex = DevTool.FindIndex(self.list, info)
 	for i, element in ipairs(elementList) do
 		table.insert(self.list, parentIndex + i, element)
 	end
@@ -339,7 +343,7 @@ function ViragDevTool:ExpandCell(info)
 	self:UpdateMainTableUI()
 end
 
-function ViragDevTool:NewMetatableElement(metatable, indentation, info)
+function DevTool:NewMetatableElement(metatable, indentation, info)
 	if type(metatable) == "table" then
 		if #metatable == 1 and metatable.__index then
 			return self:NewElement(metatable.__index, "$metatable.__index", indentation, info)
@@ -349,8 +353,8 @@ function ViragDevTool:NewMetatableElement(metatable, indentation, info)
 	end
 end
 
-function ViragDevTool:CollapseCell(info)
-	local parentIndex = ViragDevTool.FindIndex(self.list, info)
+function DevTool:CollapseCell(info)
+	local parentIndex = DevTool.FindIndex(self.list, info)
 	local endIndex
 	for i = parentIndex + 1, #self.list do
 		if self.list[i].indentation > info.indentation then
@@ -374,7 +378,7 @@ end
 -----------------------------------------------------------------------------------------------
 -- UI
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:ToggleUI()
+function DevTool:ToggleUI()
 	self:Toggle(self.MainWindow)
 	self.db.profile.isWndOpen = self.MainWindow:IsVisible()
 	if self.db.profile.isWndOpen then
@@ -386,11 +390,11 @@ function ViragDevTool:ToggleUI()
 	end
 end
 
-function ViragDevTool:Toggle(view)
+function DevTool:Toggle(view)
 	self:SetVisible(view, not view:IsVisible())
 end
 
-function ViragDevTool:SetVisible(view, isVisible)
+function DevTool:SetVisible(view, isVisible)
 	if not view then
 		return
 	end
@@ -402,14 +406,14 @@ function ViragDevTool:SetVisible(view, isVisible)
 	end
 end
 
-function ViragDevTool:ResizeUpdateTick()
+function DevTool:ResizeUpdateTick()
 	self:ResizeMainFrame()
 	self:DragResizeColumn()
 	self:UpdateMainTableUI()
 	self:UpdateSideBarUI()
 end
 
-function ViragDevTool:ColumnResizeUpdateTick()
+function DevTool:ColumnResizeUpdateTick()
 	self:DragResizeColumn()
 	self:UpdateMainTableUI()
 	self:UpdateSideBarUI()
@@ -419,7 +423,7 @@ end
 -- self:GetParent():StartSizing("BOTTOMRIGHT");
 -- self:GetParent():StopMovingOrSizing();
 -- Because I don't like default behaviour. --Varren
-function ViragDevTool:ResizeMainFrame()
+function DevTool:ResizeMainFrame()
 	local left = self.MainWindow:GetLeft()
 	local top = self.MainWindow:GetTop()
 
@@ -439,34 +443,34 @@ function ViragDevTool:ResizeMainFrame()
 
 	end
 
-	self.MainWindow:SetSize(ViragDevTool.CalculatePosition(x - left, minX, maxX),
-			ViragDevTool.CalculatePosition(top - y, minY, maxY))
+	self.MainWindow:SetSize(DevTool.CalculatePosition(x - left, minX, maxX),
+			DevTool.CalculatePosition(top - y, minY, maxY))
 end
 
-function ViragDevTool:DragResizeColumn()
+function DevTool:DragResizeColumn()
 	-- 150 and 50 are just const values. safe to change
 	local minFromRight = 100
 	local maxFromRight = self.MainWindow:GetWidth() - 150
 
 	local posFromRight = self.MainWindow:GetRight() - self.MainWindow.columnResizer:GetRight()
-	posFromRight = ViragDevTool.CalculatePosition(posFromRight, minFromRight, maxFromRight)
+	posFromRight = DevTool.CalculatePosition(posFromRight, minFromRight, maxFromRight)
 
 	self.MainWindow.columnResizer:ClearAllPoints()
 	self.MainWindow.columnResizer:SetPoint("TOPRIGHT", self.MainWindow, "TOPRIGHT", posFromRight * -1, -30) -- 30 is offset from above (top buttons)
 
 	-- save pos so we can restore it on reload ui or logout
-	self.db.profile.collResizerPosition = posFromRight
+	self.db.profile.collResizeWidth = posFromRight
 end
 
 -----------------------------------------------------------------------------------------------
 -- Main table UI
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:UpdateMainTableUI()
+function DevTool:UpdateMainTableUI()
 	if not self.MainWindow or not self.MainWindow.scrollFrame:IsVisible() then
 		return
 	end
 
-	self:ScrollBar_AddChildren(self.MainWindow.scrollFrame, "ViragDevToolEntryTemplate")
+	self:ScrollBar_AddChildren(self.MainWindow.scrollFrame, "DevToolEntryTemplate")
 	self:UpdateScrollFrameRowSize(self.MainWindow.scrollFrame)
 
 
@@ -492,7 +496,7 @@ function ViragDevTool:UpdateMainTableUI()
 	self.MainWindow.scrollFrame.scrollChild:SetWidth(self.MainWindow.scrollFrame:GetWidth())
 end
 
-function ViragDevTool:UpdateScrollFrameRowSize(scrollFrame)
+function DevTool:UpdateScrollFrameRowSize(scrollFrame)
 	local currFontSize = self.db.profile.fontSize or 10
 
 	local cellHeight = currFontSize + currFontSize * 0.2
@@ -508,7 +512,7 @@ function ViragDevTool:UpdateScrollFrameRowSize(scrollFrame)
 	scrollFrame.buttonHeight = cellHeight
 end
 
-function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
+function DevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
 	if not scrollFrame.ScrollBarHeight or scrollFrame:GetHeight() > scrollFrame.ScrollBarHeight then
 		scrollFrame.ScrollBarHeight = scrollFrame:GetHeight()
 		HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
@@ -516,18 +520,18 @@ function ViragDevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
 	end
 end
 
-function ViragDevTool:UIUpdateMainTableButton(element, info, id)
+function DevTool:UIUpdateMainTableButton(element, info, id)
 	local color = self.colors[type(info.value)]
 	if not color then
 		color = self.colors.default
 	end
-	if type(info.value) == "table" and ViragDevTool.IsMetaTableNode(info) then
+	if type(info.value) == "table" and DevTool.IsMetaTableNode(info) then
 		color = self.colors.default
 	end
 
 	element.nameButton:SetPoint("LEFT", element.rowNumberButton, "RIGHT", 10 * info.indentation - 10, 0)
 
-	element.valueButton:SetText(ViragDevTool.ToUIString(info.value, info.name, true))
+	element.valueButton:SetText(DevTool.ToUIString(info.value, info.name, true))
 	element.nameButton:SetText(tostring(info.name))
 	element.rowNumberButton:SetText(tostring(id))
 
@@ -542,13 +546,13 @@ end
 -----------------------------------------------------------------------------------------------
 -- Sidebar UI
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:ToggleSidebar()
+function DevTool:ToggleSidebar()
 	self:Toggle(self.MainWindow.sideFrame)
 	self.db.profile.isSideBarOpen = self.MainWindow.sideFrame:IsVisible()
 	self:UpdateSideBarUI()
 end
 
-function ViragDevTool:SubmitEditBoxSidebar()
+function DevTool:SubmitEditBoxSidebar()
 	local selectedTab = self.db.profile.sideBarTabSelected
 	local command = self.MainWindow.sideFrame.editbox:GetText()
 
@@ -562,7 +566,7 @@ function ViragDevTool:SubmitEditBoxSidebar()
 	self:UpdateSideBarUI()
 end
 
-function ViragDevTool:EnableSideBarTab(tabStrName)
+function DevTool:EnableSideBarTab(tabStrName)
 	--Update ui
 	local sidebar = self.MainWindow.sideFrame
 	sidebar.history:SetChecked(false)
@@ -577,9 +581,9 @@ function ViragDevTool:EnableSideBarTab(tabStrName)
 	self:UpdateSideBarUI()
 end
 
-function ViragDevTool:UpdateSideBarUI()
+function DevTool:UpdateSideBarUI()
 
-	self:ScrollBar_AddChildren(self.MainWindow.sideFrame.sideScrollFrame, "ViragDevToolSideBarRowTemplate")
+	self:ScrollBar_AddChildren(self.MainWindow.sideFrame.sideScrollFrame, "DevToolSideBarRowTemplate")
 
 	local offset = HybridScrollFrame_GetOffset(self.MainWindow.sideFrame.sideScrollFrame)
 	local data = self.db.profile[self.db.profile.sideBarTabSelected]
@@ -608,7 +612,7 @@ function ViragDevTool:UpdateSideBarUI()
 			self.MainWindow.sideFrame.sideScrollFrame:GetHeight());
 end
 
-function ViragDevTool:UpdateSideBarRow(view, data, linePlusOffset)
+function DevTool:UpdateSideBarRow(view, data, linePlusOffset)
 	local selectedTab = self.db.profile.sideBarTabSelected
 
 	local currItem = data[linePlusOffset]
@@ -618,11 +622,11 @@ function ViragDevTool:UpdateSideBarRow(view, data, linePlusOffset)
 		local name = tostring(currItem)
 		view:SetText(name)
 		view:SetScript("OnMouseUp", function()
-			ViragDevTool:ExecuteCMD(name)
+			DevTool:ExecuteCMD(name)
 			--move to top
 			table.remove(data, linePlusOffset)
 			table.insert(data, 1, currItem)
-			ViragDevTool:UpdateSideBarUI()
+			DevTool:UpdateSideBarUI()
 		end)
 
 	elseif selectedTab == "logs" then
@@ -635,8 +639,8 @@ function ViragDevTool:UpdateSideBarRow(view, data, linePlusOffset)
 
 		-- logs update
 		view:SetScript("OnMouseUp", function()
-			ViragDevTool:ToggleFnLogger(currItem)
-			ViragDevTool:UpdateSideBarUI()
+			DevTool:ToggleFnLogger(currItem)
+			DevTool:UpdateSideBarUI()
 		end)
 
 	elseif selectedTab == "events" then
@@ -649,8 +653,8 @@ function ViragDevTool:UpdateSideBarRow(view, data, linePlusOffset)
 		end
 		-- events  update
 		view:SetScript("OnMouseUp", function()
-			ViragDevTool:ToggleMonitorEvent(currItem)
-			ViragDevTool:UpdateSideBarUI()
+			DevTool:ToggleMonitorEvent(currItem)
+			DevTool:UpdateSideBarUI()
 		end)
 	end
 end
@@ -658,7 +662,7 @@ end
 -----------------------------------------------------------------------------------------------
 -- Main table row button clicks setup
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:SetMainTableButtonScript(button, info)
+function DevTool:SetMainTableButtonScript(button, info)
 	local valueType = type(info.value)
 	local leftClickFn = function()
 	end
@@ -681,22 +685,22 @@ function ViragDevTool:SetMainTableButtonScript(button, info)
 		if mouseButton == "RightButton" then
 			local nameButton = this:GetParent().nameButton
 			local valueButton = this:GetParent().valueButton
-			ViragDevTool:Print(nameButton:GetText() .. " - " .. valueButton:GetText())
+			DevTool:Print(nameButton:GetText() .. " - " .. valueButton:GetText())
 		else
 			leftClickFn(this, mouseButton, down)
 		end
 	end)
 end
 
-function ViragDevTool:TryCallFunction(info)
+function DevTool:TryCallFunction(info)
 	-- info.value is just our function to call
 	local parent
 	local fn = info.value
 	local args = { unpack(self.db.profile.tArgs) }
 	for k, v in pairs(args) do
-		if type(v) == "string" and ViragDevTool.starts(v, "t=") then
+		if type(v) == "string" and DevTool.starts(v, "t=") then
 
-			local obj = ViragDevTool.FromStrToObject(string.sub(v, 3))
+			local obj = DevTool.FromStrToObject(string.sub(v, 3))
 			if obj then
 				args[k] = obj
 			end
@@ -704,15 +708,15 @@ function ViragDevTool:TryCallFunction(info)
 	end
 
 	-- lets try safe call first
-	local ok, results = ViragDevTool.TryCallFunctionWithArgs(fn, args)
+	local ok, results = DevTool.TryCallFunctionWithArgs(fn, args)
 
 	if not ok then
 		-- if safe call failed we probably could try to find self and call self:fn()
-		parent = ViragDevTool.GetParentTable(info)
+		parent = DevTool.GetParentTable(info)
 
 		if parent then
 			args = { parent.value, unpack(args) } --shallow copy and add parent table
-			ok, results = ViragDevTool.TryCallFunctionWithArgs(fn, args)
+			ok, results = DevTool.TryCallFunctionWithArgs(fn, args)
 		end
 	end
 
@@ -721,7 +725,7 @@ end
 
 -- this function is kinda hard to read but it just adds new items to list and prints log in chat.
 -- will add 1 row for call result(ok or error) and 1 row for each return value
-function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
+function DevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 	local elements = {}
 
 	self:CollapseCell(info) -- if we already called this fn remove old results
@@ -736,7 +740,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 	end
 
 	--construct colored full function call name
-	local fnNameWithArgs = info.name .. self.colors.lightblue:WrapTextInColorCode("(" .. ViragDevTool.ArgsToString(args) .. ")")
+	local fnNameWithArgs = info.name .. self.colors.lightblue:WrapTextInColorCode("(" .. DevTool.ArgsToString(args) .. ")")
 
 	fnNameWithArgs = parent and self.colors.gray:WrapTextInColorCode(parent.name .. ":" .. fnNameWithArgs) or fnNameWithArgs
 
@@ -765,7 +769,7 @@ function ViragDevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 			date("%X") .. " function call results:", indentation))
 
 	-- adds call result to our UI list
-	local parentIndex = ViragDevTool.FindIndex(self.list, info)
+	local parentIndex = DevTool.FindIndex(self.list, info)
 	for i, element in ipairs(elements) do
 		table.insert(self.list, parentIndex + i, element)
 	end
@@ -779,8 +783,8 @@ end
 -----------------------------------------------------------------------------------------------
 -- BOTTOM PANEL Fn Arguments button  and arguments input edit box
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:SetArgForFunctionCallFromString(argStr)
-	local args = ViragDevTool.split(argStr, ",") or {}
+function DevTool:SetArgForFunctionCallFromString(argStr)
+	local args = DevTool.split(argStr, ",") or {}
 
 	local trim = function(s)
 		return (string.gsub(s, "^%s*(.-)%s*$", "%1"))

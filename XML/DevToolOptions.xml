@@ -6,10 +6,10 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI_shared.xsd">
 
-	<Frame name="VDTColorPickerFrameItemTemplate" virtual="true">
+	<Frame name="DTColorPickerFrameItemTemplate" virtual="true">
 		<Size x="100" y="25"/>
 		<Frames>
-			<Button text="table" name="$parentButton" inherits="ViragDevToolButtonTemplate" parentKey="picker">
+			<Button text="table" name="$parentButton" inherits="DevToolButtonTemplate" parentKey="picker">
 				<Anchors>
 					<Anchor point="TOPRIGHT"/>
 					<Anchor point="BOTTOMLEFT"/>
@@ -30,7 +30,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 		</Frames>
 	</Frame>
 
-	<Frame name="ViragDevToolOptionsFrameRowTemplate" virtual="true">
+	<Frame name="DevToolOptionsFrameRowTemplate" virtual="true">
 		<Size y="35"/>
 		<Layers>
 			<!-- Main row rectangle -->

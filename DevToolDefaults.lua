@@ -4,34 +4,34 @@
 -- This code is licensed under the MIT license (see LICENSE for details)
 
 local _, addonTable = ... --make use of the default addon namespace
-local ViragDevTool = addonTable.ViragDevTool
+local DevTool = addonTable.DevTool
 
 -- Default settings
 -- this variable will be used only on first load so it is just default init with empty values.
--- will be replaced with ViragDevTool_Settings at 2-nd start
-ViragDevTool.DatabaseDefaults = {
+-- will be replaced with DevTool_Settings at 2-nd start
+DevTool.DatabaseDefaults = {
 	profile = {
 		-- selected list in gui. one of 3 list from settings: history or function call logs or events
 		sideBarTabSelected = "history",
 
 		-- UI saved state
 		isWndOpen = false,
-		isSideBarOpen = false,
+		isSideBarOpen = true,
 
-		-- stores history of recent calls to /vdt
+		-- stores history of recent calls to /dev
 		MAX_HISTORY_SIZE = 50,
-		collResizerPosition = 150,
+		collResizeWidth = 250,
 		history = {
 			-- examples
 			"find LFR",
 			"find SLASH",
-			"find Data ViragDevTool",
-			"startswith Virag",
-			"ViragDevTool.settings.history",
+			"find Data DevTool",
+			"startswith DevTool",
+			"DevTool.settings.history",
 		},
 		logs = {--{
 			--    fnName = "functionNameHere",
-			--    parentTableName = "ViragDevTool.sometable",
+			--    parentTableName = "DevTool.sometable",
 			--    active = false
 			--},
 		},

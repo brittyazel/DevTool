@@ -4,11 +4,11 @@
 -- This code is licensed under the MIT license (see LICENSE for details)
 
 local _, addonTable = ... --make use of the default addon namespace
-local ViragDevTool = addonTable.ViragDevTool
+local DevTool = addonTable.DevTool
 
-function ViragDevTool:LoadInterfaceOptions()
+function DevTool:LoadInterfaceOptions()
 	if not self.MainWindow.optionsFrame then
-		local frame = CreateFrame("Frame", "ViragDevToolOptionsMainFrame", self.MainWindow, "ViragDevToolOptionsFrameRowTemplate")
+		local frame = CreateFrame("Frame", "DevToolOptionsMainFrame", self.MainWindow, "DevToolOptionsFrameRowTemplate")
 		frame:SetPoint("BOTTOM", self.MainWindow, "TOP")
 		frame:SetHeight(35)
 		frame:SetPoint("LEFT")
@@ -21,7 +21,7 @@ function ViragDevTool:LoadInterfaceOptions()
 
 end
 
-function ViragDevTool:CreateColorPickerFrame(parent)
+function DevTool:CreateColorPickerFrame(parent)
 	local point = "TOPLEFT"
 	local relativeTo = parent
 	local relativePoint = "TOPLEFT"
@@ -32,12 +32,12 @@ function ViragDevTool:CreateColorPickerFrame(parent)
 		button.colorTexture:SetColorTexture(self.colors[color]:GetRGBA())
 		button:GetHighlightTexture():SetVertexColor(self.colors[color]:GetRGBA())
 		button:GetFontString():SetTextColor(self.colors[color]:GetRGBA())
-		ViragDevTool:UpdateMainTableUI()
+		DevTool:UpdateMainTableUI()
 	end
 
 	local buttons = {}
 	for i, color in pairs({ "table", "function", "string", "number", "default" }) do
-		local frame = CreateFrame("Button", "VDTColorPickerFrameItem" .. i, parent, "VDTColorPickerFrameItemTemplate")
+		local frame = CreateFrame("Button", "DTColorPickerFrameItem" .. i, parent, "DTColorPickerFrameItemTemplate")
 		frame:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset)
 		local button = frame.picker
 		buttons[i] = button
@@ -70,10 +70,10 @@ function ViragDevTool:CreateColorPickerFrame(parent)
 
 	local updateFontSize = function(button, fontSize)
 		button:SetText("Font: " .. tostring(fontSize))
-		ViragDevTool:UpdateMainTableUI()
+		DevTool:UpdateMainTableUI()
 	end
 
-	local button = CreateFrame("Button", "VDTFrameColorReset", parent, "ViragDevToolButtonTemplate")
+	local button = CreateFrame("Button", "DTFrameColorReset", parent, "DevToolButtonTemplate")
 	button:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset)
 	button:SetPoint("TOP", parent, "TOP", -5, -5)
 	button:SetPoint("BOTTOM", parent, "BOTTOM", -5, 5)
@@ -92,8 +92,8 @@ function ViragDevTool:CreateColorPickerFrame(parent)
 	end)
 end
 
-function ViragDevTool:ShowColorPicker(color, changedCallback)
-	local r, g, b, _ = ViragDevTool.colors[color]:GetRGBA()
+function DevTool:ShowColorPicker(color, changedCallback)
+	local r, g, b, _ = DevTool.colors[color]:GetRGBA()
 
 	ColorPickerFrame.func = function()
 	end

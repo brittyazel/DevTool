@@ -4,13 +4,13 @@
 -- This code is licensed under the MIT license (see LICENSE for details)
 
 local _, addonTable = ... --make use of the default addon namespace
-local ViragDevTool = addonTable.ViragDevTool
+local DevTool = addonTable.DevTool
 
 -----------------------------------------------------------------------------------------------
 -- FUNCTION LOGGING
 -----------------------------------------------------------------------------------------------
-function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
-	--for now you have to tell exact table name can be _G can be something like ViragDevTool.table.table
+function DevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
+	--for now you have to tell exact table name can be _G can be something like DevTool.table.table
 	if not strParentPath then
 		return
 	end
@@ -18,7 +18,7 @@ function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
 	local savedInfo = self:GetLogFunctionCalls(strParentPath, strFnToLog)
 
 	if not savedInfo then
-		local tParent = ViragDevTool.FromStrToObject(strParentPath)
+		local tParent = DevTool.FromStrToObject(strParentPath)
 		if not tParent then
 			self:Print(self.colors.red:WrapTextInColorCode("Error: ") ..
 					"Cannot add function monitoring: " ..
@@ -38,12 +38,12 @@ function ViragDevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
 	self:ActivateLogFunctionCalls(savedInfo)
 end
 
-function ViragDevTool:ActivateLogFunctionCalls(info)
+function DevTool:ActivateLogFunctionCalls(info)
 	if info.active then
 		return
 	end
 
-	local tParent = { ViragDevTool.FromStrToObject(info.parentTableName) or {} }
+	local tParent = { DevTool.FromStrToObject(info.parentTableName) or {} }
 
 	local shrinkFn = function(table)
 		if #table == 1 then
@@ -69,7 +69,7 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
 				local args = { ... }
 
 				local fnNameWitArgs = self.colors.lightgreen:WrapTextInColorCode(fnName) ..
-						"(" .. ViragDevTool.ArgsToString(args) .. ")"
+						"(" .. DevTool.ArgsToString(args) .. ")"
 
 				self:AddData({
 					OUT = shrinkFn(result),
@@ -87,12 +87,12 @@ function ViragDevTool:ActivateLogFunctionCalls(info)
 	info.active = true
 end
 
-function ViragDevTool:DeactivateLogFunctionCalls(info)
+function DevTool:DeactivateLogFunctionCalls(info)
 	if not info.active then
 		return
 	end
 
-	local tParent = { ViragDevTool.FromStrToObject(info.parentTableName) or {} }
+	local tParent = { DevTool.FromStrToObject(info.parentTableName) or {} }
 	for fnName, oldFn in pairs(tParent) do
 		if type(oldFn) == "function" and
 				(not info.fnName or fnName == info.fnName) then
@@ -106,7 +106,7 @@ function ViragDevTool:DeactivateLogFunctionCalls(info)
 	info.active = false
 end
 
-function ViragDevTool:ToggleFnLogger(info)
+function DevTool:ToggleFnLogger(info)
 	if info.active then
 		self:DeactivateLogFunctionCalls(info)
 	else
@@ -114,7 +114,7 @@ function ViragDevTool:ToggleFnLogger(info)
 	end
 end
 
-function ViragDevTool:GetOldFn(tParent, fnName)
+function DevTool:GetOldFn(tParent, fnName)
 	if self.tempOldFns and
 			self.tempOldFns[tParent] and
 			self.tempOldFns[tParent][fnName] then
@@ -122,7 +122,7 @@ function ViragDevTool:GetOldFn(tParent, fnName)
 	end
 end
 
-function ViragDevTool:SaveOldFn(tParent, fnName, oldFn)
+function DevTool:SaveOldFn(tParent, fnName, oldFn)
 	if not self.tempOldFns then
 		self.tempOldFns = {}
 	end
@@ -143,7 +143,7 @@ function ViragDevTool:SaveOldFn(tParent, fnName, oldFn)
 	end
 end
 
-function ViragDevTool:GetLogFunctionCalls(strParentTableName, strFnName)
+function DevTool:GetLogFunctionCalls(strParentTableName, strFnName)
 	for _, v in pairs(self.db.profile.logs) do
 		if v.parentTableName == strParentTableName
 				and strFnName == v.fnName then
@@ -152,7 +152,7 @@ function ViragDevTool:GetLogFunctionCalls(strParentTableName, strFnName)
 	end
 end
 
-function ViragDevTool:LogFunctionCallText(info)
+function DevTool:LogFunctionCallText(info)
 	if not info then
 		return ""
 	end

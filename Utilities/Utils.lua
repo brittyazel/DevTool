@@ -4,7 +4,7 @@
 -- This code is licensed under the MIT license (see LICENSE for details)
 
 local _, addonTable = ... --make use of the default addon namespace
-local ViragDevTool = addonTable.ViragDevTool
+local DevTool = addonTable.DevTool
 
 -----------------------------------------------------------------------------------------------
 --- UTILS
@@ -12,7 +12,7 @@ local ViragDevTool = addonTable.ViragDevTool
 
 --- Math
 
-function ViragDevTool.round(num, idp)
+function DevTool.round(num, idp)
 	if not num then
 		return nil
 	end
@@ -20,7 +20,7 @@ function ViragDevTool.round(num, idp)
 	return math.floor(num * mult + 0.5) / mult
 end
 
-function ViragDevTool.CalculatePosition(pos, min, max)
+function DevTool.CalculatePosition(pos, min, max)
 	if pos < min then
 		pos = min
 	end
@@ -33,7 +33,7 @@ end
 
 --- String
 
-function ViragDevTool.split(str, sep)
+function DevTool.split(str, sep)
 	local separator, fields
 	separator, fields = sep or ".", {}
 	local pattern = string.format("([^%s]+)", separator)
@@ -43,15 +43,15 @@ function ViragDevTool.split(str, sep)
 	return fields
 end
 
-function ViragDevTool.starts(String, Start)
+function DevTool.starts(String, Start)
 	return string.sub(String, 1, string.len(Start)) == Start
 end
 
-function ViragDevTool.ends(String, End)
+function DevTool.ends(String, End)
 	return End == '' or string.sub(String, -string.len(End)) == End
 end
 
-function ViragDevTool.ArgsToString(args)
+function DevTool.ArgsToString(args)
 	local strArgs = ""
 	local found = false
 	local delimiter = ""
@@ -68,7 +68,7 @@ function ViragDevTool.ArgsToString(args)
 	return strArgs
 end
 
-function ViragDevTool.FindIn(parent, strName, fn)
+function DevTool.FindIn(parent, strName, fn)
 	local resultTable = {}
 
 	for k, v in pairs(parent or {}) do
@@ -83,7 +83,7 @@ end
 
 --- Table
 
-function ViragDevTool.FindIndex(table, item)
+function DevTool.FindIndex(table, item)
 	for k, v in pairs(table) do
 		if v == item then
 			return k
@@ -92,7 +92,7 @@ function ViragDevTool.FindIndex(table, item)
 	return nil;
 end
 
-function ViragDevTool.CountElements(t)
+function DevTool.CountElements(t)
 	local count = 0
 	for _, _ in pairs(t) do
 		count = count + 1
@@ -100,12 +100,12 @@ function ViragDevTool.CountElements(t)
 	return count
 end
 
-function ViragDevTool.FromStrToObject(str)
+function DevTool.FromStrToObject(str)
 	if str == "_G" then
 		return _G
 	end
 
-	local vars = ViragDevTool.split(str, ".") or {}
+	local vars = DevTool.split(str, ".") or {}
 
 	local var = _G
 	for _, name in pairs(vars) do
@@ -120,7 +120,7 @@ end
 
 --- Miscellaneous
 
-function ViragDevTool.SelectSortFunction(tableLength)
+function DevTool.SelectSortFunction(tableLength)
 	local compareFn
 
 	--fast filter
@@ -163,13 +163,13 @@ function ViragDevTool.SelectSortFunction(tableLength)
 	return compareFn
 end
 
-function ViragDevTool.ToUIString(value, name, withoutLineBrakes)
+function DevTool.ToUIString(value, name, withoutLineBrakes)
 	local result
 	local valueType = type(value)
 
 	if valueType == "table" then
-		result = ViragDevTool.GetObjectInfoFromWoWAPI(name, value) or tostring(value)
-		result = "(" .. ViragDevTool.CountElements(value) .. ") " .. result
+		result = DevTool.GetObjectInfoFromWoWAPI(name, value) or tostring(value)
+		result = "(" .. DevTool.CountElements(value) .. ") " .. result
 	else
 		result = tostring(value)
 	end
@@ -181,9 +181,9 @@ function ViragDevTool.ToUIString(value, name, withoutLineBrakes)
 	return result
 end
 
-function ViragDevTool.GetObjectInfoFromWoWAPI(helperText, value)
+function DevTool.GetObjectInfoFromWoWAPI(helperText, value)
 	local resultStr
-	local ok, objectType = ViragDevTool.TryCallAPIFn("GetObjectType", value)
+	local ok, objectType = DevTool.TryCallAPIFn("GetObjectType", value)
 
 	-- try to get frame name
 	if ok then
@@ -196,23 +196,23 @@ function ViragDevTool.GetObjectInfoFromWoWAPI(helperText, value)
 			return resultStr
 		end
 
-		local _, name = ViragDevTool.TryCallAPIFn("GetName", value)
-		local _, texture = ViragDevTool.TryCallAPIFn("GetTexture", value)
-		local _, text = ViragDevTool.TryCallAPIFn("GetText", value)
+		local _, name = DevTool.TryCallAPIFn("GetName", value)
+		local _, texture = DevTool.TryCallAPIFn("GetTexture", value)
+		local _, text = DevTool.TryCallAPIFn("GetText", value)
 
-		local hasSize, left, bottom, width, height = ViragDevTool.TryCallAPIFn("GetBoundsRect", value)
+		local hasSize, left, bottom, width, height = DevTool.TryCallAPIFn("GetBoundsRect", value)
 
 		resultStr = objectType or ""
 		if hasSize then
 			resultStr = concat("[" ..
-					tostring(ViragDevTool.round(left)) .. ", " ..
-					tostring(ViragDevTool.round(bottom)) .. ", " ..
-					tostring(ViragDevTool.round(width)) .. ", " ..
-					tostring(ViragDevTool.round(height)) .. "]")
+					tostring(DevTool.round(left)) .. ", " ..
+					tostring(DevTool.round(bottom)) .. ", " ..
+					tostring(DevTool.round(width)) .. ", " ..
+					tostring(DevTool.round(height)) .. "]")
 		end
 
 		if helperText ~= name then
-			resultStr = concat(name, ViragDevTool.colors.gray:WrapTextInColorCode("<"), ViragDevTool.colors.gray:WrapTextInColorCode(">"))
+			resultStr = concat(name, DevTool.colors.gray:WrapTextInColorCode("<"), DevTool.colors.gray:WrapTextInColorCode(">"))
 		end
 
 		resultStr = concat(texture)
@@ -223,7 +223,7 @@ function ViragDevTool.GetObjectInfoFromWoWAPI(helperText, value)
 	return resultStr
 end
 
-function ViragDevTool.TryCallAPIFn(fnName, value)
+function DevTool.TryCallAPIFn(fnName, value)
 	-- this function is helper fn to get table type from wow api.
 	-- if there is GetObjectType then we will return it.
 	-- returns Button, Frame or something like this
@@ -258,18 +258,18 @@ function ViragDevTool.TryCallAPIFn(fnName, value)
 	return pcall(fn, value)
 end
 
-function ViragDevTool.TryCallFunctionWithArgs(fn, args)
+function DevTool.TryCallFunctionWithArgs(fn, args)
 	local results = { pcall(fn, unpack(args, 1, 10)) }
 	local ok = results[1]
 	table.remove(results, 1)
 	return ok, results
 end
 
-function ViragDevTool.IsMetaTableNode(info)
+function DevTool.IsMetaTableNode(info)
 	return info.name == "$metatable" or info.name == "$metatable.__index"
 end
 
-function ViragDevTool.GetParentTable(info)
+function DevTool.GetParentTable(info)
 	local parent = info.parent
 	if parent and parent.value == _G then
 		-- this fn is in global namespace so no parent
@@ -277,7 +277,7 @@ function ViragDevTool.GetParentTable(info)
 	end
 
 	if parent then
-		if ViragDevTool.IsMetaTableNode(parent) then
+		if DevTool.IsMetaTableNode(parent) then
 			-- metatable has real object 1 level higher
 			parent = parent.parent
 		end
