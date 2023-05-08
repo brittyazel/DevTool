@@ -18,14 +18,14 @@
 Libs\embeds.xml
 
 DevTool.lua
-XML\DevTool.xml
+XML\MainFrame.xml
 
 Utilities\Utils.lua
-DevToolDefaults.lua
+DatabaseDefaults.lua
 
-Modules\DevToolEvents.lua
-Modules\DevToolFunctionLogger.lua
-Modules\DevToolHistory.lua
+Modules\Events.lua
+Modules\FunctionLogger.lua
+Modules\History.lua
 
-XML\DevToolOptions.xml
-DevToolOptions.lua
+XML\OptionsFrame.xml
+OptionsFrame.lua
