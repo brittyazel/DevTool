@@ -3,27 +3,31 @@ name: Bug report
 about: Create a report to help us improve
 title: "[BUG]"
 labels: bug
-assignees: ''
+assignees: brittyazel
 
 ---
+*When reporting, please verify the issue with only **this** addon enabled and no others unless explicitly reporting an incompatibility between this addon. Likewise, please fill in the below information to the best of your ability — this information helps us a great deal.*
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## Issue description:
+*A clear and concise description of what the issue is (i.e. what went wrong and what should have happened).*
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## How to reproduce:
+*E.g., Steps to reproduce the behavior...*
+1. *Go to '....'*
+2. *Click on '....'*
+3. *Scroll down to '....'*
+4. *See error*
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## Technical info:
+- **Addon Version:** *[e.g., 1.2.1]*
+- **Client:** *[e.g., Retail, Classic, PTR, or Beta]*
+- **Client Patch Version:** *[e.g., 10.1.0]*
 
-**Technical information (please don't skip this):**
- - Game version: [e.g. retail]
- - Patch version[e.g. 10.1.0]
- - Addon version[e.g. 1.0.1]
+## Additional context:
+*Add any other context about the problem here.*
 
-**Additional context**
-Add any other context about the problem here.
+## Screenshots:
+*If applicable, add screenshots to help explain your problem.*
+
+## Lua error log:
+*Attach the Lua error log here (please use code tags)*
