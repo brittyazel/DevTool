@@ -308,7 +308,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				self:RegisterForDrag("LeftButton")
 			</OnLoad>
 			<OnDragStart>
-				DevTool:DragResizeColumn() --call this otherwise the column will detach for some reason
+				DevTool:ResizeColumn() --call this otherwise the column will detach for some reason
 				self:StartMoving()
 			</OnDragStart>
 			<OnDragStop>
@@ -409,7 +409,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						DevTool:ClearData()
+						DevTool:ClearAllData()
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -442,10 +442,23 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				</Scripts>
 			</Button>
 
+			<!--SHOW EVENT TRACE BUTTON -->
+			<Button text="/etrace" name="$parentEventTrace" inherits="DevToolButtonTemplate">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT" x="5"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						self.isActive = not self.isActive
+						UIParentLoadAddOn("Blizzard_EventTrace");
+					</OnClick>
+				</Scripts>
+			</Button>
+
 			<!--HELP BUTTON -->
 			<Button text="Help" name="$parentHelpButton" inherits="DevToolButtonTemplate">
 				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT" x="5"/>
+					<Anchor point="LEFT" relativeTo="$parentEventTrace" relativePoint="RIGHT" x="5"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
@@ -479,7 +492,11 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						DevTool:Toggle(DevTool.MainWindow.optionsFrame)
+						if not DevTool.MainWindow.optionsFrame:IsVisible() then
+							DevTool.MainWindow.optionsFrame:Show()
+						else
+							DevTool.MainWindow.optionsFrame:Hide()
+						end
 					</OnClick>
 				</Scripts>
 				<Layers>
@@ -511,6 +528,9 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 			<!--TABLE ROW RESIZER BUTTON -->
 			<Button name="$parentColumnResizeButton" parentKey="columnResizer">
 				<Size x="15" y="15"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" y="-30"/>
+				</Anchors>
 				<Scripts>
 					<OnLoad>
 						self:SetFrameStrata("HIGH")

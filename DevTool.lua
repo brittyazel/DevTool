@@ -187,10 +187,14 @@ end
 
 function DevTool:LoadSettings()
 	-- setup open or closed main window
-	self:SetVisible(self.MainWindow, self.db.profile.isWndOpen)
+	if self.db.profile.isWndOpen then
+		self.MainWindow:Show()
+	end
 
 	-- setup open or closed sidebar
-	self:SetVisible(self.MainWindow.sideFrame, self.db.profile.isSideBarOpen)
+	if self.db.profile.isSideBarOpen then
+		self.MainWindow.sideFrame:Show()
+	end
 
 	-- setup selected sidebar tab history/events/logs
 	self:EnableSideBarTab(self.db.profile.sideBarTabSelected)
@@ -229,8 +233,7 @@ function DevTool:LoadSettings()
 
 	self:LoadInterfaceOptions()
 
-	self.MainWindow.columnResizer:SetPoint("TOPRIGHT", self.MainWindow, "TOPRIGHT",
-			self.db.profile.collResizeWidth * -1, -30) -- 30 is offset from above (top buttons)
+	self:ResizeColumn(true)
 end
 
 -----------------------------------------------------------------------------------------------
@@ -246,9 +249,7 @@ function DevTool:AddData(data, dataName)
 	if not dataName then
 		dataName = tostring(data)
 	end
-
 	table.insert(self.list, self:NewElement(data, tostring(dataName)))
-
 	self:UpdateMainTableUI()
 end
 
@@ -261,39 +262,7 @@ function DevTool:NewElement(data, dataName, indentation, parent)
 	}
 end
 
-function DevTool:ExecuteCMD(message, bAddToHistory)
-	if message == "" then
-		message = "_G"
-	end
-	local resultTable
-
-	local messages = DevTool.split(message, " ")
-	local command = self.CMD[string.upper(messages[1])]
-
-	if command then
-		local title
-		resultTable, title = command(messages[2], messages[3])
-
-		if title then
-			message = title
-		end
-	else
-		resultTable = DevTool.FromStrToObject(message)
-		if not resultTable then
-			self:Print("Cannot find " .. "_G." .. message)
-		end
-	end
-
-	if resultTable then
-		if bAddToHistory then
-			DevTool:AddToHistory(message)
-		end
-
-		self:AddData(resultTable, message)
-	end
-end
-
-function DevTool:ClearData()
+function DevTool:ClearAllData()
 	table.wipe(self.list)
 	collectgarbage("collect")
 	self:UpdateMainTableUI()
@@ -343,16 +312,6 @@ function DevTool:ExpandCell(info)
 	self:UpdateMainTableUI()
 end
 
-function DevTool:NewMetatableElement(metatable, indentation, info)
-	if type(metatable) == "table" then
-		if #metatable == 1 and metatable.__index then
-			return self:NewElement(metatable.__index, "$metatable.__index", indentation, info)
-		else
-			return self:NewElement(metatable, "$metatable", indentation, info)
-		end
-	end
-end
-
 function DevTool:CollapseCell(info)
 	local parentIndex = DevTool.FindIndex(self.list, info)
 	local endIndex
@@ -375,12 +334,60 @@ function DevTool:CollapseCell(info)
 	self:UpdateMainTableUI()
 end
 
+function DevTool:NewMetatableElement(metatable, indentation, info)
+	if type(metatable) == "table" then
+		if #metatable == 1 and metatable.__index then
+			return self:NewElement(metatable.__index, "$metatable.__index", indentation, info)
+		else
+			return self:NewElement(metatable, "$metatable", indentation, info)
+		end
+	end
+end
+
+function DevTool:ExecuteCMD(message, bAddToHistory)
+	if message == "" then
+		message = "_G"
+	end
+	local resultTable
+
+	local messages = DevTool.split(message, " ")
+	local command = self.CMD[string.upper(messages[1])]
+
+	if command then
+		local title
+		resultTable, title = command(messages[2], messages[3])
+
+		if title then
+			message = title
+		end
+	else
+		resultTable = DevTool.FromStrToObject(message)
+		if not resultTable then
+			self:Print("Cannot find " .. "_G." .. message)
+		end
+	end
+
+	if resultTable then
+		if bAddToHistory then
+			DevTool:AddToHistory(message)
+		end
+
+		self:AddData(resultTable, message)
+	end
+end
+
 -----------------------------------------------------------------------------------------------
 -- UI
 -----------------------------------------------------------------------------------------------
 function DevTool:ToggleUI()
-	self:Toggle(self.MainWindow)
-	self.db.profile.isWndOpen = self.MainWindow:IsVisible()
+	if not self.MainWindow:IsVisible() then
+		self.MainWindow:Show()
+		self.db.profile.isWndOpen = true
+	else
+		self.MainWindow:Hide()
+		self.db.profile.isWndOpen = false
+	end
+
 	if self.db.profile.isWndOpen then
 		self:UpdateMainTableUI()
 		self:UpdateSideBarUI()
@@ -390,31 +397,15 @@ function DevTool:ToggleUI()
 	end
 end
 
-function DevTool:Toggle(view)
-	self:SetVisible(view, not view:IsVisible())
-end
-
-function DevTool:SetVisible(view, isVisible)
-	if not view then
-		return
-	end
-
-	if isVisible then
-		view:Show()
-	else
-		view:Hide()
-	end
-end
-
 function DevTool:ResizeUpdateTick()
 	self:ResizeMainFrame()
-	self:DragResizeColumn()
+	self:ResizeColumn()
 	self:UpdateMainTableUI()
 	self:UpdateSideBarUI()
 end
 
 function DevTool:ColumnResizeUpdateTick()
-	self:DragResizeColumn()
+	self:ResizeColumn()
 	self:UpdateMainTableUI()
 	self:UpdateSideBarUI()
 end
@@ -447,30 +438,32 @@ function DevTool:ResizeMainFrame()
 			DevTool.CalculatePosition(top - y, minY, maxY))
 end
 
-function DevTool:DragResizeColumn()
-	-- 150 and 50 are just const values. safe to change
-	local minFromRight = 100
-	local maxFromRight = self.MainWindow:GetWidth() - 150
+function DevTool:ResizeColumn(firstRun)
+	if not firstRun then
+		-- 150 and 50 are just const values. safe to change
+		local minWidth = 100
+		local maxWidth = self.MainWindow:GetWidth() - 150
 
-	local posFromRight = self.MainWindow:GetRight() - self.MainWindow.columnResizer:GetRight()
-	posFromRight = DevTool.CalculatePosition(posFromRight, minFromRight, maxFromRight)
+		local width = self.MainWindow:GetRight() - self.MainWindow.columnResizer:GetRight()
+		width = DevTool.CalculatePosition(width, minWidth, maxWidth)
+
+		-- save pos so we can restore it on reload ui or logout
+		self.db.profile.collResizeWidth = width
+	end
 
 	self.MainWindow.columnResizer:ClearAllPoints()
-	self.MainWindow.columnResizer:SetPoint("TOPRIGHT", self.MainWindow, "TOPRIGHT", posFromRight * -1, -30) -- 30 is offset from above (top buttons)
-
-	-- save pos so we can restore it on reload ui or logout
-	self.db.profile.collResizeWidth = posFromRight
+	self.MainWindow.columnResizer:SetPoint("TOPRIGHT", self.MainWindow, "TOPRIGHT", self.db.profile.collResizeWidth * -1, -30) -- 30 is offset from above (top buttons)
 end
 
 -----------------------------------------------------------------------------------------------
 -- Main table UI
 -----------------------------------------------------------------------------------------------
 function DevTool:UpdateMainTableUI()
-	if not self.MainWindow or not self.MainWindow.scrollFrame:IsVisible() then
+	if not self.MainWindow or not self.MainWindow:IsVisible() then
 		return
 	end
 
-	self:ScrollBar_AddChildren(self.MainWindow.scrollFrame, "DevToolEntryTemplate")
+	self:AddScrollFrameButtons(self.MainWindow.scrollFrame, "DevToolEntryTemplate")
 	self:UpdateScrollFrameRowSize(self.MainWindow.scrollFrame)
 
 
@@ -512,7 +505,7 @@ function DevTool:UpdateScrollFrameRowSize(scrollFrame)
 	scrollFrame.buttonHeight = cellHeight
 end
 
-function DevTool:ScrollBar_AddChildren(scrollFrame, strTemplate)
+function DevTool:AddScrollFrameButtons(scrollFrame, strTemplate)
 	if not scrollFrame.ScrollBarHeight or scrollFrame:GetHeight() > scrollFrame.ScrollBarHeight then
 		scrollFrame.ScrollBarHeight = scrollFrame:GetHeight()
 		HybridScrollFrame_CreateButtons(scrollFrame, strTemplate, 0, -2)
@@ -547,8 +540,13 @@ end
 -- Sidebar UI
 -----------------------------------------------------------------------------------------------
 function DevTool:ToggleSidebar()
-	self:Toggle(self.MainWindow.sideFrame)
-	self.db.profile.isSideBarOpen = self.MainWindow.sideFrame:IsVisible()
+	if not self.MainWindow.sideFrame:IsVisible() then
+		self.MainWindow.sideFrame:Show()
+		self.db.profile.isSideBarOpen = true
+	else
+		self.MainWindow.sideFrame:Hide()
+		self.db.profile.isSideBarOpen = false
+	end
 	self:UpdateSideBarUI()
 end
 
@@ -582,8 +580,7 @@ function DevTool:EnableSideBarTab(tabStrName)
 end
 
 function DevTool:UpdateSideBarUI()
-
-	self:ScrollBar_AddChildren(self.MainWindow.sideFrame.sideScrollFrame, "DevToolSideBarRowTemplate")
+	self:AddScrollFrameButtons(self.MainWindow.sideFrame.sideScrollFrame, "DevToolSideBarRowTemplate")
 
 	local offset = HybridScrollFrame_GetOffset(self.MainWindow.sideFrame.sideScrollFrame)
 	local data = self.db.profile[self.db.profile.sideBarTabSelected]

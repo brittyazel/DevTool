@@ -23,6 +23,7 @@ DevTool.DatabaseDefaults = {
 		collResizeWidth = 250,
 		history = {
 			-- examples
+			"DevTool",
 			"find LFR",
 			"find SLASH",
 			"find Data DevTool",
@@ -56,7 +57,7 @@ DevTool.DatabaseDefaults = {
 				active = false
 			},
 			{
-				event = "CURSOR_UPDATE",
+				event = "COMBAT_LOG_EVENT_UNFILTERED",
 				active = false
 			},
 			{
@@ -65,7 +66,7 @@ DevTool.DatabaseDefaults = {
 				active = false
 			},
 			{
-				event = "CHAT_MSG_CHANNEL",
+				event = "UPDATE_UI_WIDGET",
 				active = false
 			}
 		},
