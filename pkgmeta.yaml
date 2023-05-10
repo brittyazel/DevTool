@@ -1,0 +1,10 @@
+package-as: DevTool
+
+enable-nolib-creation: no
+enable-toc-creation: yes
+
+embedded-libraries:
+  - Ace3
+
+ignore:
+  - README.md
