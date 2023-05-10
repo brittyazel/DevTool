@@ -12,8 +12,8 @@
 ## X-Credits-Maintainer: Britt W. Yazel
 ## X-Email: bwyazel@gmail.com
 ## X-License: MIT
-## X-Curse-Project-ID:
-## X-Wago-ID:
+## X-Curse-Project-ID: 860160
+## X-Wago-ID: EGPXX5G1
 
 Libs\embeds.xml
 
