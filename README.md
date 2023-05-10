@@ -93,4 +93,4 @@ Making add-ons is a lot of work! Your help goes a huge way to making my add-on w
 ---
 
 ## Credits:
-DevTool is a fork of the amazing [*ViragDevTool*](https://github.com/varren/ViragDevTool) addon started by Varren/Virag for World of Warcraft: Battle for Azeroth and prior. All credit for the idea and the work done prior to 2021 should go to him, accordingly.
+DevTool is a continuation of the amazing [*ViragDevTool*](https://github.com/varren/ViragDevTool) addon started by Varren/Virag for World of Warcraft: Battle for Azeroth and prior. All credit for the idea and the work done prior to 2021 should go to him, accordingly.
