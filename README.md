@@ -20,7 +20,7 @@ The main (and only) public function provided by DevTool is `AddData(data, <some 
 - The 2nd parameter is the name string to show in interface to identify your object. 
   - **Note**, if no name is provided, we will auto-generate one for you.
 
-Let's suppose you the following code in your addon...
+Let's suppose you have the following code in your addon...
 
 ```lua
 local var = {}
@@ -48,18 +48,18 @@ ExampleAddon:AddToInspector(ExampleObject, "ExampleObjectName")
 ```
 
 ### How to use the sidebar:
-There are 3 tabs in sidebar and text field has different behavior in each tab.
+There are three tabs in sidebar, and the text field has different behaviors for each.
 
 - History tab:
-	- This is just an easy way to call `/dev ...` for example you can print `find DevTool` and it is the same as printing `/dev find DevTool` in chat.
+	- This text field takes the fully qualified name of a table, relative to `_G`. Likewise, entering `<fully_qualified_tablename>` into the DevTool text field is the same as typing `/dev <tablename> <fully_qualified_parent>` in the chat window.
 - Events tab:
-	- This text field can only use `eventname` or `eventname unit` and this is the same as `/dev eventadd eventname` or `/dev eventadd unit` where `eventname` is a [Blizzard API event](https://wowpedia.fandom.com/wiki/Events) string name.
+	- This text field can only use `<eventname>` or `<eventname> <unit>`. Likewise, the same can be done in the chat window by typing `/dev eventadd <eventname>` or `/dev eventadd <eventname> <unit>`, where `<eventname>` is a [Blizzard API event](https://wowpedia.fandom.com/wiki/Events) string and `<unit>` is the cooresponding unit string.
 - Fn Call Log tab:
-	- You can type `tableName functionName` into the text field, and it will try to find `_G.tableName.functionName`.
+	- You can enter `<tablename> <functionname>` into the text field, and it will try to find `_G.<tablename>.<functionname>`. Likewise, the same can be done in the chat window by typeing `/dev logfn <tablename> <functionname>`
 
 
 ### How to use function arguments:
-You can specify coma separated arguments that will be passed to the function. The values can be in the form of a `string`, `number`, `nil`, `boolean`, and/or `table`.
+You can specify coma separated arguments that will be passed to any function DevTool attempts to execute. The values can be in the form of a `string`, `number`, `nil`, `boolean`, and/or `table`.
 - **Note**, _to pass a value with type `table` you have to specify prefix `t=`_.
 
 Example passing arguments to a function `SomeFunction`:
@@ -73,9 +73,10 @@ Example passing arguments to a function `SomeFunction`:
 
 ### Other functionality:
 - Clicking on a table name will expand and show its children.
-- Clicking on a function name will try to call the function. **WARNING: BE CAREFUL**.
+- Clicking on a function name will try to execute the function. **WARNING: BE CAREFUL**.
+	- **Note**: This will make use of any function arguments set, as described above.
 - If a table has WoW API `GetObjectType()` then its type will be visible in the value column.
-- DevTool can monitor WoW API events similar to that of `/etrace`.
+- DevTool can monitor WoW API events similar to that of `/etrace`, we also include a button to launch /etrace if you would rather use the built in tool instead.
 - DevTool can log function calls, their input args, and return values.
 	- **Note**: Strings in the 'value' column have no line breaks
 
