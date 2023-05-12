@@ -290,7 +290,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 	 *********************************************************************************************************-->
 
 	<Frame name="DevToolMainFrame" inherits="DevToolFrameTemplate" hidden="true" movable="true"
-		   resizable="true" virtual="true">
+		   toplevel="true" resizable="true" virtual="true">
 		<Size x="635" y="500"/>
 		<Anchors>
 			<Anchor point="CENTER"/>
