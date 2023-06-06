@@ -288,7 +288,7 @@ function DevTool:ExpandCell(info)
 	end
 
 	metatable = getmetatable(info.value)
-	if metatable then
+	if metatable and type(metatable) == "table" then
 		table.insert(elementList, self:NewMetatableElement(metatable, indentation, info))
 	end
 
@@ -335,12 +335,10 @@ function DevTool:CollapseCell(info)
 end
 
 function DevTool:NewMetatableElement(metatable, indentation, info)
-	if type(metatable) == "table" then
-		if #metatable == 1 and metatable.__index then
-			return self:NewElement(metatable.__index, "$metatable.__index", indentation, info)
-		else
-			return self:NewElement(metatable, "$metatable", indentation, info)
-		end
+	if #metatable == 1 and metatable.__index then
+		return self:NewElement(metatable.__index, "$metatable.__index", indentation, info)
+	else
+		return self:NewElement(metatable, "$metatable", indentation, info)
 	end
 end
 
