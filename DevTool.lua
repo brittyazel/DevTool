@@ -641,8 +641,13 @@ function DevTool:UpdateSideBarRow(view, data, linePlusOffset)
 		end)
 
 	elseif selectedTab == "events" then
-		local name = tostring(currItem.event)
-		view:SetText(name)
+		local name = currItem.event
+		local unit = currItem.unit
+
+		if unit then
+			name = name .. " | " .. unit
+		end
+
 		if currItem.active then
 			view:SetText(name)
 		else
