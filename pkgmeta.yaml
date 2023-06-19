@@ -6,5 +6,10 @@ enable-toc-creation: yes
 embedded-libraries:
   - Ace3
 
+tools-used:
+  - devtool
+  - bugsack
+  - bug-grabber
+
 ignore:
   - README.md
