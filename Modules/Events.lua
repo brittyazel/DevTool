@@ -122,7 +122,7 @@ function DevTool:SetMonitorEventScript()
 		local args = { ... }
 		local event = args[1]
 		local unit
-		if #args > 1 then
+		if #args > 1 and type(args[2])=="string" and string.find(event, "UNIT") then
 			unit = args[2]
 		end
 
@@ -134,13 +134,17 @@ function DevTool:SetMonitorEventScript()
 
 		local showAllEvents = self:GetMonitoredEvent("ALL")
 		if self:GetMonitoredEvent(event, unit) or (showAllEvents and showAllEvents.active) then
+			local data
 			if #args == 1 then
-				args = args[1]
-			end
-			if unit and type(unit) == "string" and not (showAllEvents and showAllEvents.active) then
-				self:AddData(args, date("%X") .. " " .. event .. self.colors.gray:WrapTextInColorCode(" (" .. unit .. ")"))
+				data = args[1]
 			else
-				self:AddData(args, date("%X") .. " " .. event)
+				data = args
+			end
+
+			if unit then
+				self:AddData(data, date("%X") .. " " .. event .. self.colors.gray:WrapTextInColorCode(" (" .. unit .. ")"))
+			else
+				self:AddData(data, date("%X") .. " " .. event)
 			end
 		end
 	end);
@@ -154,7 +158,7 @@ function DevTool:GetMonitoredEvent(event, unit)
 	for _, thisEvent in pairs(self.db.profile.events) do
 		if thisEvent.event == event and unit and thisEvent.unit == unit then
 			return thisEvent
-		elseif thisEvent.event == event and not unit then
+		elseif thisEvent.event == event and not thisEvent.unit then
 			return thisEvent
 		end
 	end
