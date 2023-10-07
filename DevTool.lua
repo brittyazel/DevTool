@@ -642,15 +642,21 @@ function DevTool:UpdateSideBarRow(view, data, linePlusOffset)
 		local name = currItem.event
 		local unit = currItem.unit
 
+		--set label to be the name
+		local label = name
+
+		--append a unit to the label if one exists
 		if unit then
-			name = name .. " | " .. unit
+			label = label .. self.colors.lightblue:WrapTextInColorCode(" (" .. unit .. ")")
 		end
 
-		if currItem.active then
-			view:SetText(name)
-		else
-			view:SetText(name .. " (disabled)")
+		--append a 'stopped' tag to the label if the event is not active
+		if not currItem.active then
+			label = label .. self.colors.red:WrapTextInColorCode(" (stopped)")
 		end
+
+		view:SetText(label)
+
 		-- events  update
 		view:SetScript("OnMouseUp", function()
 			DevTool:ToggleMonitorEvent(currItem)
