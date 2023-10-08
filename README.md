@@ -51,11 +51,11 @@ ExampleAddon:AddToInspector(ExampleObject, "ExampleObjectName")
 There are three tabs in sidebar, and the text field has different behaviors for each.
 
 - History tab:
-	- This text field takes the fully qualified name of a table, relative to `_G`. Likewise, entering `<fully_qualified_tablename>` into the DevTool text field is the same as typing `/dev <tablename> <fully_qualified_parent>` in the chat window.
+	- This text field takes the fully qualified name of a table, relative to `_G`. Likewise, entering `<fully_qualified_name>` into the DevTool text field is the same as typing `/dev <name> <parent>` in the chat window.
 - Events tab:
-	- This text field can only use `<eventname>` or `<eventname> <unit>`. Likewise, the same can be done in the chat window by typing `/dev eventadd <eventname>` or `/dev eventadd <eventname> <unit>`, where `<eventname>` is a [Blizzard API event](https://wowpedia.fandom.com/wiki/Events) string and `<unit>` is the cooresponding unit string.
+	- This text field can only use `<event>` or `<event> <unit>`. Likewise, the same can be done in the chat window by typing `/dev eventadd <event>` or `/dev eventadd <event> <unit>`, where `<eventName>` is a [Blizzard API event](https://wowpedia.fandom.com/wiki/Events) string and `<unit>` is the cooresponding unit string.
 - Fn Call Log tab:
-	- You can enter `<tablename> <functionname>` into the text field, and it will try to find `_G.<tablename>.<functionname>`. Likewise, the same can be done in the chat window by typeing `/dev logfn <tablename> <functionname>`
+	- You can enter `<function> <parent>` into the text field, and it will try to find `_G.<parent>.<function>`. Likewise, the same can be done in the chat window by typeing `/dev logfn <function> <parent>`
 
 
 ### How to use function arguments:

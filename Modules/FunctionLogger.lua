@@ -9,13 +9,13 @@ local DevTool = addonTable.DevTool
 -----------------------------------------------------------------------------------------------
 -- FUNCTION LOGGING
 -----------------------------------------------------------------------------------------------
-function DevTool:StartLogFunctionCalls(strParentPath, strFnToLog)
+function DevTool:StartLogFunctionCalls(strFnToLog, strParentPath)
 	--for now you have to tell exact table name can be _G can be something like DevTool.table.table
 	if not strParentPath then
 		return
 	end
 
-	local savedInfo = self:GetLogFunctionCalls(strParentPath, strFnToLog)
+	local savedInfo = self:GetLogFunctionCalls(strFnToLog, strParentPath)
 
 	if not savedInfo then
 		local tParent = DevTool.FromStrToObject(strParentPath)
@@ -100,8 +100,7 @@ function DevTool:DeactivateLogFunctionCalls(info)
 		end
 	end
 
-	self:Print(self.colors.red:WrapTextInColorCode("Stop") ..
-			" function monitoring: " ..
+	self:Print(self.colors.red:WrapTextInColorCode("Stop") .. " function monitoring: " ..
 			self.colors.lightblue:WrapTextInColorCode(self:LogFunctionCallText(info)))
 	info.active = false
 end
@@ -114,10 +113,8 @@ function DevTool:ToggleFnLogger(info)
 	end
 end
 
-function DevTool:GetOldFn(tParent, fnName)
-	if self.tempOldFns and
-			self.tempOldFns[tParent] and
-			self.tempOldFns[tParent][fnName] then
+function DevTool:GetOldFn(tParent, fnName, oldFn)
+	if self.tempOldFns and self.tempOldFns[tParent] and self.tempOldFns[tParent][fnName] then
 		return self.tempOldFns[tParent][fnName]
 	end
 end
@@ -143,10 +140,9 @@ function DevTool:SaveOldFn(tParent, fnName, oldFn)
 	end
 end
 
-function DevTool:GetLogFunctionCalls(strParentTableName, strFnName)
+function DevTool:GetLogFunctionCalls(strFnName, strParentTableName)
 	for _, v in pairs(self.db.profile.logs) do
-		if v.parentTableName == strParentTableName
-				and strFnName == v.fnName then
+		if v.parentTableName == strParentTableName and strFnName == v.fnName then
 			return v
 		end
 	end

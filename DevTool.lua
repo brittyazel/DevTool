@@ -76,6 +76,7 @@ function DevTool:OnEnable()
 	end
 
 	self:RegisterChatCommand("dev", chatFunction)
+	self:RegisterChatCommand("devtool", chatFunction)
 	-- legacy command for muscle memory reasons
 	self:RegisterChatCommand("vdt", chatFunction)
 
@@ -99,80 +100,56 @@ function DevTool:CreateChatCommands()
 	self.CMD = {
 		--"/dev help"
 		HELP = function()
-
-			local a = function(txt)
-				return WrapTextInColorCode(txt, "FF96C0CE")
-			end
-			local a2 = function(txt)
-				return WrapTextInColorCode(txt, "FFBEB9B5")
-			end
-			local a3 = function(txt)
-				return WrapTextInColorCode(txt, "FF3cb371")
-			end
-
-			local cFix = function(str)
-				local result = WrapTextInColorCode(str, "FFFFFFFF")
-				result = string.gsub(result, "name", a("name"))
-				result = string.gsub(result, "eventName", a("eventName"))
-				result = string.gsub(result, "tableName", a("tableName"))
-
-				result = string.gsub(result, "parent", a2("parent"))
-				result = string.gsub(result, "unit", a2("unit"))
-				result = string.gsub(result, "functionName", a2("functionName"))
-
-				result = string.gsub(result, "help", a3("help"))
-				result = string.gsub(result, "find", a3("find"))
-				result = string.gsub(result, "startswith", a3("startswith"))
-				result = string.gsub(result, "eventadd", a3("eventadd"))
-				result = string.gsub(result, "eventstop", a3("eventstop"))
-				result = string.gsub(result, "logfn", a3("logfn"))
-				result = string.gsub(result, "mouseover", a3("mouseover"))
-				result = string.gsub(result, "reposition", a3("reposition"))
-				return result
-			end
-
-			print(cFix("/dev") .. " - " .. cFix("Toggle UI"))
-			print(cFix("/dev help") .. " - " .. cFix("Print help"))
-			print(cFix("/dev name parent (optional)") .. " - " .. cFix("Add _G.name or _G.parent.name to the list (ex: /dev name A.B => _G.A.B.name"))
-			print(cFix("/dev find name parent (optional)") .. " - " .. cFix("Add name _G.*name* to the list. Adds any field name that has name part in its name"))
-			print(cFix("/dev mouseover") .. " - " .. cFix("Add hoovered frame to the list with  GetMouseFocus()"))
-			print(cFix("/dev startswith name parent (optional)") .. " - " .. cFix("Same as find but will look only for name*"))
-			print(cFix("/dev eventadd eventName unit (optional)") .. " - " .. cFix("ex: /dev eventadd UNIT_AURA player"))
-			print(cFix("/dev eventstop eventName") .. " - " .. cFix("Stops event monitoring if active"))
-			print(cFix("/dev logfn tableName functionName (optional)") .. " - " .. cFix("Log every function call. _G.tableName.functionName"))
-			print(cFix("/dev reposition") .. " - " .. cFix("Reset main frame position if you lost it for some reason"))
-
-			return ""
+			print(" ")
+			self:Print("DevTool is a World of Warcraft® addon development tool.")
+			self:Print("Available commands:")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev: ") .. "Show/Hide the DevTool interface")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev help: ") .. "Display help information in the chat window")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev <name> <parent (optional)>: ") .. "Add a table within _G or _G.parent to the list")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev find <part_of_name> <parent (optional)>: ") .."Add tables containing this partial name within _G or _G.parent to the list")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev startswith <part_of_name> <parent (optional)>: ") .. "Add tables beginning with this partial name within _G or _G.parent to the list")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev eventadd <event> <unit (optional)>: ") .. "Add event or unit event to the list")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev eventstart <event> <unit (optional)>: ") .. "Begin monitoring this event or unit event")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev eventstop <event> <unit (optional)>: ") .. "Stop monitoring this event or unit event")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev logfn <function> <parent>: ") .. "Log all calls made to the function")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev mouseover: ") .. "Add the currently hovered frame to the list")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev reposition: ") .. "Reset the position of the DevTool window")
+			print(" ")
+			return
 
 		end,
-		-- "/dev find Data DevTool" or "/dev find Data"
+
 		FIND = function(message2, message3)
 			local parent = message3 and DevTool.FromStrToObject(message3) or _G
 			return DevTool.FindIn(parent, message2, string.match)
 		end,
-		--"/dev startswith Data DevTool" or "/dev startswith Data"
+
 		STARTSWITH = function(message2, message3)
 			local parent = message3 and DevTool.FromStrToObject(message3) or _G
 			return DevTool.FindIn(parent, message2, DevTool.starts)
 		end,
-		--"/dev mouseover" --m stands for mouse focus
+
+		EVENTADD = function(message2, message3)
+			DevTool:StartMonitorEvent(message2, message3)
+		end,
+
+		EVENTSTART = function(message2, message3)
+			DevTool:StartMonitorEvent(message2, message3)
+		end,
+
+		EVENTSTOP = function(message2, message3)
+			DevTool:StopMonitorEvent(message2, message3)
+		end,
+
+		LOGFN = function(message2, message3)
+			DevTool:StartLogFunctionCalls(message2, message3)
+		end,
+
 		MOUSEOVER = function()
 			local resultTable = GetMouseFocus()
 			return resultTable, resultTable:GetName()
 		end,
-		--"/dev eventadd ADDON_LOADED"
-		EVENTADD = function(message2, message3)
-			DevTool:StartMonitorEvent(message2, message3)
-		end,
-		--"/dev eventremove ADDON_LOADED"
-		EVENTSTOP = function(message2, message3)
-			DevTool:StopMonitorEvent(message2, message3)
-		end,
-		--"/dev log tableName fnName" tableName in global namespace and fnName in table
-		LOGFN = function(message2, message3)
-			DevTool:StartLogFunctionCalls(message2, message3)
-		end,
-		--"/dev reposition"
+
 		REPOSITION = function()
 			self.MainWindow:ClearAllPoints()
 			self.MainWindow:SetPoint("CENTER", UIParent)
@@ -618,7 +595,7 @@ function DevTool:UpdateSideBarRow(view, data, linePlusOffset)
 		view:SetText(name)
 		view:SetScript("OnMouseUp", function()
 			DevTool:ExecuteCMD(name)
-			--move to top
+			--move this item to the top of the list
 			table.remove(data, linePlusOffset)
 			table.insert(data, 1, currItem)
 			DevTool:UpdateSideBarUI()

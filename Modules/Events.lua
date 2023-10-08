@@ -60,12 +60,14 @@ function DevTool:StartMonitorEvent(event, unit)
 				break
 			end
 		end
-		self:UpdateSideBarUI()
 		return
 	else
 		--set event to active (tEvent is a handle to the database entry)
 		tEvent.active = true
 	end
+
+	--refresh our sidebar view for any status changes
+	self:UpdateSideBarUI()
 
 	local eventName = tEvent.event
 	if tEvent.unit then
@@ -94,6 +96,9 @@ function DevTool:StopMonitorEvent(event, unit)
 		else
 			frame:UnregisterEvent(tEvent.event)
 		end
+
+		--refresh our sidebar view for any status changes
+		self:UpdateSideBarUI()
 
 		local eventName = tEvent.event
 		if tEvent.unit then
@@ -156,9 +161,10 @@ function DevTool:GetMonitoredEvent(event, unit)
 	end
 
 	for _, thisEvent in pairs(self.db.profile.events) do
-		if thisEvent.event == event and unit and thisEvent.unit == unit then
+
+		if thisEvent.event == event and not thisEvent.unit then
 			return thisEvent
-		elseif thisEvent.event == event and not thisEvent.unit then
+		elseif thisEvent.event == event and thisEvent.unit and unit and thisEvent.unit == unit then
 			return thisEvent
 		end
 	end
