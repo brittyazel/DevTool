@@ -53,7 +53,7 @@ There are three tabs in sidebar, and the text field has different behaviors for 
 - History tab:
 	- This text field takes the fully qualified name of a table, relative to `_G`. Likewise, entering `<fully_qualified_name>` into the DevTool text field is the same as typing `/dev <name> <parent>` in the chat window.
 - Events tab:
-	- This text field can only use `<event>` or `<event> <unit>`. Likewise, the same can be done in the chat window by typing `/dev eventadd <event>` or `/dev eventadd <event> <unit>`, where `<eventName>` is a [Blizzard API event](https://wowpedia.fandom.com/wiki/Events) string and `<unit>` is the cooresponding unit string.
+	- This text field can only use `<event>` or `<event> <unit>`. Likewise, the same can be done in the chat window by typing `/dev eventadd <event>` or `/dev eventadd <event> <unit>`, where `<event>` is a [Blizzard API event](https://wowpedia.fandom.com/wiki/Events) string and `<unit>` is the cooresponding unit string.
 - Fn Call Log tab:
 	- You can enter `<function> <parent>` into the text field, and it will try to find `_G.<parent>.<function>`. Likewise, the same can be done in the chat window by typeing `/dev logfn <function> <parent>`
 
