@@ -153,7 +153,7 @@ function DevTool:CreateChatCommands()
 		REPOSITION = function()
 			self.MainWindow:ClearAllPoints()
 			self.MainWindow:SetPoint("CENTER", UIParent)
-			self.MainWindow:SetSize(635, 400)
+			self.MainWindow:SetSize(750, 400)
 		end
 	}
 end

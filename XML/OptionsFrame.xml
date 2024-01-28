@@ -5,33 +5,9 @@
 
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI_shared.xsd">
-
-	<Frame name="DTColorPickerFrameItemTemplate" virtual="true">
-		<Size x="100" y="25"/>
-		<Frames>
-			<Button text="table" name="$parentButton" inherits="DevToolButtonTemplate" parentKey="picker">
-				<Anchors>
-					<Anchor point="TOPRIGHT"/>
-					<Anchor point="BOTTOMLEFT"/>
-				</Anchors>
-				<Layers>
-					<Layer level="OVERLAY">
-						<Texture parentKey="colorTexture">
-							<Size x="15"/>
-							<Anchors>
-								<Anchor point="TOPRIGHT" x="-5" y="-5"/>
-								<Anchor point="BOTTOM" y="5"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers>
-				<NormalFont style="GameFontHighlight"/>
-			</Button>
-		</Frames>
-	</Frame>
-
+	
 	<Frame name="DevToolOptionsFrameRowTemplate" virtual="true">
-		<Size y="35"/>
+		<Size y="40"/>
 		<Layers>
 			<!-- Main row rectangle -->
 			<Layer>

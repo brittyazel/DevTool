@@ -291,7 +291,7 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 
 	<Frame name="DevToolMainFrame" inherits="DevToolFrameTemplate" hidden="true" movable="true"
 		   toplevel="true" resizable="true" virtual="true">
-		<Size x="635" y="500"/>
+		<Size x="750" y="500"/>
 		<Anchors>
 			<Anchor point="CENTER"/>
 		</Anchors>
@@ -300,9 +300,9 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
 				self:SetUserPlaced(true)
 				if self.SetResizeBounds then
 					-- WoW 10.0
-					self:SetResizeBounds(635, 400, UIParent:GetWidth(), UIParent:GetHeight())
+					self:SetResizeBounds(750, 400, UIParent:GetWidth(), UIParent:GetHeight())
 				else
-					self:SetMinResize(635, 400)
+					self:SetMinResize(750, 400)
 					self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight())
 				end
 				self:RegisterForDrag("LeftButton")
