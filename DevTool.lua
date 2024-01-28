@@ -29,20 +29,19 @@ DevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 --------------------Start of Functions-----------------------------------
 -------------------------------------------------------------------------
 
---- **OnInitialize**, which is called directly after the addon is fully loaded.
---- do init tasks here, like loading the Saved Variables
---- or setting up slash commands.
+--- Called directly after the addon is fully loaded.
+--- We do initialization tasks here, such as loading our saved variables or setting up slash commands.
 function DevTool:OnInitialize()
+	-- This table holds the contents of the current view window. Declare this table early so it can be used in other functions.
+	self.list = {}
+
 	self.db = LibStub("AceDB-3.0"):New("DevToolDatabase", self.DatabaseDefaults)
 end
 
---- **OnEnable** which gets called during the PLAYER_LOGIN event, when most of the data provided by the game is already present.
---- Do more initialization here, that really enables the use of your addon.
---- Register Events, Hook functions, Create Frames, Get information from
---- the game that wasn't available in OnInitialize
+--- Called during the PLAYER_LOGIN event when most of the data provided by the game is already present.
+--- We perform more startup tasks here, such as registering events, hooking functions, creating frames, or getting 
+--- information from the game that wasn't yet available during :OnInitialize()
 function DevTool:OnEnable()
-	self.list = {}
-
 	self:CreateChatCommands()
 
 	self.MainWindow = CreateFrame("Frame", "DevToolFrame", UIParent, "DevToolMainFrame")
@@ -82,12 +81,10 @@ function DevTool:OnEnable()
 
 end
 
---- **OnDisable**, which is only called when your addon is manually being disabled.
---- Unhook, Unregister Events, Hide frames that you created.
---- You would probably only use an OnDisable if you want to
---- build a "standby" mode, or be able to toggle modules on/off.
+--- Called when our addon is manually being disabled during a running session.
+--- We primarily use this to unhook scripts, unregister events, or hide frames that we created.
 function DevTool:OnDisable()
-
+	-- Empty --
 end
 
 -------------------------------------------------
@@ -106,7 +103,7 @@ function DevTool:CreateChatCommands()
 			print(self.colors.lightblue:WrapTextInColorCode("/dev: ") .. "Show/Hide the DevTool interface")
 			print(self.colors.lightblue:WrapTextInColorCode("/dev help: ") .. "Display help information in the chat window")
 			print(self.colors.lightblue:WrapTextInColorCode("/dev <name> <parent (optional)>: ") .. "Add a table within _G or _G.parent to the list")
-			print(self.colors.lightblue:WrapTextInColorCode("/dev find <part_of_name> <parent (optional)>: ") .."Add tables containing this partial name within _G or _G.parent to the list")
+			print(self.colors.lightblue:WrapTextInColorCode("/dev find <part_of_name> <parent (optional)>: ") .. "Add tables containing this partial name within _G or _G.parent to the list")
 			print(self.colors.lightblue:WrapTextInColorCode("/dev startswith <part_of_name> <parent (optional)>: ") .. "Add tables beginning with this partial name within _G or _G.parent to the list")
 			print(self.colors.lightblue:WrapTextInColorCode("/dev eventadd <event> <unit (optional)>: ") .. "Add event or unit event to the list")
 			print(self.colors.lightblue:WrapTextInColorCode("/dev eventstart <event> <unit (optional)>: ") .. "Begin monitoring this event or unit event")
@@ -223,9 +220,20 @@ end
 --- Default behavior is shallow copy
 --- @param dataName <string or nil> - name tag to show in UI for you variable.
 function DevTool:AddData(data, dataName)
+	-- If the data is nil, print an error and abort
+	if not data then
+		self:Print("Error: The data being added does not exist. Aborting.")
+		return
+	end
+
 	if not dataName then
 		dataName = tostring(data)
 	end
+
+	if not self.list then
+		print("Error: DevTool list is not fully initialized. Please try again later in the loading process. Aborting.")
+	end
+
 	table.insert(self.list, self:NewElement(data, tostring(dataName)))
 	self:UpdateMainTableUI()
 end
@@ -441,7 +449,6 @@ function DevTool:UpdateMainTableUI()
 	self:AddScrollFrameButtons(self.MainWindow.scrollFrame, "DevToolEntryTemplate")
 	self:UpdateScrollFrameRowSize(self.MainWindow.scrollFrame)
 
-
 	local offset = HybridScrollFrame_GetOffset(self.MainWindow.scrollFrame)
 	local totalRowsCount = #self.list
 
@@ -450,7 +457,7 @@ function DevTool:UpdateMainTableUI()
 		local linePlusOffset = k + offset;
 		if linePlusOffset <= totalRowsCount and (k - 1) * self.MainWindow.scrollFrame.buttons[1]:GetHeight() <
 				self.MainWindow.scrollFrame:GetHeight() then
-			self:UIUpdateMainTableButton(button, self.list[offset+counter], linePlusOffset)
+			self:UIUpdateMainTableButton(button, self.list[offset + counter], linePlusOffset)
 			counter = counter + 1
 			button:Show();
 		else

@@ -6,672 +6,672 @@
 <Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.blizzard.com/wow/ui/" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI_shared.xsd">
 
-	<!--FONTS -->
-	<Font name="DevToolDefaultFont" inherits="SystemFont_Small" justifyH="LEFT"/>
-	<Font name="DevToolMediumFont" inherits="SystemFont_Med1" justifyH="LEFT" virtual="true"/>
-	<Texture name="DevToolStrokeTexture" virtual="true">
-		<Color r="0.1" g="0.1" b="0.1" a="1"/>
-	</Texture>
+    <!--FONTS -->
+    <Font name="DevToolDefaultFont" inherits="SystemFont_Small" justifyH="LEFT"/>
+    <Font name="DevToolMediumFont" inherits="SystemFont_Med1" justifyH="LEFT" virtual="true"/>
+    <Texture name="DevToolStrokeTexture" virtual="true">
+        <Color r="0.1" g="0.1" b="0.1" a="1"/>
+    </Texture>
 
-	<!--*********************************************************************************************************
-													  TEMPLATES
-	 *********************************************************************************************************-->
+    <!--*********************************************************************************************************
+                                                      TEMPLATES
+     *********************************************************************************************************-->
 
-	<!--FRAME -->
-	<Frame name="DevToolFrameTemplate" virtual="true">
-		<Layers>
-			<Layer>
-				<Texture>
-					<Size y="35"/>
-					<Size y="35"/>
-					<Anchors>
-						<Anchor point="TOPRIGHT"/>
-						<Anchor point="LEFT"/>
-					</Anchors>
-					<Color r="0.2" g="0.2" b="0.2" a="0.9"/>
-				</Texture>
-				<Texture>
-					<Size y="35"/>
-					<Anchors>
-						<Anchor point="BOTTOMRIGHT"/>
-						<Anchor point="LEFT"/>
-					</Anchors>
-					<Color r="0.2" g="0.2" b="0.2" a="0.9"/>
-				</Texture>
-				<Texture>
-					<Size x="5"/>
-					<Anchors>
-						<Anchor point="TOPRIGHT" y="-35"/>
-						<Anchor point="BOTTOM" y="35"/>
-					</Anchors>
-					<Color r="0.2" g="0.2" b="0.2" a="0.9"/>
-				</Texture>
-				<Texture>
-					<Size x="5"/>
-					<Anchors>
-						<Anchor point="TOPLEFT" y="-35"/>
-						<Anchor point="BOTTOM" y="35"/>
-					</Anchors>
-					<Color r="0.2" g="0.2" b="0.2" a="0.9"/>
-				</Texture>
-			</Layer>
-			<Layer level="BACKGROUND">
-				<Texture>
-					<Anchors>
-						<Anchor point="TOPRIGHT"/>
-						<Anchor point="BOTTOMLEFT"/>
-					</Anchors>
-					<Color r="0.1" g="0.1" b="0.1" a="0.7"/>
-				</Texture>
-			</Layer>
-		</Layers>
-	</Frame>
-
-
-	<Slider name="DevToolMinimalHybridScrollBarTemplate" parentKey="scrollBar" virtual="true">
-		<Size x="22" y="0"/>
-		<Frames>
-			<Button name="$parentScrollUpButton" inherits="UIPanelScrollUpButtonTemplate">
-				<Anchors>
-					<Anchor point="TOP" x="0" y="15"/>
-				</Anchors>
-				<Scripts>
-					<OnLoad function="HybridScrollFrameScrollUp_OnLoad"/>
-					<OnClick function="HybridScrollFrameScrollButton_OnClick"/>
-				</Scripts>
-			</Button>
-			<Button name="$parentScrollDownButton" inherits="UIPanelScrollDownButtonTemplate">
-				<Anchors>
-					<Anchor point="BOTTOM" x="0" y="-15"/>
-				</Anchors>
-				<Scripts>
-					<OnLoad function="HybridScrollFrameScrollDown_OnLoad"/>
-					<OnClick function="HybridScrollFrameScrollButton_OnClick"/>
-				</Scripts>
-			</Button>
-		</Frames>
-		<Scripts>
-			<OnValueChanged function="HybridScrollFrame_OnValueChanged"/>
-		</Scripts>
-		<ThumbTexture name="$parentThumbTexture" inherits="HybridScrollBarButton"
-					  file="Interface\Buttons\UI-ScrollBar-Knob" parentKey="thumbTexture">
-			<Size x="18" y="24"/>
-			<TexCoords left="0.20" right="0.80" top="0.125" bottom="0.875"/>
-		</ThumbTexture>
-	</Slider>
-
-	<!--SCROLL FRAME -->
-	<ScrollFrame name="DevToolScrollFrameTemplate" inherits="HybridScrollFrameTemplate" virtual="true">
-		<Anchors>
-			<Anchor point="RIGHT" x="-27"/>
-			<Anchor point="LEFT" x="5"/>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				self.scrollChild:SetPoint("BOTTOM", self, "BOTTOM", 0, -100)
-			</OnLoad>
-		</Scripts>
-		<Frames>
-			<Slider name="$parentScrollBar" inherits="DevToolMinimalHybridScrollBarTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" y="-18"/>
-					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" y="16"/>
-				</Anchors>
-			</Slider>
-		</Frames>
-		<Layers>
-			<Layer>
-				<Texture name="$parentHighlight">
-					<Anchors>
-						<Anchor point="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT" x="22"/>
-					</Anchors>
-					<Color r="0" g="0" b="0.1" a="0.5"/>
-				</Texture>
-			</Layer>
-		</Layers>
-	</ScrollFrame>
-
-	<!--BUTTON -->
-	<Button name="DevToolBaseButtonTemplate" virtual="true">
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture>
-					<Size y="25"/>
-					<Anchors>
-						<Anchor point="TOPRIGHT"/>
-						<Anchor point="LEFT"/>
-					</Anchors>
-					<Color r="0.2" g="0.2" b="0.2" a="0.9"/>
-				</Texture>
-			</Layer>
-		</Layers>
-		<NormalTexture file="Interface\ClassTrainerFrame\TrainerTextures">
-			<TexCoords left="0.00195313" right="0.57421875" top="0.65820313" bottom="0.75000000"/>
-		</NormalTexture>
-		<HighlightTexture name="$parentHighlight" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="ADD">
-			<TexCoords left="0.00195313" right="0.57421875" top="0.75390625" bottom="0.84570313"/>
-		</HighlightTexture>
-	</Button>
-
-	<CheckButton name="DevToolButtonTemplate" inherits="DevToolBaseButtonTemplate" virtual="true">
-		<Size x="100" y="25"/>
-		<NormalFont style="GameFontHighlight"/>
-		<CheckedTexture name="$parentChecked" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="ADD">
-			<TexCoords left="0.00195313" right="0.57421875" top="0.75390625" bottom="0.84570313"/>
-		</CheckedTexture>
-	</CheckButton>
-
-	<!--EDITBOX -->
-	<EditBox name="DevToolEditBoxTemplate" virtual="true">
-		<Size y="25"/>
-		<Layers>
-			<Layer>
-				<Texture>
-					<Anchors>
-						<Anchor point="TOPRIGHT"/>
-						<Anchor point="BOTTOMLEFT" x="-5"/>
-					</Anchors>
-					<Color r="0" g="0" b="0.1" a="0.5"/>
-					<!--    <Color r="0" g="0" b="0.1" a="0.5"/>-->
-				</Texture>
-			</Layer>
-		</Layers>
-		<FontString inherits="ChatFontNormal"/>
-	</EditBox>
-
-	<!--COLUMN FOR MAIN HybridScrollFrameTemplate -->
-	<Button text="Test" name="DevToolColumnTemplate" virtual="true">
-		<Size x="42"/>
-		<Anchors>
-			<Anchor point="TOP"/>
-			<Anchor point="BOTTOM"/>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				local fontString = self:GetFontString()
-				fontString:SetPoint("RIGHT", self, "RIGHT", -5, 0)
-				fontString:SetWordWrap(false)
-				self:EnableMouse()
-			</OnLoad>
-			<OnEnter>
-				self:GetParent():LockHighlight()
-			</OnEnter>
-			<OnLeave>
-				self:GetParent():UnlockHighlight()
-			</OnLeave>
-		</Scripts>
-		<NormalFont style="DevToolDefaultFont"/>
-	</Button>
-
-	<!--ROW BASE HybridScrollFrameTemplate -->
-	<Button name="DevToolRowTemplate" virtual="true">
-		<Anchors>
-			<Anchor point="RIGHT"/>
-			<Anchor point="LEFT"/>
-		</Anchors>
-		<Layers>
-			<Layer level="OVERLAY">
-				<Texture name="$parentHighlight">
-					<Size y="1"/>
-					<Anchors>
-						<Anchor point="RIGHT"/>
-						<Anchor point="LEFT"/>
-						<Anchor point="BOTTOM" y="-2"/>
-					</Anchors>
-					<Color r="1" g="1" b="1" a="0.1"/>
-				</Texture>
-			</Layer>
-		</Layers>
-		<HighlightTexture alphaMode="ADD">
-			<Color r="1" g="1" b="1" a="0.2"/>
-		</HighlightTexture>
-	</Button>
-
-	<!--ROW FOR SIDEBAR HybridScrollFrameTemplate -->
-	<Button name="DevToolSideBarRowTemplate" inherits="DevToolRowTemplate" virtual="true">
-		<Size y="18"/>
-		<Frames>
-			<!--COLUMN 1 delete item icon -->
-			<Button name="$parentActionButton" parentKey="actionButton">
-				<Size x="25" y="25"/>
-				<Anchors>
-					<Anchor point="LEFT"/>
-				</Anchors>
-				<NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
-				<PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
-				<DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
-				<HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
-			</Button>
-			<!--COLUMN 2 item text -->
-			<Button text="Test" name="$parentMainButton" inherits="DevToolColumnTemplate" parentKey="mainButton">
-				<Anchors>
-					<Anchor point="RIGHT"/>
-					<Anchor point="LEFT" relativeTo="$parentActionButton" relativePoint="RIGHT"/>
-				</Anchors>
-				<NormalFont style="DevToolMediumFont"/>
-			</Button>
-		</Frames>
-	</Button>
-
-	<!--ROW FOR MAIN HybridScrollFrameTemplate -->
-	<Button name="DevToolEntryTemplate" inherits="DevToolRowTemplate" virtual="true">
-		<Size y="7"/>
-		<Frames>
-			<!--COLUMN 1-->
-			<Button text="123456" name="$parentCountColumn" inherits="DevToolColumnTemplate"
-					parentKey="rowNumberButton">
-				<Anchors>
-					<Anchor point="LEFT" x="5"/>
-				</Anchors>
-			</Button>
-			<!--COLUMN 2-->
-			<Button text="Test Text" name="$parentNameColumn" inherits="DevToolColumnTemplate"
-					parentKey="nameButton">
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentCountColumn" relativePoint="RIGHT"/>
-					<Anchor point="RIGHT" relativeTo="DevToolFrameColumnResizeButton" relativePoint="LEFT" x="10"/>
-				</Anchors>
-			</Button>
-			<!--COLUMN 3-->
-			<Button text="Test Text" name="$parentValueColumn" inherits="DevToolColumnTemplate"
-					parentKey="valueButton">
-				<Anchors>
-					<Anchor point="RIGHT"/>
-					<Anchor point="LEFT" relativeTo="$parentNameColumn" relativePoint="RIGHT"/>
-				</Anchors>
-			</Button>
-		</Frames>
-	</Button>
+    <!--FRAME -->
+    <Frame name="DevToolFrameTemplate" virtual="true">
+        <Layers>
+            <Layer>
+                <Texture>
+                    <Size y="35"/>
+                    <Size y="35"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
+                </Texture>
+                <Texture>
+                    <Size y="35"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT"/>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
+                </Texture>
+                <Texture>
+                    <Size x="5"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" y="-35"/>
+                        <Anchor point="BOTTOM" y="35"/>
+                    </Anchors>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
+                </Texture>
+                <Texture>
+                    <Size x="5"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" y="-35"/>
+                        <Anchor point="BOTTOM" y="35"/>
+                    </Anchors>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="BOTTOMLEFT"/>
+                    </Anchors>
+                    <Color r="0.1" g="0.1" b="0.1" a="0.7"/>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
 
 
-	<!--*********************************************************************************************************
-														 MAIN UI
-	 *********************************************************************************************************-->
+    <Slider name="DevToolMinimalHybridScrollBarTemplate" parentKey="scrollBar" virtual="true">
+        <Size x="22" y="0"/>
+        <Frames>
+            <Button name="$parentScrollUpButton" inherits="UIPanelScrollUpButtonTemplate">
+                <Anchors>
+                    <Anchor point="TOP" x="0" y="15"/>
+                </Anchors>
+                <Scripts>
+                    <OnLoad function="HybridScrollFrameScrollUp_OnLoad"/>
+                    <OnClick function="HybridScrollFrameScrollButton_OnClick"/>
+                </Scripts>
+            </Button>
+            <Button name="$parentScrollDownButton" inherits="UIPanelScrollDownButtonTemplate">
+                <Anchors>
+                    <Anchor point="BOTTOM" x="0" y="-15"/>
+                </Anchors>
+                <Scripts>
+                    <OnLoad function="HybridScrollFrameScrollDown_OnLoad"/>
+                    <OnClick function="HybridScrollFrameScrollButton_OnClick"/>
+                </Scripts>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnValueChanged function="HybridScrollFrame_OnValueChanged"/>
+        </Scripts>
+        <ThumbTexture name="$parentThumbTexture" inherits="HybridScrollBarButton"
+                      file="Interface\Buttons\UI-ScrollBar-Knob" parentKey="thumbTexture">
+            <Size x="18" y="24"/>
+            <TexCoords left="0.20" right="0.80" top="0.125" bottom="0.875"/>
+        </ThumbTexture>
+    </Slider>
 
-	<Frame name="DevToolMainFrame" inherits="DevToolFrameTemplate" hidden="true" movable="true"
-		   toplevel="true" resizable="true" virtual="true">
-		<Size x="750" y="500"/>
-		<Anchors>
-			<Anchor point="CENTER"/>
-		</Anchors>
-		<Scripts>
-			<OnLoad>
-				self:SetUserPlaced(true)
-				if self.SetResizeBounds then
-					-- WoW 10.0
-					self:SetResizeBounds(750, 400, UIParent:GetWidth(), UIParent:GetHeight())
-				else
-					self:SetMinResize(750, 400)
-					self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight())
-				end
-				self:RegisterForDrag("LeftButton")
-			</OnLoad>
-			<OnDragStart>
-				DevTool:ResizeColumn() --call this otherwise the column will detach for some reason
-				self:StartMoving()
-			</OnDragStart>
-			<OnDragStop>
-				self:StopMovingOrSizing();
-			</OnDragStop>
-		</Scripts>
-		<Frames>
+    <!--SCROLL FRAME -->
+    <ScrollFrame name="DevToolScrollFrameTemplate" inherits="HybridScrollFrameTemplate" virtual="true">
+        <Anchors>
+            <Anchor point="RIGHT" x="-27"/>
+            <Anchor point="LEFT" x="5"/>
+        </Anchors>
+        <Scripts>
+            <OnLoad>
+                self.scrollChild:SetPoint("BOTTOM", self, "BOTTOM", 0, -100)
+            </OnLoad>
+        </Scripts>
+        <Frames>
+            <Slider name="$parentScrollBar" inherits="DevToolMinimalHybridScrollBarTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" y="-18"/>
+                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" y="16"/>
+                </Anchors>
+            </Slider>
+        </Frames>
+        <Layers>
+            <Layer>
+                <Texture name="$parentHighlight">
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                        <Anchor point="BOTTOMRIGHT" x="22"/>
+                    </Anchors>
+                    <Color r="0" g="0" b="0.1" a="0.5"/>
+                </Texture>
+            </Layer>
+        </Layers>
+    </ScrollFrame>
 
-			<!--DRAG-RESIZE CORNER BUTTON-->
-			<Button name="$parentResizeButton" parentKey="resizeButton">
-				<Size x="16" y="16"/>
-				<Anchors>
-					<Anchor point="BOTTOMRIGHT" relativeTo="$parent"/>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						self:RegisterForDrag("LeftButton");
-					</OnLoad>
-					<OnDragStart>
-						self:GetParent():ClearAllPoints()
-						self:GetParent():SetPoint("TOPLEFT", nil, "TOPLEFT",
-								self:GetParent():GetLeft(), (-1 * (UIParent:GetHeight() - self:GetParent():GetTop())))
-						self:SetButtonState("PUSHED", true);
-						self:GetHighlightTexture():Hide();
+    <!--BUTTON -->
+    <Button name="DevToolBaseButtonTemplate" virtual="true">
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Size y="25"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                    <Color r="0.2" g="0.2" b="0.2" a="0.9"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <NormalTexture file="Interface\ClassTrainerFrame\TrainerTextures">
+            <TexCoords left="0.00195313" right="0.57421875" top="0.65820313" bottom="0.75000000"/>
+        </NormalTexture>
+        <HighlightTexture name="$parentHighlight" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="ADD">
+            <TexCoords left="0.00195313" right="0.57421875" top="0.75390625" bottom="0.84570313"/>
+        </HighlightTexture>
+    </Button>
 
-						self.updateTimer = DevTool:ScheduleRepeatingTimer("ResizeUpdateTick", 0.01)
-					</OnDragStart>
-					<OnDragStop>
-						DevTool:CancelTimer(self.updateTimer)
-						--call one final time to let go of the cursor
-						DevTool:ResizeUpdateTick()
-						self:SetButtonState("NORMAL", false);
-						self:GetHighlightTexture():Show();
-					</OnDragStop>
-				</Scripts>
-				<NormalTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up"/>
-				<HighlightTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Highlight"/>
-				<PushedTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down"/>
-			</Button>
+    <CheckButton name="DevToolButtonTemplate" inherits="DevToolBaseButtonTemplate" virtual="true">
+        <Size x="100" y="25"/>
+        <NormalFont style="GameFontHighlight"/>
+        <CheckedTexture name="$parentChecked" file="Interface\ClassTrainerFrame\TrainerTextures" alphaMode="ADD">
+            <TexCoords left="0.00195313" right="0.57421875" top="0.75390625" bottom="0.84570313"/>
+        </CheckedTexture>
+    </CheckButton>
 
-			<!--LABEL FOR FUNCTION ARGUMENTS-->
-			<Button text="Arguments:" inherits="DevToolButtonTemplate" name="$parentFNCallLabelButton"
-					parentKey="clearFnArgsButton">
-				<Anchors>
-					<Anchor point="BOTTOMLEFT" y="5" x="5"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						-- clear args
-						DevTool:SetArgForFunctionCallFromString("")
-						DevTool:Print("Old args cleaned: " .. self:GetParent().editbox:GetText())
-						self:GetParent().editbox:SetText("")
-					</OnClick>
-				</Scripts>
-			</Button>
+    <!--EDITBOX -->
+    <EditBox name="DevToolEditBoxTemplate" virtual="true">
+        <Size y="25"/>
+        <Layers>
+            <Layer>
+                <Texture>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="BOTTOMLEFT" x="-5"/>
+                    </Anchors>
+                    <Color r="0" g="0" b="0.1" a="0.5"/>
+                    <!--    <Color r="0" g="0" b="0.1" a="0.5"/>-->
+                </Texture>
+            </Layer>
+        </Layers>
+        <FontString inherits="ChatFontNormal"/>
+    </EditBox>
 
-			<!--FUNCTION ARGUMENTS EDITBOX-->
-			<EditBox name="$parentTextArea" inherits="DevToolEditBoxTemplate" autoFocus="false"
-					 parentKey="editbox">
-				<Anchors>
-					<Anchor point="RIGHT" relativeTo="$parentResizeButton" relativePoint="LEFT" x="-14"/>
-					<Anchor point="LEFT" relativeTo="$parentFNCallLabelButton" relativePoint="RIGHT" x="10"/>
-				</Anchors>
-				<Scripts>
-					<OnEnterPressed>
-						DevTool:SetArgForFunctionCallFromString(self:GetText())
-						DevTool:Print("New arguments: " .. self:GetText())
-						self:ClearFocus();
-					</OnEnterPressed>
-					<OnEscapePressed>
-						self:ClearFocus();
-					</OnEscapePressed>
-				</Scripts>
-			</EditBox>
+    <!--COLUMN FOR MAIN HybridScrollFrameTemplate -->
+    <Button text="Test" name="DevToolColumnTemplate" virtual="true">
+        <Size x="42"/>
+        <Anchors>
+            <Anchor point="TOP"/>
+            <Anchor point="BOTTOM"/>
+        </Anchors>
+        <Scripts>
+            <OnLoad>
+                local fontString = self:GetFontString()
+                fontString:SetPoint("RIGHT", self, "RIGHT", -5, 0)
+                fontString:SetWordWrap(false)
+                self:EnableMouse()
+            </OnLoad>
+            <OnEnter>
+                self:GetParent():LockHighlight()
+            </OnEnter>
+            <OnLeave>
+                self:GetParent():UnlockHighlight()
+            </OnLeave>
+        </Scripts>
+        <NormalFont style="DevToolDefaultFont"/>
+    </Button>
 
-			<!--********************************** TOP BUTTONS *****************************************************-->
+    <!--ROW BASE HybridScrollFrameTemplate -->
+    <Button name="DevToolRowTemplate" virtual="true">
+        <Anchors>
+            <Anchor point="RIGHT"/>
+            <Anchor point="LEFT"/>
+        </Anchors>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture name="$parentHighlight">
+                    <Size y="1"/>
+                    <Anchors>
+                        <Anchor point="RIGHT"/>
+                        <Anchor point="LEFT"/>
+                        <Anchor point="BOTTOM" y="-2"/>
+                    </Anchors>
+                    <Color r="1" g="1" b="1" a="0.1"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <HighlightTexture alphaMode="ADD">
+            <Color r="1" g="1" b="1" a="0.2"/>
+        </HighlightTexture>
+    </Button>
 
-			<!--TOGGLE SIDEBAR BUTTON -->
-			<Button name="$parentToggleSideBarButton">
-				<Size x="25" y="25"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" x="5" y="-5"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						DevTool:ToggleSidebar()
-					</OnClick>
-				</Scripts>
-				<NormalTexture file="Interface\Buttons\UI-Panel-SmallerButton-Up"/>
-				<PushedTexture file="Interface\Buttons\UI-Panel-SmallerButton-Down"/>
-				<HighlightTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
-			</Button>
+    <!--ROW FOR SIDEBAR HybridScrollFrameTemplate -->
+    <Button name="DevToolSideBarRowTemplate" inherits="DevToolRowTemplate" virtual="true">
+        <Size y="18"/>
+        <Frames>
+            <!--COLUMN 1 delete item icon -->
+            <Button name="$parentActionButton" parentKey="actionButton">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="LEFT"/>
+                </Anchors>
+                <NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
+                <PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
+                <DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
+                <HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+            </Button>
+            <!--COLUMN 2 item text -->
+            <Button text="Test" name="$parentMainButton" inherits="DevToolColumnTemplate" parentKey="mainButton">
+                <Anchors>
+                    <Anchor point="RIGHT"/>
+                    <Anchor point="LEFT" relativeTo="$parentActionButton" relativePoint="RIGHT"/>
+                </Anchors>
+                <NormalFont style="DevToolMediumFont"/>
+            </Button>
+        </Frames>
+    </Button>
 
-			<!--CLEAR BUTTON -->
-			<Button text="Clear" name="$parentClearButton" inherits="DevToolButtonTemplate">
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentToggleSideBarButton" relativePoint="RIGHT" x="5"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						DevTool:ClearAllData()
-					</OnClick>
-				</Scripts>
-			</Button>
+    <!--ROW FOR MAIN HybridScrollFrameTemplate -->
+    <Button name="DevToolEntryTemplate" inherits="DevToolRowTemplate" virtual="true">
+        <Size y="7"/>
+        <Frames>
+            <!--COLUMN 1-->
+            <Button text="123456" name="$parentCountColumn" inherits="DevToolColumnTemplate"
+                    parentKey="rowNumberButton">
+                <Anchors>
+                    <Anchor point="LEFT" x="5"/>
+                </Anchors>
+            </Button>
+            <!--COLUMN 2-->
+            <Button text="Test Text" name="$parentNameColumn" inherits="DevToolColumnTemplate"
+                    parentKey="nameButton">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentCountColumn" relativePoint="RIGHT"/>
+                    <Anchor point="RIGHT" relativeTo="DevToolFrameColumnResizeButton" relativePoint="LEFT" x="10"/>
+                </Anchors>
+            </Button>
+            <!--COLUMN 3-->
+            <Button text="Test Text" name="$parentValueColumn" inherits="DevToolColumnTemplate"
+                    parentKey="valueButton">
+                <Anchors>
+                    <Anchor point="RIGHT"/>
+                    <Anchor point="LEFT" relativeTo="$parentNameColumn" relativePoint="RIGHT"/>
+                </Anchors>
+            </Button>
+        </Frames>
+    </Button>
 
-			<!--_G BUTTON -->
-			<Button text="_G" name="$parentAddGlobalButton" inherits="DevToolButtonTemplate">
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT" x="5"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						DevTool:AddData(_G, "_G")
-					</OnClick>
-				</Scripts>
-			</Button>
 
-			<!--SHOW FRAME STACK BUTTON -->
-			<Button text="/fstack" name="$parentFrameStack" inherits="DevToolButtonTemplate">
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT" x="5"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						self.isActive = not self.isActive
-						UIParentLoadAddOn("Blizzard_DebugTools");
-						local showHidden = false; -- todo add this functionality
-						local showRegions = false;
-						FrameStackTooltip_Toggle(showHidden, showRegions);
-					</OnClick>
-				</Scripts>
-			</Button>
+    <!--*********************************************************************************************************
+                                                         MAIN UI
+     *********************************************************************************************************-->
 
-			<!--SHOW EVENT TRACE BUTTON -->
-			<Button text="/etrace" name="$parentEventTrace" inherits="DevToolButtonTemplate">
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT" x="5"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						self.isActive = not self.isActive
-						UIParentLoadAddOn("Blizzard_EventTrace");
-					</OnClick>
-				</Scripts>
-			</Button>
+    <Frame name="DevToolMainFrame" inherits="DevToolFrameTemplate" hidden="true" movable="true"
+           toplevel="true" resizable="true" virtual="true">
+        <Size x="750" y="500"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Scripts>
+            <OnLoad>
+                self:SetUserPlaced(true)
+                if self.SetResizeBounds then
+                    -- WoW 10.0
+                    self:SetResizeBounds(750, 400, UIParent:GetWidth(), UIParent:GetHeight())
+                else
+                    self:SetMinResize(750, 400)
+                    self:SetMaxResize(UIParent:GetWidth(), UIParent:GetHeight())
+                end
+                self:RegisterForDrag("LeftButton")
+            </OnLoad>
+            <OnDragStart>
+                DevTool:ResizeColumn() --call this otherwise the column will detach for some reason
+                self:StartMoving()
+            </OnDragStart>
+            <OnDragStop>
+                self:StopMovingOrSizing();
+            </OnDragStop>
+        </Scripts>
+        <Frames>
 
-			<!--HELP BUTTON -->
-			<Button text="Help" name="$parentHelpButton" inherits="DevToolButtonTemplate">
-				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentEventTrace" relativePoint="RIGHT" x="5"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						DevTool:ExecuteCMD("help")
-					</OnClick>
-				</Scripts>
-			</Button>
+            <!--DRAG-RESIZE CORNER BUTTON-->
+            <Button name="$parentResizeButton" parentKey="resizeButton">
+                <Size x="16" y="16"/>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$parent"/>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self:RegisterForDrag("LeftButton");
+                    </OnLoad>
+                    <OnDragStart>
+                        self:GetParent():ClearAllPoints()
+                        self:GetParent():SetPoint("TOPLEFT", nil, "TOPLEFT",
+                                self:GetParent():GetLeft(), (-1 * (UIParent:GetHeight() - self:GetParent():GetTop())))
+                        self:SetButtonState("PUSHED", true);
+                        self:GetHighlightTexture():Hide();
 
-			<!--CLOSE UI BUTTON -->
-			<Button name="$parentCloseWndButton">
-				<Size x="25" y="25"/>
-				<Anchors>
-					<Anchor point="TOPRIGHT" x="-5" y="-5"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						DevTool:ToggleUI()
-					</OnClick>
-				</Scripts>
-				<NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
-				<PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
-				<DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
-				<HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
-			</Button>
+                        self.updateTimer = DevTool:ScheduleRepeatingTimer("ResizeUpdateTick", 0.01)
+                    </OnDragStart>
+                    <OnDragStop>
+                        DevTool:CancelTimer(self.updateTimer)
+                        --call one final time to let go of the cursor
+                        DevTool:ResizeUpdateTick()
+                        self:SetButtonState("NORMAL", false);
+                        self:GetHighlightTexture():Show();
+                    </OnDragStop>
+                </Scripts>
+                <NormalTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Up"/>
+                <HighlightTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Highlight"/>
+                <PushedTexture file="Interface\ChatFrame\UI-ChatIM-SizeGrabber-Down"/>
+            </Button>
 
-			<!--SETTINGS BUTTON -->
-			<Button name="$parentSettingsButton" virtual="true">
-				<Size x="25" y="25"/>
-				<Anchors>
-					<Anchor point="RIGHT" relativeTo="$parentCloseWndButton" relativePoint="LEFT" x="5"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						if not DevTool.MainWindow.optionsFrame:IsVisible() then
-							DevTool.MainWindow.optionsFrame:Show()
-						else
-							DevTool.MainWindow.optionsFrame:Hide()
-						end
-					</OnClick>
-				</Scripts>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture parentKey="I" file="Interface\common\help-i">
-							<Size x="25" y="25"/>
-							<Anchors>
-								<Anchor point="CENTER"/>
-							</Anchors>
-						</Texture>
-					</Layer>
-				</Layers>
-				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight">
-					<Size x="25" y="25"/>
-					<Anchors>
-						<Anchor point="CENTER" x="0" y="-1"/>
-					</Anchors>
-				</HighlightTexture>
-			</Button>
+            <!--LABEL FOR FUNCTION ARGUMENTS-->
+            <Button text="Arguments:" inherits="DevToolButtonTemplate" name="$parentFNCallLabelButton"
+                    parentKey="clearFnArgsButton">
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" y="5" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        -- clear args
+                        DevTool:SetArgForFunctionCallFromString("")
+                        DevTool:Print("Old args cleaned: " .. self:GetParent().editbox:GetText())
+                        self:GetParent().editbox:SetText("")
+                    </OnClick>
+                </Scripts>
+            </Button>
 
-			<!--MAIN SCROLL FRAME-->
-			<ScrollFrame name="$parentScrollFrame" inherits="DevToolScrollFrameTemplate" parentKey="scrollFrame">
-				<Anchors>
-					<Anchor point="TOP" relativeTo="$parentToggleSideBarButton" relativePoint="BOTTOM" y="-5"/>
-					<Anchor point="BOTTOM" relativeTo="$parentFNCallLabelButton" relativePoint="TOP" y="5"/>
-				</Anchors>
-			</ScrollFrame>
+            <!--FUNCTION ARGUMENTS EDITBOX-->
+            <EditBox name="$parentTextArea" inherits="DevToolEditBoxTemplate" autoFocus="false"
+                     parentKey="editbox">
+                <Anchors>
+                    <Anchor point="RIGHT" relativeTo="$parentResizeButton" relativePoint="LEFT" x="-14"/>
+                    <Anchor point="LEFT" relativeTo="$parentFNCallLabelButton" relativePoint="RIGHT" x="10"/>
+                </Anchors>
+                <Scripts>
+                    <OnEnterPressed>
+                        DevTool:SetArgForFunctionCallFromString(self:GetText())
+                        DevTool:Print("New arguments: " .. self:GetText())
+                        self:ClearFocus();
+                    </OnEnterPressed>
+                    <OnEscapePressed>
+                        self:ClearFocus();
+                    </OnEscapePressed>
+                </Scripts>
+            </EditBox>
 
-			<!--TABLE ROW RESIZER BUTTON -->
-			<Button name="$parentColumnResizeButton" parentKey="columnResizer">
-				<Size x="15" y="15"/>
-				<Anchors>
-					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" y="-30"/>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						self:SetFrameStrata("HIGH")
-						self:RegisterForDrag("LeftButton");
-					</OnLoad>
-					<OnEnter>
-						self:SetMovable(true)
-						self:EnableMouse(true)
-					</OnEnter>
-					<OnDragStart>
-						self:SetButtonState("PUSHED", false);
-						self:StartMoving()
-						self.updateTimer = DevTool:ScheduleRepeatingTimer("ColumnResizeUpdateTick", 0.01)
-					</OnDragStart>
-					<OnDragStop>
-						DevTool:CancelTimer(self.updateTimer)
-						--call one final time to let go of the cursor
-						DevTool:ColumnResizeUpdateTick()
-						self:SetButtonState("NORMAL", false);
-						self:StopMovingOrSizing();
-					</OnDragStop>
-				</Scripts>
-				<NormalTexture>
-					<Anchors>
-						<Anchor point="TOPRIGHT" x="-6" y="-1"/>
-						<Anchor point="BOTTOMLEFT" x="6" y="4"/>
-					</Anchors>
-					<Color r="0.9" g="0.9" b="0.9" a="0.3"/>
-				</NormalTexture>
-				<HighlightTexture>
-					<Anchors>
-						<Anchor point="TOPRIGHT" x="-5" y="0"/>
-						<Anchor point="BOTTOMLEFT" x="5" y="3"/>
-					</Anchors>
-					<Color r="1" g="0.9" b="0.9" a="0.5"/>
-				</HighlightTexture>
-				<PushedTexture>
-					<Anchors>
-						<Anchor point="TOPRIGHT" x="-5" y="0"/>
-						<Anchor point="BOTTOMLEFT" x="5" y="3"/>
-					</Anchors>
-					<Color r="1" g="0.9" b="0.9" a="0.5"/>
-				</PushedTexture>
-			</Button>
+            <!--********************************** TOP BUTTONS *****************************************************-->
 
-			<!--*********************************************************************************************************
-														SIDEBAR
-			*********************************************************************************************************-->
+            <!--TOGGLE SIDEBAR BUTTON -->
+            <Button name="$parentToggleSideBarButton">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="5" y="-5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        DevTool:ToggleSidebar()
+                    </OnClick>
+                </Scripts>
+                <NormalTexture file="Interface\Buttons\UI-Panel-SmallerButton-Up"/>
+                <PushedTexture file="Interface\Buttons\UI-Panel-SmallerButton-Down"/>
+                <HighlightTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+            </Button>
 
-			<Frame name="$parentSideBar" inherits="DevToolFrameTemplate" enableMouse="true" parentKey="sideFrame"
-				   hidden="true">
-				<Size x="320"/>
-				<Anchors>
-					<Anchor point="TOP"/>
-					<Anchor point="BOTTOM"/>
-					<Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT"/>
-				</Anchors>
-				<Scripts>
-					<OnLoad>
-						self:RegisterForDrag("LeftButton");
-					</OnLoad>
-					<OnDragStart>
-						self:GetParent():StartMoving()
-					</OnDragStart>
-					<OnDragStop>
-						self:GetParent():StopMovingOrSizing();
-					</OnDragStop>
-				</Scripts>
-				<Frames>
+            <!--CLEAR BUTTON -->
+            <Button text="Clear" name="$parentClearButton" inherits="DevToolButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentToggleSideBarButton" relativePoint="RIGHT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        DevTool:ClearAllData()
+                    </OnClick>
+                </Scripts>
+            </Button>
 
-					<!--HISTORY TAB BUTTON-->
-					<CheckButton text="/dev history" name="$parentHistoryButton" inherits="DevToolButtonTemplate"
-								 parentKey="history">
-						<Anchors>
-							<Anchor point="TOPLEFT" y="-5" x="5"/>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								DevTool:EnableSideBarTab("history")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
+            <!--_G BUTTON -->
+            <Button text="_G" name="$parentAddGlobalButton" inherits="DevToolButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentClearButton" relativePoint="RIGHT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        DevTool:AddData(_G, "_G")
+                    </OnClick>
+                </Scripts>
+            </Button>
 
-					<!--EVENTS TAB BUTTON-->
-					<CheckButton text="Events" name="$parentEventsButton" inherits="DevToolButtonTemplate"
-								 parentKey="events">
-						<Anchors>
-							<Anchor point="LEFT" relativeTo="$parentHistoryButton" relativePoint="RIGHT" x="5"/>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								DevTool:EnableSideBarTab("events")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
+            <!--SHOW FRAME STACK BUTTON -->
+            <Button text="/fstack" name="$parentFrameStack" inherits="DevToolButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentAddGlobalButton" relativePoint="RIGHT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        self.isActive = not self.isActive
+                        UIParentLoadAddOn("Blizzard_DebugTools");
+                        local showHidden = false; -- todo add this functionality
+                        local showRegions = false;
+                        FrameStackTooltip_Toggle(showHidden, showRegions);
+                    </OnClick>
+                </Scripts>
+            </Button>
 
-					<!--FUNCTION LOGGER TAB BUTTON-->
-					<CheckButton text="Fn Call Log" name="$parentLogButton" inherits="DevToolButtonTemplate"
-								 parentKey="logs">
-						<Anchors>
-							<Anchor point="LEFT" relativeTo="$parentEventsButton" relativePoint="RIGHT" x="5"/>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								DevTool:EnableSideBarTab("logs")
-							</OnClick>
-						</Scripts>
-					</CheckButton>
+            <!--SHOW EVENT TRACE BUTTON -->
+            <Button text="/etrace" name="$parentEventTrace" inherits="DevToolButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentFrameStack" relativePoint="RIGHT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        self.isActive = not self.isActive
+                        UIParentLoadAddOn("Blizzard_EventTrace");
+                    </OnClick>
+                </Scripts>
+            </Button>
 
-					<!--SIDEBAR EDITBOX-->
-					<EditBox name="$parentTextArea" inherits="DevToolEditBoxTemplate" autoFocus="false"
-							 parentKey="editbox">
-						<Anchors>
-							<Anchor point="BOTTOMLEFT" y="5" x="10"/>
-							<Anchor point="RIGHT" x="-5"/>
-						</Anchors>
+            <!--HELP BUTTON -->
+            <Button text="Help" name="$parentHelpButton" inherits="DevToolButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentEventTrace" relativePoint="RIGHT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        DevTool:ExecuteCMD("help")
+                    </OnClick>
+                </Scripts>
+            </Button>
 
-						<Scripts>
-							<OnEnterPressed>
-								DevTool:SubmitEditBoxSidebar()
-								self:SetText("")
-								self:ClearFocus();
-							</OnEnterPressed>
-							<OnEscapePressed>
-								self:ClearFocus();
-								self:SetText("")
-							</OnEscapePressed>
-						</Scripts>
-					</EditBox>
+            <!--CLOSE UI BUTTON -->
+            <Button name="$parentCloseWndButton">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-5" y="-5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        DevTool:ToggleUI()
+                    </OnClick>
+                </Scripts>
+                <NormalTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Up"/>
+                <PushedTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Down"/>
+                <DisabledTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Disabled"/>
+                <HighlightTexture file="Interface/BUTTONS/UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+            </Button>
 
-					<!--SIDEBAR SCROLL FRAME-->
-					<ScrollFrame name="$parentScrollFrame" inherits="DevToolScrollFrameTemplate"
-								 parentKey="sideScrollFrame">
-						<Anchors>
-							<Anchor point="TOP" relativeTo="$parentHistoryButton" relativePoint="BOTTOM" y="-5"/>
-							<Anchor point="BOTTOM" relativeTo="$parentTextArea" relativePoint="TOP" y="5"/>
-						</Anchors>
-					</ScrollFrame>
-				</Frames>
-			</Frame>
-		</Frames>
-	</Frame>
+            <!--SETTINGS BUTTON -->
+            <Button name="$parentSettingsButton" virtual="true">
+                <Size x="25" y="25"/>
+                <Anchors>
+                    <Anchor point="RIGHT" relativeTo="$parentCloseWndButton" relativePoint="LEFT" x="5"/>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        if not DevTool.MainWindow.optionsFrame:IsVisible() then
+                            DevTool.MainWindow.optionsFrame:Show()
+                        else
+                            DevTool.MainWindow.optionsFrame:Hide()
+                        end
+                    </OnClick>
+                </Scripts>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="I" file="Interface\common\help-i">
+                            <Size x="25" y="25"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight">
+                    <Size x="25" y="25"/>
+                    <Anchors>
+                        <Anchor point="CENTER" x="0" y="-1"/>
+                    </Anchors>
+                </HighlightTexture>
+            </Button>
+
+            <!--MAIN SCROLL FRAME-->
+            <ScrollFrame name="$parentScrollFrame" inherits="DevToolScrollFrameTemplate" parentKey="scrollFrame">
+                <Anchors>
+                    <Anchor point="TOP" relativeTo="$parentToggleSideBarButton" relativePoint="BOTTOM" y="-5"/>
+                    <Anchor point="BOTTOM" relativeTo="$parentFNCallLabelButton" relativePoint="TOP" y="5"/>
+                </Anchors>
+            </ScrollFrame>
+
+            <!--TABLE ROW RESIZER BUTTON -->
+            <Button name="$parentColumnResizeButton" parentKey="columnResizer">
+                <Size x="15" y="15"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" y="-30"/>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self:SetFrameStrata("HIGH")
+                        self:RegisterForDrag("LeftButton");
+                    </OnLoad>
+                    <OnEnter>
+                        self:SetMovable(true)
+                        self:EnableMouse(true)
+                    </OnEnter>
+                    <OnDragStart>
+                        self:SetButtonState("PUSHED", false);
+                        self:StartMoving()
+                        self.updateTimer = DevTool:ScheduleRepeatingTimer("ColumnResizeUpdateTick", 0.01)
+                    </OnDragStart>
+                    <OnDragStop>
+                        DevTool:CancelTimer(self.updateTimer)
+                        --call one final time to let go of the cursor
+                        DevTool:ColumnResizeUpdateTick()
+                        self:SetButtonState("NORMAL", false);
+                        self:StopMovingOrSizing();
+                    </OnDragStop>
+                </Scripts>
+                <NormalTexture>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-6" y="-1"/>
+                        <Anchor point="BOTTOMLEFT" x="6" y="4"/>
+                    </Anchors>
+                    <Color r="0.9" g="0.9" b="0.9" a="0.3"/>
+                </NormalTexture>
+                <HighlightTexture>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-5" y="0"/>
+                        <Anchor point="BOTTOMLEFT" x="5" y="3"/>
+                    </Anchors>
+                    <Color r="1" g="0.9" b="0.9" a="0.5"/>
+                </HighlightTexture>
+                <PushedTexture>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-5" y="0"/>
+                        <Anchor point="BOTTOMLEFT" x="5" y="3"/>
+                    </Anchors>
+                    <Color r="1" g="0.9" b="0.9" a="0.5"/>
+                </PushedTexture>
+            </Button>
+
+            <!--*********************************************************************************************************
+                                                        SIDEBAR
+            *********************************************************************************************************-->
+
+            <Frame name="$parentSideBar" inherits="DevToolFrameTemplate" enableMouse="true" parentKey="sideFrame"
+                   hidden="true">
+                <Size x="320"/>
+                <Anchors>
+                    <Anchor point="TOP"/>
+                    <Anchor point="BOTTOM"/>
+                    <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT"/>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        self:RegisterForDrag("LeftButton");
+                    </OnLoad>
+                    <OnDragStart>
+                        self:GetParent():StartMoving()
+                    </OnDragStart>
+                    <OnDragStop>
+                        self:GetParent():StopMovingOrSizing();
+                    </OnDragStop>
+                </Scripts>
+                <Frames>
+
+                    <!--HISTORY TAB BUTTON-->
+                    <CheckButton text="/dev history" name="$parentHistoryButton" inherits="DevToolButtonTemplate"
+                                 parentKey="history">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" y="-5" x="5"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                DevTool:EnableSideBarTab("history")
+                            </OnClick>
+                        </Scripts>
+                    </CheckButton>
+
+                    <!--EVENTS TAB BUTTON-->
+                    <CheckButton text="Events" name="$parentEventsButton" inherits="DevToolButtonTemplate"
+                                 parentKey="events">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentHistoryButton" relativePoint="RIGHT" x="5"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                DevTool:EnableSideBarTab("events")
+                            </OnClick>
+                        </Scripts>
+                    </CheckButton>
+
+                    <!--FUNCTION LOGGER TAB BUTTON-->
+                    <CheckButton text="Fn Call Log" name="$parentLogButton" inherits="DevToolButtonTemplate"
+                                 parentKey="logs">
+                        <Anchors>
+                            <Anchor point="LEFT" relativeTo="$parentEventsButton" relativePoint="RIGHT" x="5"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                DevTool:EnableSideBarTab("logs")
+                            </OnClick>
+                        </Scripts>
+                    </CheckButton>
+
+                    <!--SIDEBAR EDITBOX-->
+                    <EditBox name="$parentTextArea" inherits="DevToolEditBoxTemplate" autoFocus="false"
+                             parentKey="editbox">
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" y="5" x="10"/>
+                            <Anchor point="RIGHT" x="-5"/>
+                        </Anchors>
+
+                        <Scripts>
+                            <OnEnterPressed>
+                                DevTool:SubmitEditBoxSidebar()
+                                self:SetText("")
+                                self:ClearFocus();
+                            </OnEnterPressed>
+                            <OnEscapePressed>
+                                self:ClearFocus();
+                                self:SetText("")
+                            </OnEscapePressed>
+                        </Scripts>
+                    </EditBox>
+
+                    <!--SIDEBAR SCROLL FRAME-->
+                    <ScrollFrame name="$parentScrollFrame" inherits="DevToolScrollFrameTemplate"
+                                 parentKey="sideScrollFrame">
+                        <Anchors>
+                            <Anchor point="TOP" relativeTo="$parentHistoryButton" relativePoint="BOTTOM" y="-5"/>
+                            <Anchor point="BOTTOM" relativeTo="$parentTextArea" relativePoint="TOP" y="5"/>
+                        </Anchors>
+                    </ScrollFrame>
+                </Frames>
+            </Frame>
+        </Frames>
+    </Frame>
 
 </Ui>

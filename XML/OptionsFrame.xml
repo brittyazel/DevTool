@@ -5,31 +5,31 @@
 
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI_shared.xsd">
-	
-	<Frame name="DevToolOptionsFrameRowTemplate" virtual="true">
-		<Size y="40"/>
-		<Layers>
-			<!-- Main row rectangle -->
-			<Layer>
-				<Texture>
-					<Anchors>
-						<Anchor point="TOPRIGHT"/>
-						<Anchor point="BOTTOMLEFT"/>
-					</Anchors>
-					<Color r="0.15" g="0.15" b="0.15" a="0.9"/>
-				</Texture>
-			</Layer>
-			<!-- Border along the bottom -->
-			<Layer level="OVERLAY">
-				<Texture>
-					<Size y="1"/>
-					<Anchors>
-						<Anchor point="BOTTOMRIGHT"/>
-						<Anchor point="LEFT"/>
-					</Anchors>
-					<Color r="0.1" g="0.1" b="0.1" a="0.7"/>
-				</Texture>
-			</Layer>
-		</Layers>
-	</Frame>
+
+    <Frame name="DevToolOptionsFrameRowTemplate" virtual="true">
+        <Size y="40"/>
+        <Layers>
+            <!-- Main row rectangle -->
+            <Layer>
+                <Texture>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                        <Anchor point="BOTTOMLEFT"/>
+                    </Anchors>
+                    <Color r="0.15" g="0.15" b="0.15" a="0.9"/>
+                </Texture>
+            </Layer>
+            <!-- Border along the bottom -->
+            <Layer level="OVERLAY">
+                <Texture>
+                    <Size y="1"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT"/>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                    <Color r="0.1" g="0.1" b="0.1" a="0.7"/>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
 </Ui>

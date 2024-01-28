@@ -127,7 +127,7 @@ function DevTool:SetMonitorEventScript()
 		local args = { ... }
 		local event = args[1]
 		local unit
-		if #args > 1 and type(args[2])=="string" and string.find(event, "UNIT") then
+		if #args > 1 and type(args[2]) == "string" and string.find(event, "UNIT") then
 			unit = args[2]
 		end
 
