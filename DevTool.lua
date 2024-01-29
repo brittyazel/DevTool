@@ -24,6 +24,9 @@ DevTool.colors["parent"] = CreateColorFromHexString("FFBEB9B5")
 DevTool.colors["error"] = CreateColorFromHexString("FFFF0000")
 DevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 
+-- Holds the contents of the current view window.
+DevTool.list = {}
+
 
 -------------------------------------------------------------------------
 --------------------Start of Functions-----------------------------------
@@ -32,16 +35,16 @@ DevTool.colors["ok"] = CreateColorFromHexString("FF00FF00")
 --- Called directly after the addon is fully loaded.
 --- We do initialization tasks here, such as loading our saved variables or setting up slash commands.
 function DevTool:OnInitialize()
-	-- This table holds the contents of the current view window. Declare this table early so it can be used in other functions.
-	self.list = {}
 
 	self.db = LibStub("AceDB-3.0"):New("DevToolDatabase", self.DatabaseDefaults)
+	
 end
 
 --- Called during the PLAYER_LOGIN event when most of the data provided by the game is already present.
 --- We perform more startup tasks here, such as registering events, hooking functions, creating frames, or getting 
 --- information from the game that wasn't yet available during :OnInitialize()
 function DevTool:OnEnable()
+	
 	self:CreateChatCommands()
 
 	self.MainWindow = CreateFrame("Frame", "DevToolFrame", UIParent, "DevToolMainFrame")
@@ -360,7 +363,7 @@ function DevTool:ExecuteCMD(message, bAddToHistory)
 end
 
 -----------------------------------------------------------------------------------------------
--- UI
+--- UI
 -----------------------------------------------------------------------------------------------
 function DevTool:ToggleUI()
 	if not self.MainWindow:IsVisible() then
@@ -439,7 +442,7 @@ function DevTool:ResizeColumn(firstRun)
 end
 
 -----------------------------------------------------------------------------------------------
--- Main table UI
+--- Main table UI
 -----------------------------------------------------------------------------------------------
 function DevTool:UpdateMainTableUI()
 	if not self.MainWindow or not self.MainWindow:IsVisible() then
@@ -519,7 +522,7 @@ function DevTool:UIUpdateMainTableButton(element, info, id)
 end
 
 -----------------------------------------------------------------------------------------------
--- Sidebar UI
+--- Sidebar UI
 -----------------------------------------------------------------------------------------------
 function DevTool:ToggleSidebar()
 	if not self.MainWindow.sideFrame:IsVisible() then
@@ -771,7 +774,7 @@ function DevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 end
 
 -----------------------------------------------------------------------------------------------
--- BOTTOM PANEL Fn Arguments button  and arguments input edit box
+--- BOTTOM PANEL Function Arguments button  and arguments input edit box
 -----------------------------------------------------------------------------------------------
 function DevTool:SetArgForFunctionCallFromString(argStr)
 	local args = DevTool.split(argStr, ",") or {}
