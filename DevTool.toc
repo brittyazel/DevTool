@@ -1,5 +1,5 @@
 ## Interface: 100205
-## Interface-Classic: 11500
+## Interface-Classic: 11501
 ## Interface-Wrath: 30403
 ## Title: DevTool
 ## Notes: A multipurpose tool to assist with addon development
