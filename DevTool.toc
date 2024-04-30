@@ -1,6 +1,6 @@
 ## Interface: 100206
 ## Interface-Classic: 11502
-## Interface-Wrath: 30403
+## Interface-Wrath: 40400
 ## Title: DevTool
 ## Notes: A multipurpose tool to assist with addon development
 ## IconTexture: Interface\Icons\inv_misc_gear_08
