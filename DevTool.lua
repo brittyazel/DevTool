@@ -687,12 +687,17 @@ end
 
 function DevTool:TryCallFunction(info)
 	-- info.value is just our function to call
-	local parent
+	local parent = DevTool.GetParentTable(info)
 	local fn = info.value
 	local args = { unpack(self.db.profile.tArgs) }
 	for k, v in pairs(args) do
-		if type(v) == "string" and DevTool.starts(v, "t=") then
-
+		if type(v) == "string" and v == "t=self" then
+			if not parent then
+				local ok, results = false, { "t=self set as argument, but no parent table exists" }
+				return self:ProcessCallFunctionData(ok, info, parent, args, results)
+			end
+			args[k] = parent and parent.value
+		elseif type(v) == "string" and DevTool.starts(v, "t=") then
 			local obj = DevTool.FromStrToObject(string.sub(v, 3))
 			if obj then
 				args[k] = obj
@@ -703,14 +708,10 @@ function DevTool:TryCallFunction(info)
 	-- lets try safe call first
 	local ok, results = DevTool.TryCallFunctionWithArgs(fn, args)
 
-	if not ok then
-		-- if safe call failed we probably could try to find self and call self:fn()
-		parent = DevTool.GetParentTable(info)
-
-		if parent then
-			args = { parent.value, unpack(args) } --shallow copy and add parent table
-			ok, results = DevTool.TryCallFunctionWithArgs(fn, args)
-		end
+	if not ok and parent and args[1] ~= parent then
+		-- if safe call failed we probably could try to find self and call self:fn(), but only if user didn't explicitly specify t=self already
+		args = { parent.value, unpack(args) } --shallow copy and add parent table
+		ok, results = DevTool.TryCallFunctionWithArgs(fn, args)
 	end
 
 	self:ProcessCallFunctionData(ok, info, parent, args, results)
