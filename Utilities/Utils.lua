@@ -266,18 +266,18 @@ function DevTool.TryCallFunctionWithArgs(fn, args)
 end
 
 function DevTool.IsMetaTableNode(info)
-	return info.name == "$metatable" or info.name == "$metatable.__index"
+	return info.name == "$metatable" or info.name == "$metatable.__index" or (info.name == "__index" and info.parent and info.parent.name == "$metatable")
 end
 
 function DevTool.GetParentTable(info)
 	local parent = info.parent
-	if parent and parent.value == _G then
-		-- this fn is in global namespace so no parent
+	if parent and (parent.value == _G or parent == DevTool.list) then
+		-- this fn is in global namespace, or has no parent
 		parent = nil
 	end
 
 	if parent then
-		if DevTool.IsMetaTableNode(parent) then
+		while DevTool.IsMetaTableNode(parent) do
 			-- metatable has real object 1 level higher
 			parent = parent.parent
 		end

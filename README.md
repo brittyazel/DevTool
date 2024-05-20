@@ -79,10 +79,13 @@ You can specify coma separated arguments that will be passed to any function Dev
 be in the form of a `string`, `number`, `nil`, `boolean`, and/or `table`.
 
 - **Note**, _to pass a value with type `table` you have to specify prefix `t=`_.
+- **Note**, _to pass the parent table, specify `t=self`_.
+- **Note**, _DevTool will automatically try passing `self` as first arg, if the function throws an error_.
 
 Example passing arguments to a function `SomeFunction`:
 
 - FN Call Args: `t=MyObject, 12, a12` becomes `SomeFunction(_G.MyObject, 12, a12)`
+- FN Call Args: `t=self, 12, a12` becomes `SomeObject:SomeFunction(12, a12)`
 - FN Call Args: `t=MyObject.Frame1.Frame2` becomes `SomeFunction(_G.MyObject.Frame1.Frame2)`
 
 ### Chat commands:
