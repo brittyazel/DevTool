@@ -146,8 +146,14 @@ function DevTool:CreateChatCommands()
 		end,
 
 		MOUSEOVER = function()
-			local resultTable = GetMouseFocus()
-			return resultTable, resultTable:GetName()
+			local focusedFrame
+			--WoW 11.0 added GetMouseFoci() which now returns a table of frames in order of their on-screen stacking
+			if GetMouseFoci then
+				focusedFrame = GetMouseFoci()[1]
+			else
+				focusedFrame = GetMouseFocus()
+			end
+			return focusedFrame, focusedFrame:GetName()
 		end,
 
 		REPOSITION = function()
