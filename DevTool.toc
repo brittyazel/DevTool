@@ -1,4 +1,4 @@
-## Interface: 11503, 40400, 110002
+## Interface: 11504, 40400, 110002
 ## Title: DevTool
 ## Notes: A multipurpose tool to assist with addon development
 ## IconTexture: Interface\Icons\inv_misc_gear_08
