@@ -491,6 +491,7 @@ function DevTool:UpdateScrollFrameRowSize(scrollFrame)
 		button.nameButton:GetFontString():SetFont(font, currFontSize)
 		button.rowNumberButton:GetFontString():SetFont(font, currFontSize)
 		button.valueButton:GetFontString():SetFont(font, currFontSize)
+		button.taintButton:GetFontString():SetFont(font, currFontSize)
 	end
 
 	scrollFrame.buttonHeight = cellHeight
@@ -513,18 +514,27 @@ function DevTool:UIUpdateMainTableButton(element, info, id)
 		color = self.colors.default
 	end
 
+	local secure, taintAddon
+	if info.parent ~= self.list then
+		secure, taintAddon = issecurevariable(info.parent.value, info.name)
+	 elseif _G[info.name] == info.value then
+		secure, taintAddon = issecurevariable(_G, info.name)
+	 end
+
 	element.nameButton:SetPoint("LEFT", element.rowNumberButton, "RIGHT", 10 * info.indentation - 10, 0)
 
 	element.valueButton:SetText(DevTool.ToUIString(info.value, info.name, true))
 	element.nameButton:SetText(tostring(info.name))
+	element.taintButton:SetText(not secure and "Tainted" or "")
 	element.rowNumberButton:SetText(tostring(id))
 
 	element.nameButton:GetFontString():SetTextColor(color:GetRGBA())
 	element.valueButton:GetFontString():SetTextColor(color:GetRGBA())
+	element.taintButton:GetFontString():SetTextColor(color:GetRGBA())
 	element.rowNumberButton:GetFontString():SetTextColor(color:GetRGBA())
 
-	self:SetMainTableButtonScript(element.nameButton, info)
-	self:SetMainTableButtonScript(element.valueButton, info)
+	self:SetMainTableButtonScript(element.nameButton, info, taintAddon)
+	self:SetMainTableButtonScript(element.valueButton, info, taintAddon)
 end
 
 -----------------------------------------------------------------------------------------------
@@ -661,7 +671,7 @@ end
 -----------------------------------------------------------------------------------------------
 -- Main table row button clicks setup
 -----------------------------------------------------------------------------------------------
-function DevTool:SetMainTableButtonScript(button, info)
+function DevTool:SetMainTableButtonScript(button, info, taintAddon)
 	local valueType = type(info.value)
 	local leftClickFn = function()
 	end
@@ -685,6 +695,8 @@ function DevTool:SetMainTableButtonScript(button, info)
 			local nameButton = this:GetParent().nameButton
 			local valueButton = this:GetParent().valueButton
 			DevTool:Print(nameButton:GetText() .. " - " .. valueButton:GetText())
+
+			if taintAddon then DevTool:Print(("Taint: %s"):format(taintAddon)) end
 		else
 			leftClickFn(this, mouseButton, down)
 		end
