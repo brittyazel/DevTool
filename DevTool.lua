@@ -525,7 +525,7 @@ function DevTool:UIUpdateMainTableButton(element, info, id)
 
 	element.valueButton:SetText(DevTool.ToUIString(info.value, info.name, true))
 	element.nameButton:SetText(tostring(info.name))
-	element.taintButton:SetText(not secure and "Tainted" or "")
+	element.taintButton:SetText(secure == false and "Tainted" or "")
 	element.rowNumberButton:SetText(tostring(id))
 
 	element.nameButton:GetFontString():SetTextColor(color:GetRGBA())
