@@ -273,11 +273,18 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
                     <Anchor point="RIGHT" relativeTo="DevToolFrameColumnResizeButton" relativePoint="LEFT" x="10"/>
                 </Anchors>
             </Button>
+            <!--COLUMN 4-->
+            <Button text="Test Text" name="$parentTaintColumn" inherits="DevToolColumnTemplate" parentKey="taintButton">
+                <Size x="50"/>
+                <Anchors>
+                    <Anchor point="RIGHT"/>
+                </Anchors>
+            </Button>
             <!--COLUMN 3-->
             <Button text="Test Text" name="$parentValueColumn" inherits="DevToolColumnTemplate"
                     parentKey="valueButton">
                 <Anchors>
-                    <Anchor point="RIGHT"/>
+                    <Anchor point="RIGHT" relativeTo="$parentTaintColumn" relativePoint="LEFT"/>
                     <Anchor point="LEFT" relativeTo="$parentNameColumn" relativePoint="RIGHT"/>
                 </Anchors>
             </Button>
