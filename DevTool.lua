@@ -410,6 +410,10 @@ function DevTool:ResizeMainFrame()
 	local left = self.MainWindow:GetLeft()
 	local top = self.MainWindow:GetTop()
 
+	-- Pin the top left corner of the main window in place so we only resize from the bottom right corner
+	self.MainWindow:ClearAllPoints()
+	self.MainWindow:SetPoint("TOPLEFT", nil, "TOPLEFT", left, (-1 * (UIParent:GetHeight() - top)))
+
 	local x, y = GetCursorPosition()
 	local s = self.MainWindow:GetEffectiveScale()
 	x = x / s
@@ -426,8 +430,7 @@ function DevTool:ResizeMainFrame()
 
 	end
 
-	self.MainWindow:SetSize(DevTool.CalculatePosition(x - left, minX, maxX),
-			DevTool.CalculatePosition(top - y, minY, maxY))
+	self.MainWindow:SetSize(DevTool.CalculatePosition(x - left, minX, maxX), DevTool.CalculatePosition(top - y, minY, maxY))
 end
 
 function DevTool:ResizeColumn(firstRun)
@@ -444,7 +447,8 @@ function DevTool:ResizeColumn(firstRun)
 	end
 
 	self.MainWindow.columnResizer:ClearAllPoints()
-	self.MainWindow.columnResizer:SetPoint("TOPRIGHT", self.MainWindow, "TOPRIGHT", self.db.profile.collResizeWidth * -1, -30) -- 30 is offset from above (top buttons)
+	-- -30 is vertical offset from above (top buttons)
+	self.MainWindow.columnResizer:SetPoint("TOPRIGHT", self.MainWindow, "TOPRIGHT", self.db.profile.collResizeWidth * -1, -30)
 end
 
 -----------------------------------------------------------------------------------------------

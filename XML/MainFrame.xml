@@ -328,18 +328,13 @@ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI
                         self:RegisterForDrag("LeftButton");
                     </OnLoad>
                     <OnDragStart>
-                        self:GetParent():ClearAllPoints()
-                        self:GetParent():SetPoint("TOPLEFT", nil, "TOPLEFT",
-                                self:GetParent():GetLeft(), (-1 * (UIParent:GetHeight() - self:GetParent():GetTop())))
                         self:SetButtonState("PUSHED", true);
                         self:GetHighlightTexture():Hide();
-
                         self.updateTimer = DevTool:ScheduleRepeatingTimer("ResizeUpdateTick", 0.01)
                     </OnDragStart>
                     <OnDragStop>
                         DevTool:CancelTimer(self.updateTimer)
-                        --call one final time to let go of the cursor
-                        DevTool:ResizeUpdateTick()
+                        DevTool:ResizeUpdateTick() --call one final time to let go of the cursor
                         self:SetButtonState("NORMAL", false);
                         self:GetHighlightTexture():Show();
                     </OnDragStop>
