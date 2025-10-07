@@ -765,16 +765,17 @@ function DevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 	-- for example 1, 2, nil, 4 should return only this 4 values nothing more, nothing less.
 	local found = false
 	for i = 10, 1, -1 do
-		if results[i] ~= nil then
+        local result = DevTool.normalizeSecretValue(results[i])
+		if result ~= nil then
 			found = true
 		end
 
 		if found or i == 1 then
 			-- if found some return or if return is nil
-			table.insert(elements, self:NewElement(results[i], string.format("  return: %d", i), indentation))
+			table.insert(elements, self:NewElement(result, string.format("  return: %d", i), indentation))
 
-			returnFormattedStr = string.format(" %s (%s)%s", tostring(results[i]),
-					self.colors.lightblue:WrapTextInColorCode(type(results[i])), returnFormattedStr)
+			returnFormattedStr = string.format(" %s (%s)%s", tostring(result),
+					self.colors.lightblue:WrapTextInColorCode(type(result)), returnFormattedStr)
 		end
 	end
 
