@@ -235,6 +235,16 @@ function DevTool:AddData(data, dataName)
 		return
 	end
 
+    if issecrettable(data) then
+		self:Print("Error: The data being added is a secret table. Aborting.")
+		return
+	end
+
+    if issecretvalue(data) then
+		self:Print("Error: The data being added is a secret value. Aborting.")
+		return
+	end
+
 	if not dataName then
 		dataName = tostring(data)
 	end
