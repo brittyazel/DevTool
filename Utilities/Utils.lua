@@ -11,11 +11,8 @@ local DevTool = addonTable.DevTool
 -----------------------------------------------------------------------------------------------
 
 function DevTool.normalizeSecretValue(value)
-    if issecrettable(value) then
-        return "<SECRET TABLE>"
-    end
-    if issecretvalue(value) then
-        return "<SECRET VALUE>"
+    if issecrettable(value) or issecretvalue(value) then
+        return string.format("<SECRET %s>", type(value))
     end
     return value
 end
@@ -175,6 +172,7 @@ end
 
 function DevTool.ToUIString(value, name, withoutLineBrakes)
 	local result
+    value = DevTool.normalizeSecretValue(value)
 	local valueType = type(value)
 
 	if valueType == "table" then
@@ -183,8 +181,6 @@ function DevTool.ToUIString(value, name, withoutLineBrakes)
 	else
 		result = tostring(value)
 	end
-
-    result = DevTool.normalizeSecretValue(result)
 
 	if withoutLineBrakes then
 		result = string.gsub(string.gsub(tostring(result), "|n", ""), "\n", "")
