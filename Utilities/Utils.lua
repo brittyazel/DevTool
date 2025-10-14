@@ -10,6 +10,13 @@ local DevTool = addonTable.DevTool
 --- UTILS
 -----------------------------------------------------------------------------------------------
 
+function DevTool.normalizeSecretValue(value)
+    if issecrettable(value) or issecretvalue(value) then
+        return string.format("<SECRET %s>", type(value))
+    end
+    return value
+end
+
 --- Math
 
 function DevTool.round(num, idp)
@@ -165,6 +172,7 @@ end
 
 function DevTool.ToUIString(value, name, withoutLineBrakes)
 	local result
+    value = DevTool.normalizeSecretValue(value)
 	local valueType = type(value)
 
 	if valueType == "table" then
@@ -188,8 +196,9 @@ function DevTool.GetObjectInfoFromWoWAPI(helperText, value)
 	-- try to get frame name
 	if ok then
 		local concat = function(str, before, after)
-			before = before or ""
-			after = after or ""
+			before = DevTool.normalizeSecretValue(before) or ""
+			after = DevTool.normalizeSecretValue(after) or ""
+            str = DevTool.normalizeSecretValue(str)
 			if str then
 				return resultStr .. " " .. before .. str .. after
 			end
@@ -210,6 +219,8 @@ function DevTool.GetObjectInfoFromWoWAPI(helperText, value)
 					tostring(DevTool.round(width)) .. ", " ..
 					tostring(DevTool.round(height)) .. "]")
 		end
+
+        name = DevTool.normalizeSecretValue(name)
 
 		if helperText ~= name then
 			resultStr = concat(name, DevTool.colors.gray:WrapTextInColorCode("<"), DevTool.colors.gray:WrapTextInColorCode(">"))
