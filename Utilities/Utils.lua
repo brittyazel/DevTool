@@ -10,13 +10,6 @@ local DevTool = addonTable.DevTool
 --- UTILS
 -----------------------------------------------------------------------------------------------
 
-function DevTool.normalizeSecretValue(value)
-    if issecrettable(value) or issecretvalue(value) then
-        return string.format("<SECRET %s>", type(value))
-    end
-    return value
-end
-
 --- Math
 
 function DevTool.round(num, idp)
@@ -172,7 +165,7 @@ end
 
 function DevTool.ToUIString(value, name, withoutLineBrakes)
 	local result
-    value = DevTool.normalizeSecretValue(value)
+	value = DevTool.normalizeSecretValue(value)
 	local valueType = type(value)
 
 	if valueType == "table" then
@@ -198,7 +191,7 @@ function DevTool.GetObjectInfoFromWoWAPI(helperText, value)
 		local concat = function(str, before, after)
 			before = DevTool.normalizeSecretValue(before) or ""
 			after = DevTool.normalizeSecretValue(after) or ""
-            str = DevTool.normalizeSecretValue(str)
+			str = DevTool.normalizeSecretValue(str)
 			if str then
 				return resultStr .. " " .. before .. str .. after
 			end
@@ -220,7 +213,7 @@ function DevTool.GetObjectInfoFromWoWAPI(helperText, value)
 					tostring(DevTool.round(height)) .. "]")
 		end
 
-        name = DevTool.normalizeSecretValue(name)
+		name = DevTool.normalizeSecretValue(name)
 
 		if helperText ~= name then
 			resultStr = concat(name, DevTool.colors.gray:WrapTextInColorCode("<"), DevTool.colors.gray:WrapTextInColorCode(">"))
@@ -295,4 +288,11 @@ function DevTool.GetParentTable(info)
 	end
 
 	return parent
+end
+
+function DevTool.normalizeSecretValue(value)
+	if (issecrettable and issecrettable(value)) or (issecretvalue and issecretvalue(value)) then
+		return string.format("<SECRET %s>", type(value))
+	end
+	return value
 end

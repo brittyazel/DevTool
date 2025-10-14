@@ -37,14 +37,14 @@ DevTool.list = {}
 function DevTool:OnInitialize()
 
 	self.db = LibStub("AceDB-3.0"):New("DevToolDatabase", self.DatabaseDefaults)
-	
+
 end
 
 --- Called during the PLAYER_LOGIN event when most of the data provided by the game is already present.
 --- We perform more startup tasks here, such as registering events, hooking functions, creating frames, or getting 
 --- information from the game that wasn't yet available during :OnInitialize()
 function DevTool:OnEnable()
-	
+
 	self:CreateChatCommands()
 
 	self.MainWindow = CreateFrame("Frame", "DevToolFrame", UIParent, "DevToolMainFrame")
@@ -235,12 +235,12 @@ function DevTool:AddData(data, dataName)
 		return
 	end
 
-    if issecrettable(data) then
+	if issecrettable and issecrettable(data) then
 		self:Print("Error: The data being added is a secret table. Aborting.")
 		return
 	end
 
-    if issecretvalue(data) then
+	if issecretvalue and issecretvalue(data) then
 		self:Print("Error: The data being added is a secret value. Aborting.")
 		return
 	end
@@ -765,7 +765,7 @@ function DevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 	-- for example 1, 2, nil, 4 should return only this 4 values nothing more, nothing less.
 	local found = false
 	for i = 10, 1, -1 do
-        local result = DevTool.normalizeSecretValue(results[i])
+		local result = DevTool.normalizeSecretValue(results[i])
 		if result ~= nil then
 			found = true
 		end
