@@ -165,7 +165,7 @@ end
 
 function DevTool.ToUIString(value, name, withoutLineBrakes)
 	local result
-	value = DevTool.normalizeSecretValue(value)
+	value = DevTool.secretToString(value)
 	local valueType = type(value)
 
 	if valueType == "table" then
@@ -189,9 +189,9 @@ function DevTool.GetObjectInfoFromWoWAPI(helperText, value)
 	-- try to get frame name
 	if ok then
 		local concat = function(str, before, after)
-			before = DevTool.normalizeSecretValue(before) or ""
-			after = DevTool.normalizeSecretValue(after) or ""
-			str = DevTool.normalizeSecretValue(str)
+			before = DevTool.secretToString(before) or ""
+			after = DevTool.secretToString(after) or ""
+			str = DevTool.secretToString(str)
 			if str then
 				return resultStr .. " " .. before .. str .. after
 			end
@@ -203,17 +203,43 @@ function DevTool.GetObjectInfoFromWoWAPI(helperText, value)
 		local _, text = DevTool.TryCallAPIFn("GetText", value)
 
 		local hasSize, left, bottom, width, height = DevTool.TryCallAPIFn("GetBoundsRect", value)
+		local leftStr, bottomStr, widthStr, heightStr = "", "", "", ""
 
 		resultStr = objectType or ""
+
 		if hasSize then
+			if DevTool.isSecret(left) then
+				leftStr = DevTool.secretToString(left)
+			else
+				leftStr = tostring(DevTool.round(left))
+			end
+
+			if DevTool.isSecret(bottom) then
+				bottomStr = DevTool.secretToString(bottom)
+			else
+				bottomStr = tostring(DevTool.round(bottom))
+			end
+
+			if DevTool.isSecret(width) then
+				widthStr = DevTool.secretToString(width)
+			else
+				widthStr = tostring(DevTool.round(width))
+			end
+
+			if DevTool.isSecret(height) then
+				heightStr = DevTool.secretToString(height)
+			else
+				heightStr = tostring(DevTool.round(height))
+			end
+
 			resultStr = concat("[" ..
-					tostring(DevTool.round(left)) .. ", " ..
-					tostring(DevTool.round(bottom)) .. ", " ..
-					tostring(DevTool.round(width)) .. ", " ..
-					tostring(DevTool.round(height)) .. "]")
+					leftStr .. ", " ..
+					bottomStr .. ", " ..
+					widthStr .. ", " ..
+					heightStr .. "]")
 		end
 
-		name = DevTool.normalizeSecretValue(name)
+		name = DevTool.secretToString(name)
 
 		if helperText ~= name then
 			resultStr = concat(name, DevTool.colors.gray:WrapTextInColorCode("<"), DevTool.colors.gray:WrapTextInColorCode(">"))
@@ -290,9 +316,16 @@ function DevTool.GetParentTable(info)
 	return parent
 end
 
-function DevTool.normalizeSecretValue(value)
+function DevTool.isSecret(value)
 	if (issecrettable and issecrettable(value)) or (issecretvalue and issecretvalue(value)) then
+		return true
+	end
+	return false
+end
+
+function DevTool.secretToString(value)
+	if DevTool.isSecret(value) then
 		return string.format("<SECRET %s>", type(value))
 	end
-	return value
+	return tostring(value)
 end

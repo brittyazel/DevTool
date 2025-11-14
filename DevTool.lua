@@ -765,7 +765,7 @@ function DevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 	-- for example 1, 2, nil, 4 should return only this 4 values nothing more, nothing less.
 	local found = false
 	for i = 10, 1, -1 do
-		local result = DevTool.normalizeSecretValue(results[i])
+		local result = DevTool.secretToString(results[i])
 		if result ~= nil then
 			found = true
 		end
