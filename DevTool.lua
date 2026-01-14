@@ -529,7 +529,7 @@ function DevTool:UIUpdateMainTableButton(element, info, id)
 
 	element.nameButton:SetPoint("LEFT", element.rowNumberButton, "RIGHT", 10 * info.indentation - 10, 0)
 
-	element.valueButton:SetText(DevTool.ToUIString(info.value, info.name, true))
+	element.valueButton:GetFontString():SetText(DevTool.ToUIString(info.value, info.name, true))
 	element.nameButton:SetText(tostring(info.name))
 	element.rowNumberButton:SetText(tostring(id))
 
@@ -765,7 +765,7 @@ function DevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 	-- for example 1, 2, nil, 4 should return only this 4 values nothing more, nothing less.
 	local found = false
 	for i = 10, 1, -1 do
-		local result = DevTool.secretToString(results[i])
+		local result = results[i]
 		if result ~= nil then
 			found = true
 		end
@@ -774,7 +774,7 @@ function DevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 			-- if found some return or if return is nil
 			table.insert(elements, self:NewElement(result, string.format("  return: %d", i), indentation))
 
-			returnFormattedStr = string.format(" %s (%s)%s", tostring(result),
+			returnFormattedStr = string.format(" %s (%s)%s", DevTool.secretToString(result),
 					self.colors.lightblue:WrapTextInColorCode(type(result)), returnFormattedStr)
 		end
 	end
