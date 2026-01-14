@@ -772,7 +772,7 @@ function DevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 
 		if found or i == 1 then
 			-- if found some return or if return is nil
-			table.insert(elements, self:NewElement(result, string.format("  return: %d", i), indentation))
+			elements[i] = self:NewElement(result, string.format("  return: %d", i), indentation)
 
 			returnFormattedStr = string.format(" %s (%s)%s", DevTool.secretToString(result),
 					self.colors.lightblue:WrapTextInColorCode(type(result)), returnFormattedStr)
@@ -791,8 +791,8 @@ function DevTool:ProcessCallFunctionData(ok, info, parent, args, results)
 
 	self:UpdateMainTableUI()
 
-	--print info to chat
-	self:Print(stateStr(ok) .. " " .. fnNameWithArgs .. self.colors.gray:WrapTextInColorCode(" returns:") .. returnFormattedStr)
+	--print info to chat (not using self:Print since AceConsole:Print currently doesn't support secrets)
+	print("|cff33ff99DevTool|r:", stateStr(ok), fnNameWithArgs, self.colors.gray:WrapTextInColorCode("returns:"), returnFormattedStr)
 end
 
 -----------------------------------------------------------------------------------------------
