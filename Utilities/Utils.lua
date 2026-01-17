@@ -165,17 +165,16 @@ end
 
 function DevTool.ToUIString(value, name, withoutLineBrakes)
 	local result
-	value = DevTool.secretToString(value)
 	local valueType = type(value)
 
 	if valueType == "table" then
-		result = DevTool.GetObjectInfoFromWoWAPI(name, value) or tostring(value)
+		result = DevTool.GetObjectInfoFromWoWAPI(name, value) or DevTool.secretToString(value)
 		result = "(" .. DevTool.CountElements(value) .. ") " .. result
 	else
-		result = tostring(value)
+		result = DevTool.secretToString(value)
 	end
 
-	if withoutLineBrakes then
+	if withoutLineBrakes and not DevTool.isSecret(result) then
 		result = string.gsub(string.gsub(tostring(result), "|n", ""), "\n", "")
 	end
 
@@ -247,7 +246,7 @@ function DevTool.GetObjectInfoFromWoWAPI(helperText, value)
 
 		resultStr = concat(texture)
 		resultStr = concat(text, "'", "'")
-		resultStr = concat(tostring(value))
+		resultStr = concat(DevTool.secretToString(value))
 	end
 
 	return resultStr
@@ -323,9 +322,9 @@ function DevTool.isSecret(value)
 	return false
 end
 
-function DevTool.secretToString(value)
+function DevTool.secretToString(value, withoutPrefix)
 	if DevTool.isSecret(value) then
-		return string.format("<SECRET %s>", type(value))
+		return string.format(withoutPrefix and "%s" or "<SECRET> %s", value)
 	end
 	return tostring(value)
 end
