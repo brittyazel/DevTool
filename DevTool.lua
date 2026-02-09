@@ -195,14 +195,26 @@ function DevTool:LoadSettings()
 	end
 
 	-- show in UI fn saved args if you have them
-	local args = ""
-	local delim = ""
-	for _, arg in pairs(self.db.profile.tArgs) do
-		args = tostring(arg) .. delim .. args
-		delim = ", "
+	local args = {}
+	local max = 1
+	for i, arg in pairs(self.db.profile.tArgs) do
+		max = math.max(i, max)
+	end
+	for i = 1, max do
+		local arg = self.db.profile.tArgs[i]
+		if arg == nil then
+			arg = "nil"
+		end
+		if arg == false then
+			arg = "false"
+		end
+		if arg == true then
+			arg = "true"
+		end
+		args[i] = arg
 	end
 
-	self.MainWindow.editbox:SetText(args)
+	self.MainWindow.editbox:SetText(table.concat(args, ", "))
 
 	-- setup events part 2 set scripts on frame to listen registered events
 	self:SetMonitorEventScript()
@@ -709,7 +721,7 @@ function DevTool:TryCallFunction(info)
 	-- info.value is just our function to call
 	local parent = DevTool.GetParentTable(info)
 	local fn = info.value
-	local args = { unpack(self.db.profile.tArgs) }
+	local args = CopyTable(self.db.profile.tArgs)
 	for k, v in pairs(args) do
 		if type(v) == "string" and v == "t=self" then
 			if not parent then
