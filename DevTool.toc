@@ -1,6 +1,7 @@
 ## Interface: 11508, 50503, 120000
 ## Title: DevTool
 ## Notes: A multipurpose tool to assist with addon development
+## Category: Development Tools
 ## IconTexture: Interface\Icons\inv_misc_gear_08
 ## Author: Britt W. Yazel
 ## Version: @project-version@
